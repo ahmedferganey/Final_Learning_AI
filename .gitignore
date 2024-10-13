@@ -1,1 +1,13 @@
-02_Programming_OOP/sql/
+# Ignore everything
+*
+
+# Allow the .gitignore file itself
+!.gitignore
+
+# Allow specific directories to be tracked
+!00_Mathmatics/
+!01_ComputerArchitecture_Linux_Networking/
+!02_Programming_OOP/
+!03_DataStructure_Algorithms_ProblemSolving/
+!04_Advanced_Mathmatics/
+
