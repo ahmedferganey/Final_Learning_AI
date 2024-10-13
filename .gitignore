@@ -11,3 +11,10 @@
 !03_DataStructure_Algorithms_ProblemSolving/
 !04_Advanced_Mathmatics/
 
+# Allow .gitkeep files
+!00_Mathmatics/.gitkeep
+!01_ComputerArchitecture_Linux_Networking/.gitkeep
+!02_Programming_OOP/.gitkeep
+!03_DataStructure_Algorithms_ProblemSolving/.gitkeep
+!04_Advanced_Mathmatics/.gitkeep
+
