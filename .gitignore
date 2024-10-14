@@ -18,3 +18,9 @@
 !03_DataStructure_Algorithms_ProblemSolving/.gitkeep
 !04_Advanced_Mathmatics/.gitkeep
 
+# Allow all files within the specified directories
+!00_Mathmatics/**
+!01_ComputerArchitecture_Linux_Networking/**
+!02_Programming_OOP/**
+!03_DataStructure_Algorithms_ProblemSolving/**
+!04_Advanced_Mathmatics/**
