@@ -1,0 +1,18 @@
+{
+  "employees": [
+      {
+          "fname": "ahmed",
+          "lname": "ferganey",
+          "age": 23,
+          "sex": "male",
+          "country": "egypt"
+      },
+      {
+          "fname": "alissa",
+          "lname": "johnson",
+          "age": 28,
+          "sex": "female",
+          "country": "usa"
+      }
+  ]
+}
