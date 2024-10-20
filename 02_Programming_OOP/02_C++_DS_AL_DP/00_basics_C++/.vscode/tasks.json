@@ -1,0 +1,1081 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "C++ Projects SubDirs",
+            "type": "shell",
+            "command": "echo Hello"
+        },
+        {
+            "type": "cppbuild",
+            "label": "build 0/0.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/0/0.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/0/0"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/0"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        },
+        {
+            "type": "cppbuild",
+            "label": "build 1/1.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/1/1.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/1/1"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/1"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        },
+        {
+            "type": "cppbuild",
+            "label": "build 2/2.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/2/2.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/2/2"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/2"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        },
+        {
+            "type": "cppbuild",
+            "label": "build 3/3.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/3/3.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/3/3"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/3"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        },
+        {
+            "type": "cppbuild",
+            "label": "build 4/4.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/4/4.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/4/4"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/4"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        },
+        {
+            "type": "cppbuild",
+            "label": "build 5/5.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/5/5.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/5/5"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/5"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        },
+        {
+            "type": "cppbuild",
+            "label": "build 6/6.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/6/6.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/6/6"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/6"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        },
+        {
+            "type": "cppbuild",
+            "label": "build 7/7.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/7/7.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/7/7"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/7"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        },
+        {
+            "type": "cppbuild",
+            "label": "build 8/8.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/8/8.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/8/8"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/8"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        },
+        {
+            "type": "cppbuild",
+            "label": "build 9/9.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/9/9.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/9/9"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/9"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        },
+        {
+            "type": "cppbuild",
+            "label": "build 10/10.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/10/10.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/10/10"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/10"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        },
+        {
+            "type": "cppbuild",
+            "label": "build 11/11.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/11/11.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/11/11"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/11"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        },
+        {
+            "type": "cppbuild",
+            "label": "build 12/12.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/12/12.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/12/12"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/12"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        },
+        {
+            "type": "cppbuild",
+            "label": "build 13/13.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/13/13.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/13/13"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/13"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        },
+        {
+            "type": "cppbuild",
+            "label": "build 14/14.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/14/14.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/14/14"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/14"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        },
+        {
+            "type": "cppbuild",
+            "label": "build 15/15.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/15/15.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/15/15"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/15"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        },
+        {
+            "type": "cppbuild",
+            "label": "build 16/16.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/16/16.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/16/16"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/16"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        },
+        {
+            "type": "cppbuild",
+            "label": "build 17/17.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/17/17.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/17/17"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/17"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        },
+        {
+            "type": "cppbuild",
+            "label": "build 18/18.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/18/18.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/18/18"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/18"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        },
+        {
+            "type": "cppbuild",
+            "label": "build 19/19.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/19/19.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/19/19"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/19"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        },
+        {
+            "type": "cppbuild",
+            "label": "build 20/20.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/20/20.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/20/20"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/20"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        },
+        {
+            "type": "cppbuild",
+            "label": "build 21/21.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/21/21.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/21/21"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/21"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        },
+        {
+            "type": "cppbuild",
+            "label": "build 22/22.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/22/22.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/22/22"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/22"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        },
+        {
+            "type": "cppbuild",
+            "label": "build 23/23.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/23/23.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/23/23"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/23"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        },
+        {
+            "type": "cppbuild",
+            "label": "build 24/24.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/24/24.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/24/24"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/24"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        },
+        {
+            "type": "cppbuild",
+            "label": "build 25/25.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/25/25.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/25/25"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/25"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        },
+        {
+            "type": "cppbuild",
+            "label": "build 26/26.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/26/26.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/26/26"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/26"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        },
+        {
+            "type": "cppbuild",
+            "label": "build 27/27.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/27/27.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/27/27"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/27"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        },
+        {
+            "type": "cppbuild",
+            "label": "build 28/28.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/28/28.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/28/28"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/28"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        },
+        {
+            "type": "cppbuild",
+            "label": "build 29/29.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/29/29.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/29/29"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/29"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        },
+        {
+            "type": "cppbuild",
+            "label": "build 30/30.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/30/30.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/30/30"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/30"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        },
+        {
+            "type": "cppbuild",
+            "label": "build 31/31.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/31/31.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/31/31"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/31"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        },
+        {
+            "type": "cppbuild",
+            "label": "build 32/32.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/32/32.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/32/32"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/32"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        },
+        {
+            "type": "cppbuild",
+            "label": "build 33/33.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/33/33.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/33/33"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/33"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        },
+        {
+            "type": "cppbuild",
+            "label": "build 34/34.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/34/34.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/34/34"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/34"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        },
+        {
+            "type": "cppbuild",
+            "label": "build 35/35.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/35/35.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/35/35"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/35"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        },
+        {
+            "type": "cppbuild",
+            "label": "build 36/36.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/36/36.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/36/36"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/36"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        },
+        {
+            "type": "cppbuild",
+            "label": "build 37/37.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/37/37.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/37/37"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/37"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        },
+        {
+            "type": "cppbuild",
+            "label": "build 38/38.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/38/38.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/38/38"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/38"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        },
+        {
+            "type": "cppbuild",
+            "label": "build 39/39.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/39/39.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/39/39"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/39"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        },
+        {
+            "type": "cppbuild",
+            "label": "build 40/40.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/40/40.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/40/40"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/40"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        },
+        {
+            "type": "cppbuild",
+            "label": "build 41/41.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/41/41.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/41/41"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/41"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        },
+        {
+            "type": "cppbuild",
+            "label": "build 42/42.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/42/42.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/42/42"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/42"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        },
+        {
+            "type": "cppbuild",
+            "label": "build 43/43.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/43/43.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/43/43"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/43"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        },
+        {
+            "type": "cppbuild",
+            "label": "build 44/44.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/44/44.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/44/44"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/44"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        },
+        {
+            "type": "cppbuild",
+            "label": "build 45/45.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/45/45.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/45/45"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/45"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        },
+        {
+            "type": "cppbuild",
+            "label": "build 46/46.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/46/46.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/46/46"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/46"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        },
+        {
+            "type": "cppbuild",
+            "label": "build 47/47.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/47/47.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/47/47"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/47"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        },
+        {
+            "type": "cppbuild",
+            "label": "build 48/48.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/48/48.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/48/48"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/48"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        },
+        {
+            "type": "cppbuild",
+            "label": "build 49/49.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/49/49.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/49/49"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/49"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        },
+        {
+            "type": "cppbuild",
+            "label": "build 50/50.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/50/50.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/50/50"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/00_basics_C++/50"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        }
+    ]
+}
