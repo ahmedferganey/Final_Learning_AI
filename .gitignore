@@ -26,6 +26,7 @@
 !04_Advanced_Mathmatics/**
 
 
-# Ignore the ahmed_samy directory and its contents
+# Ignore the directory and its contents
 02_Programming_OOP/Educational_files/ahmed_samy/
 03_DataStructure_Algorithms_ProblemSolving/ref/GitHubGrakonCodeExamples/
+02_Programming_OOP/02_C++_DS_AL_DP/The-C-20-Masterclass-Source-Code/
