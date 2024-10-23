@@ -68,6 +68,93 @@
             ],
             "group": "build",
             "detail": "compiler: /usr/bin/g++-13"
-        }              
+        } ,    
+        {
+            "type": "cppbuild",
+            "label": "build 01_OOP_C++/03_Encapsulation/Example_1/Example_1.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/01_OOP_C++/03_Encapsulation/Example_1/Example_1.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/01_OOP_C++/03_Encapsulation/Example_1/Example_1"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/01_OOP_C++/03_Encapsulation/Example_1"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        } ,
+        {
+            "type": "cppbuild",
+            "label": "build 01_OOP_C++/01_Inheritance/Example_1/Example_1.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/01_OOP_C++/01_Inheritance/Example_1/Example_1.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/01_OOP_C++/01_Inheritance/Example_1/Example_1"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/01_OOP_C++/01_Inheritance/Example_1"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        } ,
+        {
+            "type": "cppbuild",
+            "label": "build 01_OOP_C++/01_Inheritance/Example_2/Example_2.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/01_OOP_C++/01_Inheritance/Example_2/Example_2.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/01_OOP_C++/01_Inheritance/Example_2/Example_2"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/01_OOP_C++/01_Inheritance/Example_2"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        },
+
+        {
+            "type": "cppbuild",
+            "label": "build 01_OOP_C++/02_Polymorphism/Example_1/Example_1.cpp",
+            "command": "/usr/bin/g++-13",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++20",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/01_OOP_C++/02_Polymorphism/Example_1/Example_1.cpp",
+                "-o",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/01_OOP_C++/02_Polymorphism/Example_1/Example_1"
+            ],
+            "options": {
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/01_OOP_C++/02_Polymorphism/Example_1"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "compiler: /usr/bin/g++-13"
+        }             
+        
+
     ]
 }

@@ -8,6 +8,7 @@
 using namespace std;
 
 class Car {       // The class
+    int Manuf_year = 5; // private member 
   public:             // Access specifier
     string myString;  // Attribute (string variable)
     string brand;   
@@ -30,6 +31,9 @@ class Car {       // The class
     int speedinsideclass(int maxSpeed){ // Method/function declaration na deifinition
           return maxSpeed;
     }
+
+  private:
+    int id_num; // private member 
 };
 
 // Car::Car(string x, string y, string z, int w){  
@@ -54,6 +58,8 @@ int main() {
 
     Car carObj3("Tesla", "X5", "ahmed", 2017);
     Car carObj4("MCV", "Mustang", "mariam", 2019);
+
+    // cout << carObj4.Manuf_year << "\n"; // Not allowed (private)
 
     return 0;
 }
