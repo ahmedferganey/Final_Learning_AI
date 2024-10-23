@@ -2,6 +2,8 @@
 
 # Define the main directory containing your C++ examples
 MAIN_DIR="/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/01_OOP_C++"
+
+# Define the output tasks.json file location
 TASKS_FILE="$MAIN_DIR/.vscode/tasks.json"
 
 # Create or overwrite the tasks.json file
@@ -28,40 +30,36 @@ dirs=(
     "07_Operator_Overloading"
     "08_Templates"
     "09_Virtual_Functions"
-    "10_OOP_Projects"  # Added to include your new project folder
 )
 
-# Loop through each directory and its subdirectories
+# Loop through each directory and subdirectory
 for dir in "${dirs[@]}"; do
-    for subdir in "$MAIN_DIR/$dir"/*/; do
-        # Check if the directory contains any .cpp files
-        for cpp_file in "$subdir"*.cpp; do
-            if [ -f "$cpp_file" ]; then
-                # Get the base name of the file and the output executable name
-                base_name=$(basename "$cpp_file" .cpp)
-                output_executable="$subdir$base_name"
-                output_log="$subdir/build_output.txt"
+    for i in {1..5}; do
+        subdir="Example_$i"
+        example_cpp="$MAIN_DIR/$dir/$subdir/$subdir.cpp"
+        example_out="$MAIN_DIR/$dir/$subdir/$subdir"
+        output_log="$MAIN_DIR/$dir/$subdir/build_output.txt"
 
-                # Append a new task for each .cpp file in tasks.json
-                cat << EOF >> "$TASKS_FILE"
+        # Append a new task for each Example_1.cpp in each directory
+        cat << EOF >> "$TASKS_FILE"
         {
             "type": "cppbuild",
-            "label": "build $dir/$base_name",
+            "label": "build $dir/$subdir/$subdir.cpp",
             "command": "/usr/bin/g++-13",
             "args": [
                 "-fdiagnostics-color=always",
                 "-g",
                 "-std=c++20",
-                "$cpp_file",
+                "$example_cpp",
                 "-o",
-                "$output_executable",
+                "$example_out",
                 "2>&1",
                 "|",
                 "tee",
                 "$output_log"
             ],
             "options": {
-                "cwd": "$subdir"
+                "cwd": "$MAIN_DIR/$dir/$subdir"
             },
             "problemMatcher": [
                 "\$gcc"
@@ -70,8 +68,6 @@ for dir in "${dirs[@]}"; do
             "detail": "compiler: /usr/bin/g++-13"
         },
 EOF
-            fi
-        done
     done
 done
 
