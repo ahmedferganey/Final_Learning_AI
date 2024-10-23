@@ -8,16 +8,20 @@
 using namespace std;
 
 class Car {       // The class
+
   public:             // Access specifier
     int year;        // Attribute (int variable)
     string myString;  // Attribute (string variable)
     string brand;   
     string model;
 
+
     int speedoutsideclass(int maxSpeed); // Method/function declaration
     int speedinsideclass(int maxSpeed){ // Method/function declaration na deifinition
           return maxSpeed;
     }
+  private:
+    int id_num; // private member    
 };
 
 
