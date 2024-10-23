@@ -25,6 +25,8 @@
 !03_DataStructure_Algorithms_ProblemSolving/**
 !04_Advanced_Mathmatics/**
 
+# Allow the file to be tracked
+!/media/ferganey/Data/00_Main_Folder/Followed_RoadMap.ipynb
 
 # Ignore the directory and its contents
 02_Programming_OOP/Educational_files/ahmed_samy/
