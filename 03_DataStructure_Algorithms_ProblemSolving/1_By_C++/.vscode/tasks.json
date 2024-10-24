@@ -1,0 +1,185 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "BinarySearch Task",
+      "type": "shell",
+      "command": "echo Running BinarySearch"
+    },
+    {
+      "type": "cppbuild",
+      "label": "BinarySearch.cpp",
+      "command": "/usr/bin/g++-13",
+      "args": [
+        "-fdiagnostics-color=always",
+        "-g",
+        "-std=c++20",
+        "/media/ferganey/Data/00_Main_Folder/03_DataStructure_Algorithms_ProblemSolving/1_By_C++/BinarySearch/BinarySearch.cpp",
+        "-o",
+        "/media/ferganey/Data/00_Main_Folder/03_DataStructure_Algorithms_ProblemSolving/1_By_C++/BinarySearch/BinarySearch",
+        "2>&1",
+        "|",
+        "tee",
+        "/media/ferganey/Data/00_Main_Folder/03_DataStructure_Algorithms_ProblemSolving/1_By_C++/BinarySearch/BinarySearch.txt"
+      ],
+      "options": {
+        "cwd": "/media/ferganey/Data/00_Main_Folder/03_DataStructure_Algorithms_ProblemSolving/1_By_C++/BinarySearch"
+      },
+      "problemMatcher": [
+        "$gcc"
+      ],
+      "group": "build",
+      "detail": "compiler: /usr/bin/g++-13"
+    },
+    {
+      "label": "MergeSort Task",
+      "type": "shell",
+      "command": "echo Running MergeSort"
+    },
+    {
+      "type": "cppbuild",
+      "label": "MergeSort.cpp",
+      "command": "/usr/bin/g++-13",
+      "args": [
+        "-fdiagnostics-color=always",
+        "-g",
+        "-std=c++20",
+        "/media/ferganey/Data/00_Main_Folder/03_DataStructure_Algorithms_ProblemSolving/1_By_C++/MergeSort/MergeSort.cpp",
+        "-o",
+        "/media/ferganey/Data/00_Main_Folder/03_DataStructure_Algorithms_ProblemSolving/1_By_C++/MergeSort/MergeSort",
+        "2>&1",
+        "|",
+        "tee",
+        "/media/ferganey/Data/00_Main_Folder/03_DataStructure_Algorithms_ProblemSolving/1_By_C++/MergeSort/MergeSort.txt"
+      ],
+      "options": {
+        "cwd": "/media/ferganey/Data/00_Main_Folder/03_DataStructure_Algorithms_ProblemSolving/1_By_C++/MergeSort"
+      },
+      "problemMatcher": [
+        "$gcc"
+      ],
+      "group": "build",
+      "detail": "compiler: /usr/bin/g++-13"
+    },
+    {
+      "label": "QuickSort Task",
+      "type": "shell",
+      "command": "echo Running QuickSort"
+    },
+    {
+      "type": "cppbuild",
+      "label": "QuickSort.cpp",
+      "command": "/usr/bin/g++-13",
+      "args": [
+        "-fdiagnostics-color=always",
+        "-g",
+        "-std=c++20",
+        "/media/ferganey/Data/00_Main_Folder/03_DataStructure_Algorithms_ProblemSolving/1_By_C++/QuickSort/QuickSort.cpp",
+        "-o",
+        "/media/ferganey/Data/00_Main_Folder/03_DataStructure_Algorithms_ProblemSolving/1_By_C++/QuickSort/QuickSort",
+        "2>&1",
+        "|",
+        "tee",
+        "/media/ferganey/Data/00_Main_Folder/03_DataStructure_Algorithms_ProblemSolving/1_By_C++/QuickSort/QuickSort.txt"
+      ],
+      "options": {
+        "cwd": "/media/ferganey/Data/00_Main_Folder/03_DataStructure_Algorithms_ProblemSolving/1_By_C++/QuickSort"
+      },
+      "problemMatcher": [
+        "$gcc"
+      ],
+      "group": "build",
+      "detail": "compiler: /usr/bin/g++-13"
+    },
+    {
+      "label": "LinkedList Task",
+      "type": "shell",
+      "command": "echo Running LinkedList"
+    },
+    {
+      "type": "cppbuild",
+      "label": "LinkedList.cpp",
+      "command": "/usr/bin/g++-13",
+      "args": [
+        "-fdiagnostics-color=always",
+        "-g",
+        "-std=c++20",
+        "/media/ferganey/Data/00_Main_Folder/03_DataStructure_Algorithms_ProblemSolving/1_By_C++/LinkedList/LinkedList.cpp",
+        "-o",
+        "/media/ferganey/Data/00_Main_Folder/03_DataStructure_Algorithms_ProblemSolving/1_By_C++/LinkedList/LinkedList",
+        "2>&1",
+        "|",
+        "tee",
+        "/media/ferganey/Data/00_Main_Folder/03_DataStructure_Algorithms_ProblemSolving/1_By_C++/LinkedList/LinkedList.txt"
+      ],
+      "options": {
+        "cwd": "/media/ferganey/Data/00_Main_Folder/03_DataStructure_Algorithms_ProblemSolving/1_By_C++/LinkedList"
+      },
+      "problemMatcher": [
+        "$gcc"
+      ],
+      "group": "build",
+      "detail": "compiler: /usr/bin/g++-13"
+    },
+    {
+      "label": "BinaryTree Task",
+      "type": "shell",
+      "command": "echo Running BinaryTree"
+    },
+    {
+      "type": "cppbuild",
+      "label": "BinaryTree.cpp",
+      "command": "/usr/bin/g++-13",
+      "args": [
+        "-fdiagnostics-color=always",
+        "-g",
+        "-std=c++20",
+        "/media/ferganey/Data/00_Main_Folder/03_DataStructure_Algorithms_ProblemSolving/1_By_C++/BinaryTree/BinaryTree.cpp",
+        "-o",
+        "/media/ferganey/Data/00_Main_Folder/03_DataStructure_Algorithms_ProblemSolving/1_By_C++/BinaryTree/BinaryTree",
+        "2>&1",
+        "|",
+        "tee",
+        "/media/ferganey/Data/00_Main_Folder/03_DataStructure_Algorithms_ProblemSolving/1_By_C++/BinaryTree/BinaryTree.txt"
+      ],
+      "options": {
+        "cwd": "/media/ferganey/Data/00_Main_Folder/03_DataStructure_Algorithms_ProblemSolving/1_By_C++/BinaryTree"
+      },
+      "problemMatcher": [
+        "$gcc"
+      ],
+      "group": "build",
+      "detail": "compiler: /usr/bin/g++-13"
+    },
+    {
+      "label": "GraphTraversal Task",
+      "type": "shell",
+      "command": "echo Running GraphTraversal"
+    },
+    {
+      "type": "cppbuild",
+      "label": "GraphTraversal.cpp",
+      "command": "/usr/bin/g++-13",
+      "args": [
+        "-fdiagnostics-color=always",
+        "-g",
+        "-std=c++20",
+        "/media/ferganey/Data/00_Main_Folder/03_DataStructure_Algorithms_ProblemSolving/1_By_C++/GraphTraversal/GraphTraversal.cpp",
+        "-o",
+        "/media/ferganey/Data/00_Main_Folder/03_DataStructure_Algorithms_ProblemSolving/1_By_C++/GraphTraversal/GraphTraversal",
+        "2>&1",
+        "|",
+        "tee",
+        "/media/ferganey/Data/00_Main_Folder/03_DataStructure_Algorithms_ProblemSolving/1_By_C++/GraphTraversal/GraphTraversal.txt"
+      ],
+      "options": {
+        "cwd": "/media/ferganey/Data/00_Main_Folder/03_DataStructure_Algorithms_ProblemSolving/1_By_C++/GraphTraversal"
+      },
+      "problemMatcher": [
+        "$gcc"
+      ],
+      "group": "build",
+      "detail": "compiler: /usr/bin/g++-13"
+    }
+  ]
+}
