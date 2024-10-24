@@ -21,6 +21,10 @@ class Sensor{
         virtual void processData(const vector<double>& filteredData){
             std::cout << "Processing filtered data." << std::endl;
         }
+        // method to check for obstacles (default implementation)
+        virtual bool checkForObstacles(){
+            return false; // no obstacles detected by default
+        }
         virtual ~Sensor() = default; // virtual destructor for proper cleanup
 };
 
@@ -28,6 +32,7 @@ class Sensor{
 // derived class for camera
 class Camera : public Sensor{
     public:
+        bool obstacleDetected = false; // Track if an obstacle is detected
         void detect() override{
             cout << "detecting objects with camera" << endl;
         }
@@ -73,12 +78,16 @@ class Camera : public Sensor{
             std::cout << "Mean pixel intensity: " << mean << std::endl;
             std::cout << "Standard deviation: " << stdev << std::endl;            
         }
+        bool checkForObstacles() override {
+            return obstacleDetected;
+        } 
 
 };
 
 // derived class for lidar
-class lidar : public Sensor{
-    public: 
+class Lidar : public Sensor{
+    public:
+        bool obstacleDetected = false; // track if an obstacle is detected 
         double calibrationoffset = 0.5; // calibration offset in meters
         double noiseThreshold = 0.1;    // noise threshold in meters
 
@@ -119,12 +128,16 @@ class lidar : public Sensor{
                 std::cout << "Filtered distance measurement " << i + 1 << ": " << filteredDistance[i] << " meters" << std::endl;
             }
         }
+        bool checkForObstacles() override{
+            return obstacleDetected;
+        }
 
 };
 
 // derived class for ultrasonic
-class ultrasonic : public Sensor{
+class Ultrasonic : public Sensor{
     public:
+        bool obstacleDetected = false; // Track if an obstacle is detected
         void detect() override {
             std::cout << "Detecting proximity with Ultrasonic sensor." << std::endl;
         }
@@ -135,69 +148,63 @@ class ultrasonic : public Sensor{
                     std::cout << "Obstacle detected at index " << i << " within " << distanceData[i] << " meters!" << std::endl;
                 }
             }
-        }      
+        }   
+        bool checkForObstacles() override {
+            return obstacleDetected;
+        }            
+};
+
+
+// central control function to decide actions based on sensor data
+void decisionMaking(Sensor* sensors[], char numSensors){
+    bool anyObstacleDetected = false;
+    for (int i = 0; i < numSensors; ++i){
+        if (sensors[i]->checkForObstacles()){
+            anyObstacleDetected = true;
+            break;
+        }
+    }
+    if (anyObstacleDetected) {
+        std::cout << "Decision: Obstacle detected! Take action!" << std::endl;
+    } else {
+        std::cout << "Decision: No obstacles detected. Continue operation." << std::endl;
+    }
 };
 
 int main() {
-    cout << "Hello from Project_1!" << endl;
-/*
-
-    // Step 1: Simulate image data capture (e.g., pixel intensity values) // gotten via CAN Bus
-    vector<int> imageData = {100, 102, 98, 120, 110, 95, 115, 125, 130, 140};
-
-    // Step 2: Instantiate the Camera object
-    Camera camera;
-
-    // Step 3: Detect objects (edges) in the image data
-    camera.detect();
-
-    // Step 4: Process the raw image data
-    camera.processData(imageData);
-
-    // Step 5: Simulate filtered data for further processing
-    vector<double> filteredData = {100.5, 101.5, 98.0, 119.0, 109.5, 94.5, 114.0, 124.0, 129.0, 139.0};
-
-    // Step 6: Process the filtered camera data
-    camera.processData(filteredData);
-
-
-    lidar lidar;
-    lidar.detect();
-
-    // Simulated distance data
-    std::vector<double> distanceData = {10, 12, 15, 200, -5, 8, 25, 120, 50};
-
-    // Process the distance data
-    lidar.processData(distanceData);
-*/
+     cout << "Hello from Project_1!" << endl;
 
     Sensor* sensors[3];
     sensors[0] = new Camera();
-    sensors[1] = new lidar();
-    sensors[2] = new ultrasonic();
+    sensors[1] = new Lidar();
+    sensors[2] = new Ultrasonic();
 
-        // Simulated sensor data
-    vector<double> imageData = {100, 102, 90, 115, 120}; // Simulated pixel values for camera
+    // Simulated sensor data
+    vector<int> imageData = {100, 102, 90, 115, 120}; // Simulated pixel values for camera
     vector<double> lidarData = {5, 6, 3, 200, 10}; // Distance measurements for lidar
     vector<double> ultrasonicData = {6, 3, 4, 2, 1}; // Proximity measurements for ultrasonic
 
     // Simulate detection and data processing
-    for (int i =0; i < 3; ++i){
+    for (int i = 0; i < 3; ++i) {
         sensors[i]->detect();
-        switch(i){
+        switch (i) {
             case 0:
-                    sensors[i]->processData(imageData); // process camera data
-                    break;
+                sensors[i]->processData(imageData); // Process camera data
+                break;
             case 1:  
-                    sensors[i]->processData(lidarData); // process lidar Data
-                    break;
+                sensors[i]->processData(lidarData); // Process lidar data
+                break;
             case 2: 
-                    sensors[i]->processData(ultrasonicData); // process ultrasonic Data
-                    break;
+                sensors[i]->processData(ultrasonicData); // Process ultrasonic data
+                break;
         }
     }
 
-    for (int i=0; i<3; ++i){
+    // Make a decision based on sensor data
+    decisionMaking(sensors, 3);
+
+    // Clean up
+    for (int i = 0; i < 3; ++i) {
         delete sensors[i];
     }
 
