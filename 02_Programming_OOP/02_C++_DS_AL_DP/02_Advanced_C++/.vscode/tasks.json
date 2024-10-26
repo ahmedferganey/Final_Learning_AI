@@ -14,12 +14,12 @@
                 "-fdiagnostics-color=always",
                 "-g",
                 "-std=c++20",
-                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/02_DS_AL_DP_PS/00_Text_Preprocessing/preprocessing.cpp",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/02_Advanced_C++/00_Text_Preprocessing/preprocessing.cpp",
                 "-o",
-                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/02_DS_AL_DP_PS/00_Text_Preprocessing/preprocessing"
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/02_Advanced_C++/00_Text_Preprocessing/preprocessing"
             ],
             "options": {
-                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/02_DS_AL_DP_PS/00_Text_Preprocessing"
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/02_Advanced_C++/00_Text_Preprocessing"
             },
             "problemMatcher": [
                 "$gcc"
@@ -40,12 +40,12 @@
                 "-fdiagnostics-color=always",
                 "-g",
                 "-std=c++20",
-                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/02_DS_AL_DP_PS/01_Embedded_System_Logger/embedded_SYS_Logger.cpp",
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/02_Advanced_C++/01_Embedded_System_Logger/embedded_SYS_Logger.cpp",
                 "-o",
-                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/02_DS_AL_DP_PS/01_Embedded_System_Logger/embedded_SYS_Logger"
+                "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/02_Advanced_C++/01_Embedded_System_Logger/embedded_SYS_Logger"
             ],
             "options": {
-                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/02_DS_AL_DP_PS/01_Embedded_System_Logger"
+                "cwd": "/media/ferganey/Data/00_Main_Folder/02_Programming_OOP/02_C++_DS_AL_DP/02_Advanced_C++/01_Embedded_System_Logger"
             },
             "problemMatcher": [
                 "$gcc"
