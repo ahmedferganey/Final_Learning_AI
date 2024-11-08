@@ -8,23 +8,17 @@
 !01_ComputerArchitecture_Linux_Networking/
 !02_Programming_OOP/
 !03_DataStructure_Algorithms_ProblemSolving/
-!04_Advanced_Mathmatics/
 !Shared_For_ALL/
-!00_Mathematics/
 
 # Allow .gitkeep files
 !01_ComputerArchitecture_Linux_Networking/.gitkeep
 !02_Programming_OOP/.gitkeep
 !03_DataStructure_Algorithms_ProblemSolving/.gitkeep
-!04_Advanced_Mathmatics/.gitkeep
-!00_Mathematics/.gitkeep
 
 # Allow all files within the specified directories
 !01_ComputerArchitecture_Linux_Networking/**
 !02_Programming_OOP/**
 !03_DataStructure_Algorithms_ProblemSolving/**
-!04_Advanced_Mathmatics/**
-!00_Mathematics/**
 
 # Allow the file to be tracked
 !/media/ferganey/Data/00_Main_Folder/Followed_RoadMap.ipynb
@@ -35,7 +29,6 @@
 02_Programming_OOP/02_C++_DS_AL_DP/The-C-20-Masterclass-Source-Code/
 /Shared_For_ALL/repos
 02_Programming_OOP/01_Python/stackoverflow-developer-survey-2020
-08_DeepLearning_NeuralNetwork/ref/pytorch-deep-learning/
 
 # Ignore the C++ Primer (5th Edition).pdf file
 02_Programming_OOP/02_C++_DS_AL_DP/01_OOP_C++/C++ Primer (5th Edition).pdf
