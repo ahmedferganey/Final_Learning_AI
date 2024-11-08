@@ -26,3 +26,9 @@
 !02_Programming_OOP/**
 !03_DataStructure_Algorithms_ProblemSolving/**
 !20_AI_Track_Projects/**
+
+
+# Ignore the directory and its contents
+06_DeepLearning_NeuralNetwork/ref/**
+
+
