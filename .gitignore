@@ -5,37 +5,21 @@
 !.gitignore
 
 # Allow specific directories to be tracked
-!01_ComputerArchitecture_Linux_Networking/
-!02_Programming_OOP/
-!03_DataStructure_Algorithms_ProblemSolving/
-!Shared_For_ALL/
 !05_Machine_Learning/
 
 
 
 # Allow .gitkeep files
-!01_ComputerArchitecture_Linux_Networking/.gitkeep
-!02_Programming_OOP/.gitkeep
-!03_DataStructure_Algorithms_ProblemSolving/.gitkeep
 !05_Machine_Learning/.gitkeep
 
 
 # Allow all files within the specified directories
-!01_ComputerArchitecture_Linux_Networking/**
-!02_Programming_OOP/**
-!03_DataStructure_Algorithms_ProblemSolving/**
 !05_Machine_Learning/**
 
 # Allow the file to be tracked
-!/media/ferganey/Data/00_Main_Folder/Followed_RoadMap.ipynb
+
 
 # Ignore the directory and its contents
-02_Programming_OOP/Educational_files/ahmed_samy/
-03_DataStructure_Algorithms_ProblemSolving/ref/GitHubGrakonCodeExamples/
-02_Programming_OOP/02_C++_DS_AL_DP/The-C-20-Masterclass-Source-Code/
-/Shared_For_ALL/repos
-02_Programming_OOP/01_Python/stackoverflow-developer-survey-2020
-08_DeepLearning_NeuralNetwork/ref/pytorch-deep-learning/
 
 # Ignore the C++ Primer (5th Edition).pdf file
-02_Programming_OOP/02_C++_DS_AL_DP/01_OOP_C++/C++ Primer (5th Edition).pdf
+
