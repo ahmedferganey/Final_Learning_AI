@@ -11,6 +11,9 @@
 !03_DataStructure_Algorithms_ProblemSolving/
 !04_Advanced_Mathmatics/
 !Shared_For_ALL/
+!04_Machine_Learning/
+
+
 
 # Allow .gitkeep files
 !00_Mathmatics/.gitkeep
@@ -18,6 +21,8 @@
 !02_Programming_OOP/.gitkeep
 !03_DataStructure_Algorithms_ProblemSolving/.gitkeep
 !04_Advanced_Mathmatics/.gitkeep
+!04_Machine_Learning/.gitkeep
+
 
 # Allow all files within the specified directories
 !00_Mathmatics/**
@@ -25,6 +30,7 @@
 !02_Programming_OOP/**
 !03_DataStructure_Algorithms_ProblemSolving/**
 !04_Advanced_Mathmatics/**
+!04_Machine_Learning/**
 
 # Allow the file to be tracked
 !/media/ferganey/Data/00_Main_Folder/Followed_RoadMap.ipynb
