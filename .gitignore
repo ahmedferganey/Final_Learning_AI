@@ -19,10 +19,10 @@
 !01_ComputerArchitecture_Linux_Networking/.gitkeep
 !02_Programming_OOP/.gitkeep
 !03_DataStructure_Algorithms_ProblemSolving/.gitkeep
-!01_AI_Track_Projects/.gitkeep
+!20_AI_Track_Projects/.gitkeep
 
 # Allow all files within the specified directories
 !01_ComputerArchitecture_Linux_Networking/**
 !02_Programming_OOP/**
 !03_DataStructure_Algorithms_ProblemSolving/**
-!01_AI_Track_Projects/**
+!20_AI_Track_Projects/**
