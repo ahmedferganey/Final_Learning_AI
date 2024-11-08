@@ -9,16 +9,20 @@
 !02_Programming_OOP/
 !03_DataStructure_Algorithms_ProblemSolving/
 !Shared_For_ALL/
+!/media/ferganey/Data1/03_Projects/Final_Learning_AI-Projects/01_AI_Track_Projects
 
 # Allow .gitkeep files
 !01_ComputerArchitecture_Linux_Networking/.gitkeep
 !02_Programming_OOP/.gitkeep
 !03_DataStructure_Algorithms_ProblemSolving/.gitkeep
+!/media/ferganey/Data1/03_Projects/Final_Learning_AI-Projects/01_AI_Track_Projects/.gitkeep
 
 # Allow all files within the specified directories
 !01_ComputerArchitecture_Linux_Networking/**
 !02_Programming_OOP/**
 !03_DataStructure_Algorithms_ProblemSolving/**
+!/media/ferganey/Data1/03_Projects/Final_Learning_AI-Projects/01_AI_Track_Projects/**
+
 
 # Allow the file to be tracked
 !/media/ferganey/Data/00_Main_Folder/Followed_RoadMap.ipynb
