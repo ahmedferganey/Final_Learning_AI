@@ -5,31 +5,25 @@
 !.gitignore
 
 # Allow specific directories to be tracked
-!00_Mathmatics/
 !01_ComputerArchitecture_Linux_Networking/
 !02_Programming_OOP/
 !03_DataStructure_Algorithms_ProblemSolving/
-!04_Advanced_Mathmatics/
 !Shared_For_ALL/
-!00_Mathematics
+!04_Mathematics/
 
 
 
 # Allow .gitkeep files
-!00_Mathmatics/.gitkeep
 !01_ComputerArchitecture_Linux_Networking/.gitkeep
 !02_Programming_OOP/.gitkeep
 !03_DataStructure_Algorithms_ProblemSolving/.gitkeep
-!04_Advanced_Mathmatics/.gitkeep
-!00_Mathematics/.gitkeep
+!04_Mathematics/.gitkeep
 
 # Allow all files within the specified directories
-!00_Mathmatics/**
 !01_ComputerArchitecture_Linux_Networking/**
 !02_Programming_OOP/**
 !03_DataStructure_Algorithms_ProblemSolving/**
-!04_Advanced_Mathmatics/**
-!00_Mathematics/**
+!04_Mathematics/**
 
 # Allow the file to be tracked
 !/media/ferganey/Data/00_Main_Folder/Followed_RoadMap.ipynb
