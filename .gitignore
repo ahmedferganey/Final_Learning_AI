@@ -18,8 +18,7 @@
 
 
 # Allow the file to be tracked
-!/media/ferganey/Data/00_Main_Folder/Followed_RoadMap.ipynb
+
 
 # Ignore the directory and its contents
 
-# Ignore the C++ Primer (5th Edition).pdf file
