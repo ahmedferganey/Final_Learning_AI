@@ -6,12 +6,17 @@
 
 # Allow specific directories to be tracked
 !04_Mathematics/
+!07_Mathematics_Generative_Models/
+
 
 # Allow .gitkeep files
 !04_Mathematics/.gitkeep
+!07_Mathematics_Generative_Models/.gitkeep
+
 
 # Allow all files within the specified directories
 !04_Mathematics/**
+!07_Mathematics_Generative_Models/**
 
 # Allow the file to be tracked
 
