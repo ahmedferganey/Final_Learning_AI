@@ -7,8 +7,6 @@
 # Allow specific directories to be tracked
 !15_GenerativeAI/
 
-
-
 # Allow .gitkeep files
 !15_GenerativeAI/.gitkeep
 
