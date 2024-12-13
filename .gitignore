@@ -1,0 +1,12 @@
+# Ignore everything by default
+*
+
+# Allow .gitignore itself
+!.gitignore
+
+# Allow all directories
+!*/
+
+# Ignore the specific directory: 15_GenerativeAI/Ref
+15_GenerativeAI/Ref/
+
