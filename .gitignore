@@ -1,12 +1,25 @@
-# Ignore everything by default
+# Ignore everything
 *
 
-# Allow .gitignore itself
+# Allow the .gitignore file itself
 !.gitignore
 
-# Allow all directories
-!*/
+# Allow specific directories to be tracked
+!15_GenerativeAI/
 
-# Ignore the specific directory: 15_GenerativeAI/Ref
-15_GenerativeAI/Ref/
+
+
+# Allow .gitkeep files
+!15_GenerativeAI/.gitkeep
+
+
+# Allow all files within the specified directories
+!15_GenerativeAI/**
+
+# Allow the file to be tracked
+
+
+# Ignore the directory and its contents
+
+# Ignore the C++ Primer (5th Edition).pdf file
 
