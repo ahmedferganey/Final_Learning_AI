@@ -5,11 +5,11 @@
 !.gitignore
 
 # Allow specific directories to be tracked
-!20_AI_Track_Projects/
-
+!00_DataAnalysisProject/
+!01_CustomerSegmentation_ML/
 # Allow .gitkeep files
-!20_AI_Track_Projects/.gitkeep
-
+!00_DataAnalysisProject/.gitkeep
+!01_CustomerSegmentation_ML/.gitkeep
 # Allow all files within the specified directories
-!20_AI_Track_Projects/**
-
+!00_DataAnalysisProject/**
+!01_CustomerSegmentation_ML/**
