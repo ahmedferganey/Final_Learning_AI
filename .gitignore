@@ -18,3 +18,9 @@
 !00_DataAnalysisProject/**
 !01_CustomerSegmentation_ML/**
 !02_DeepLearning_Projects/**
+
+
+# Ignore a specific directory
+/media/ferganey/Data1/03_Projects/Final_Learning_AI-Projects/02_DeepLearning_Projects/00_Speech_Recognition_RasPi_ContainerzedApp/02_Ref/**
+
+
