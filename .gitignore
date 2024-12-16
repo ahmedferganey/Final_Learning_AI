@@ -1,24 +1,25 @@
-# Ignore only this specific directory and all its subdirectories
-/media/ferganey/Data1/03_Projects/Final_Learning_AI-Projects/02_DeepLearning_Projects/00_Speech_Recognition_RasPi_ContainerzedApp/02_Ref/
+# Ignore the specific directory and its subdirectories
+/media/ferganey/Data1/03_Projects/Final_Learning_AI-Projects/02_DeepLearning_Projects/02_Ref/
 
+# Ignore quantized_model files
 quantized_model.pth
 
-# Allow specific directories to be tracked
+# Allow tracking specific top-level directories
 !00_DataAnalysisProject/
 !01_CustomerSegmentation_ML/
 !02_DeepLearning_Projects/
 
-# Allow .gitkeep files
+# Allow all .gitkeep files inside these specific directories
 !00_DataAnalysisProject/.gitkeep
 !01_CustomerSegmentation_ML/.gitkeep
 !02_DeepLearning_Projects/.gitkeep
 
-# Allow all files within the specified directories
+# Allow all content inside those directories explicitly
 !00_DataAnalysisProject/**
 !01_CustomerSegmentation_ML/**
 !02_DeepLearning_Projects/**
 
-# Allow tracking everything else under the main directory
+# Allow tracking the entire project directory structure at the top level
 !/media/ferganey/Data1/03_Projects/Final_Learning_AI-Projects/
 !/media/ferganey/Data1/03_Projects/Final_Learning_AI-Projects/**
 
