@@ -1,8 +1,7 @@
-# Ignore everything
-*
+# Ignore only this specific directory and all its subdirectories
+/media/ferganey/Data1/03_Projects/Final_Learning_AI-Projects/02_DeepLearning_Projects/00_Speech_Recognition_RasPi_ContainerzedApp/02_Ref/
 
-# Allow the .gitignore file itself
-!.gitignore
+quantized_model.pth
 
 # Allow specific directories to be tracked
 !00_DataAnalysisProject/
@@ -19,8 +18,7 @@
 !01_CustomerSegmentation_ML/**
 !02_DeepLearning_Projects/**
 
-
-# Ignore a specific directory
-/media/ferganey/Data1/03_Projects/Final_Learning_AI-Projects/02_DeepLearning_Projects/00_Speech_Recognition_RasPi_ContainerzedApp/02_Ref/**
-
+# Allow tracking everything else under the main directory
+!/media/ferganey/Data1/03_Projects/Final_Learning_AI-Projects/
+!/media/ferganey/Data1/03_Projects/Final_Learning_AI-Projects/**
 
