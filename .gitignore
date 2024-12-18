@@ -8,28 +8,42 @@
 !01_ComputerArchitecture_Linux_Networking/
 !02_Programming_OOP/
 !03_DataStructure_Algorithms_ProblemSolving/
+!04_Mathematics/
 !Shared_For_ALL/
 !Plans/
+!05_Machine_Learning/
+!06_DeepLearning_NeuralNetwork/
+!07_Mathematics_Generative_Models/
+!Final_Learning_AI-Projects/
 
-# Ignore unwanted directories
-02_Programming_OOP/02_C++_DS_AL_DP/The-C-20-Masterclass-Source-Code/
-02_Programming_OOP/Educational_files/ahmed_samy/
-03_DataStructure_Algorithms_ProblemSolving/ref/GitHubGrakonCodeExamples/
 
 # Allow .gitkeep files
 !01_ComputerArchitecture_Linux_Networking/.gitkeep
 !02_Programming_OOP/.gitkeep
 !03_DataStructure_Algorithms_ProblemSolving/.gitkeep
-
+!04_Mathematics/.gitkeep
 !Plans/.gitkeep
+!05_Machine_Learning/.gitkeep
+!06_DeepLearning_NeuralNetwork/.gitkeep
+!07_Mathematics_Generative_Models/.gitkeep
+!Final_Learning_AI-Projects/.gitkeep
 
 # Allow all files within the specified directories
 !01_ComputerArchitecture_Linux_Networking/**
 !02_Programming_OOP/**
 !03_DataStructure_Algorithms_ProblemSolving/**
 !Plans/**
+!04_Mathematics/**
+!05_Machine_Learning/**
+!06_DeepLearning_NeuralNetwork/**
+!07_Mathematics_Generative_Models/**
+!Final_Learning_AI-Projects/**
+
+# Ignore unwanted directories
+02_Programming_OOP/02_C++_DS_AL_DP/The-C-20-Masterclass-Source-Code/
+02_Programming_OOP/Educational_files/ahmed_samy/
+03_DataStructure_Algorithms_ProblemSolving/ref/GitHubGrakonCodeExamples/
 
 # Ignore the directory and its contents
-
 03_DataStructure_Algorithms_ProblemSolving/ref/MIT/**
 
