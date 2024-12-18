@@ -20,7 +20,7 @@
 !01_ComputerArchitecture_Linux_Networking/.gitkeep
 !02_Programming_OOP/.gitkeep
 !03_DataStructure_Algorithms_ProblemSolving/.gitkeep
-!20_AI_Track_Projects/.gitkeep
+
 !Plans/.gitkeep
 
 # Allow all files within the specified directories
@@ -30,6 +30,6 @@
 !Plans/**
 
 # Ignore the directory and its contents
-06_DeepLearning_NeuralNetwork/ref/**
+
 03_DataStructure_Algorithms_ProblemSolving/ref/MIT/**
 
