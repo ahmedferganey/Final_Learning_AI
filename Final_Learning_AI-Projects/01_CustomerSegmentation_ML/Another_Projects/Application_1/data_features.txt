@@ -1,0 +1,1021 @@
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 756 entries, 0 to 755
+Data columns (total 20 columns):
+ #   Column              Non-Null Count  Dtype  
+---  ------              --------------  -----  
+ 0   id                  756 non-null    int64  
+ 1   gender              756 non-null    int64  
+ 2   PPE                 756 non-null    float64
+ 3   DFA                 756 non-null    float64
+ 4   RPDE                755 non-null    float64
+ 5   numPulses           755 non-null    float64
+ 6   numPeriodsPulses    755 non-null    float64
+ 7   meanPeriodPulses    755 non-null    float64
+ 8   stdDevPeriodPulses  755 non-null    float64
+ 9   locPctJitter        755 non-null    float64
+ 10  locAbsJitter        754 non-null    float64
+ 11  rapJitter           755 non-null    float64
+ 12  ppq5Jitter          754 non-null    float64
+ 13  ddpJitter           755 non-null    float64
+ 14  locShimmer          755 non-null    float64
+ 15  locDbShimmer        755 non-null    object 
+ 16  apq3Shimmer         755 non-null    float64
+ 17  apq5Shimmer         755 non-null    float64
+ 18  apq11Shimmer        755 non-null    float64
+ 19  ddaShimmer          755 non-null    float64
+dtypes: float64(17), int64(2), object(1)
+memory usage: 118.2+ KB
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 756 entries, 0 to 755
+Data columns (total 20 columns):
+ #   Column                      Non-Null Count  Dtype  
+---  ------                      --------------  -----  
+ 0   meanAutoCorrHarmonicity     755 non-null    float64
+ 1   meanNoiseToHarmHarmonicity  754 non-null    float64
+ 2   meanHarmToNoiseHarmonicity  755 non-null    float64
+ 3   minIntensity                755 non-null    float64
+ 4   maxIntensity                755 non-null    object 
+ 5   meanIntensity               755 non-null    float64
+ 6   f1                          755 non-null    float64
+ 7   f2                          755 non-null    float64
+ 8   f3                          755 non-null    float64
+ 9   f4                          755 non-null    float64
+ 10  b1                          755 non-null    float64
+ 11  b2                          755 non-null    float64
+ 12  b3                          755 non-null    float64
+ 13  b4                          755 non-null    float64
+ 14  GQ_prc5_95                  755 non-null    float64
+ 15  GQ_std_cycle_open           755 non-null    float64
+ 16  GQ_std_cycle_closed         755 non-null    float64
+ 17  GNE_mean                    755 non-null    float64
+ 18  GNE_std                     755 non-null    float64
+ 19  GNE_SNR_TKEO                755 non-null    float64
+dtypes: float64(19), object(1)
+memory usage: 118.2+ KB
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 756 entries, 0 to 755
+Data columns (total 20 columns):
+ #   Column              Non-Null Count  Dtype  
+---  ------              --------------  -----  
+ 0   GNE_SNR_SEO         755 non-null    float64
+ 1   GNE_NSR_TKEO        755 non-null    float64
+ 2   GNE_NSR_SEO         755 non-null    float64
+ 3   VFER_mean           754 non-null    float64
+ 4   VFER_std            754 non-null    float64
+ 5   VFER_entropy        754 non-null    float64
+ 6   VFER_SNR_TKEO       754 non-null    float64
+ 7   VFER_SNR_SEO        754 non-null    float64
+ 8   VFER_NSR_TKEO       754 non-null    float64
+ 9   VFER_NSR_SEO        754 non-null    float64
+ 10  IMF_SNR_SEO         754 non-null    float64
+ 11  IMF_SNR_TKEO        754 non-null    float64
+ 12  IMF_SNR_entropy     754 non-null    float64
+ 13  IMF_NSR_SEO         754 non-null    float64
+ 14  IMF_NSR_TKEO        754 non-null    float64
+ 15  IMF_NSR_entropy     754 non-null    float64
+ 16  mean_Log_energy     754 non-null    float64
+ 17  mean_MFCC_0th_coef  754 non-null    float64
+ 18  mean_MFCC_1st_coef  754 non-null    float64
+ 19  mean_MFCC_2nd_coef  754 non-null    float64
+dtypes: float64(20)
+memory usage: 118.2 KB
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 756 entries, 0 to 755
+Data columns (total 20 columns):
+ #   Column                 Non-Null Count  Dtype  
+---  ------                 --------------  -----  
+ 0   mean_MFCC_3rd_coef     754 non-null    float64
+ 1   mean_MFCC_4th_coef     754 non-null    float64
+ 2   mean_MFCC_5th_coef     754 non-null    float64
+ 3   mean_MFCC_6th_coef     754 non-null    float64
+ 4   mean_MFCC_7th_coef     754 non-null    float64
+ 5   mean_MFCC_8th_coef     754 non-null    float64
+ 6   mean_MFCC_9th_coef     754 non-null    float64
+ 7   mean_MFCC_10th_coef    754 non-null    float64
+ 8   mean_MFCC_11th_coef    754 non-null    float64
+ 9   mean_MFCC_12th_coef    754 non-null    float64
+ 10  mean_delta_log_energy  754 non-null    float64
+ 11  mean_0th_delta         754 non-null    float64
+ 12  mean_1st_delta         754 non-null    float64
+ 13  mean_2nd_delta         754 non-null    float64
+ 14  mean_3rd_delta         754 non-null    float64
+ 15  mean_4th_delta         754 non-null    float64
+ 16  mean_5th_delta         754 non-null    float64
+ 17  mean_6th_delta         754 non-null    float64
+ 18  mean_7th_delta         754 non-null    float64
+ 19  mean_8th_delta         754 non-null    float64
+dtypes: float64(20)
+memory usage: 118.2 KB
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 756 entries, 0 to 755
+Data columns (total 20 columns):
+ #   Column                       Non-Null Count  Dtype  
+---  ------                       --------------  -----  
+ 0   mean_9th_delta               754 non-null    float64
+ 1   mean_10th_delta              754 non-null    float64
+ 2   mean_11th_delta              754 non-null    float64
+ 3   mean_12th_delta              754 non-null    float64
+ 4   mean_delta_delta_log_energy  754 non-null    float64
+ 5   mean_delta_delta_0th         754 non-null    float64
+ 6   mean_1st_delta_delta         754 non-null    float64
+ 7   mean_2nd_delta_delta         754 non-null    float64
+ 8   mean_3rd_delta_delta         754 non-null    float64
+ 9   mean_4th_delta_delta         754 non-null    float64
+ 10  mean_5th_delta_delta         754 non-null    float64
+ 11  mean_6th_delta_delta         754 non-null    float64
+ 12  mean_7th_delta_delta         754 non-null    float64
+ 13  mean_8th_delta_delta         754 non-null    float64
+ 14  mean_9th_delta_delta         754 non-null    float64
+ 15  mean_10th_delta_delta        754 non-null    float64
+ 16  mean_11th_delta_delta        754 non-null    float64
+ 17  mean_12th_delta_delta        754 non-null    float64
+ 18  std_Log_energy               754 non-null    float64
+ 19  std_MFCC_0th_coef            754 non-null    float64
+dtypes: float64(20)
+memory usage: 118.2 KB
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 756 entries, 0 to 755
+Data columns (total 20 columns):
+ #   Column                Non-Null Count  Dtype  
+---  ------                --------------  -----  
+ 0   std_MFCC_1st_coef     754 non-null    float64
+ 1   std_MFCC_2nd_coef     754 non-null    float64
+ 2   std_MFCC_3rd_coef     754 non-null    float64
+ 3   std_MFCC_4th_coef     754 non-null    float64
+ 4   std_MFCC_5th_coef     754 non-null    float64
+ 5   std_MFCC_6th_coef     754 non-null    float64
+ 6   std_MFCC_7th_coef     754 non-null    float64
+ 7   std_MFCC_8th_coef     754 non-null    float64
+ 8   std_MFCC_9th_coef     754 non-null    float64
+ 9   std_MFCC_10th_coef    754 non-null    float64
+ 10  std_MFCC_11th_coef    754 non-null    float64
+ 11  std_MFCC_12th_coef    754 non-null    float64
+ 12  std_delta_log_energy  754 non-null    float64
+ 13  std_0th_delta         754 non-null    float64
+ 14  std_1st_delta         754 non-null    float64
+ 15  std_2nd_delta         754 non-null    float64
+ 16  std_3rd_delta         754 non-null    float64
+ 17  std_4th_delta         754 non-null    float64
+ 18  std_5th_delta         754 non-null    float64
+ 19  std_6th_delta         754 non-null    float64
+dtypes: float64(20)
+memory usage: 118.2 KB
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 756 entries, 0 to 755
+Data columns (total 20 columns):
+ #   Column                      Non-Null Count  Dtype  
+---  ------                      --------------  -----  
+ 0   std_7th_delta               754 non-null    float64
+ 1   std_8th_delta               754 non-null    float64
+ 2   std_9th_delta               754 non-null    float64
+ 3   std_10th_delta              754 non-null    float64
+ 4   std_11th_delta              754 non-null    float64
+ 5   std_12th_delta              754 non-null    float64
+ 6   std_delta_delta_log_energy  754 non-null    float64
+ 7   std_delta_delta_0th         754 non-null    float64
+ 8   std_1st_delta_delta         754 non-null    float64
+ 9   std_2nd_delta_delta         754 non-null    float64
+ 10  std_3rd_delta_delta         754 non-null    float64
+ 11  std_4th_delta_delta         754 non-null    float64
+ 12  std_5th_delta_delta         754 non-null    float64
+ 13  std_6th_delta_delta         754 non-null    float64
+ 14  std_7th_delta_delta         754 non-null    float64
+ 15  std_8th_delta_delta         754 non-null    float64
+ 16  std_9th_delta_delta         754 non-null    float64
+ 17  std_10th_delta_delta        754 non-null    float64
+ 18  std_11th_delta_delta        754 non-null    float64
+ 19  std_12th_delta_delta        754 non-null    float64
+dtypes: float64(20)
+memory usage: 118.2 KB
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 756 entries, 0 to 755
+Data columns (total 20 columns):
+ #   Column                      Non-Null Count  Dtype  
+---  ------                      --------------  -----  
+ 0   Ea                          754 non-null    float64
+ 1   Ed_1_coef                   754 non-null    float64
+ 2   Ed_2_coef                   754 non-null    float64
+ 3   Ed_3_coef                   754 non-null    float64
+ 4   Ed_4_coef                   754 non-null    float64
+ 5   Ed_5_coef                   754 non-null    float64
+ 6   Ed_6_coef                   754 non-null    float64
+ 7   Ed_7_coef                   754 non-null    float64
+ 8   Ed_8_coef                   754 non-null    float64
+ 9   Ed_9_coef                   754 non-null    float64
+ 10  Ed_10_coef                  754 non-null    float64
+ 11  det_entropy_shannon_1_coef  754 non-null    float64
+ 12  det_entropy_shannon_2_coef  754 non-null    float64
+ 13  det_entropy_shannon_3_coef  754 non-null    float64
+ 14  det_entropy_shannon_4_coef  754 non-null    float64
+ 15  det_entropy_shannon_5_coef  754 non-null    float64
+ 16  det_entropy_shannon_6_coef  754 non-null    float64
+ 17  det_entropy_shannon_7_coef  754 non-null    float64
+ 18  det_entropy_shannon_8_coef  754 non-null    float64
+ 19  det_entropy_shannon_9_coef  754 non-null    float64
+dtypes: float64(20)
+memory usage: 118.2 KB
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 756 entries, 0 to 755
+Data columns (total 20 columns):
+ #   Column                       Non-Null Count  Dtype  
+---  ------                       --------------  -----  
+ 0   det_entropy_shannon_10_coef  754 non-null    float64
+ 1   det_entropy_log_1_coef       754 non-null    float64
+ 2   det_entropy_log_2_coef       754 non-null    float64
+ 3   det_entropy_log_3_coef       754 non-null    float64
+ 4   det_entropy_log_4_coef       754 non-null    float64
+ 5   det_entropy_log_5_coef       754 non-null    float64
+ 6   det_entropy_log_6_coef       754 non-null    float64
+ 7   det_entropy_log_7_coef       754 non-null    float64
+ 8   det_entropy_log_8_coef       754 non-null    float64
+ 9   det_entropy_log_9_coef       754 non-null    float64
+ 10  det_entropy_log_10_coef      754 non-null    float64
+ 11  det_TKEO_mean_1_coef         754 non-null    float64
+ 12  det_TKEO_mean_2_coef         754 non-null    float64
+ 13  det_TKEO_mean_3_coef         754 non-null    float64
+ 14  det_TKEO_mean_4_coef         754 non-null    float64
+ 15  det_TKEO_mean_5_coef         754 non-null    float64
+ 16  det_TKEO_mean_6_coef         754 non-null    float64
+ 17  det_TKEO_mean_7_coef         754 non-null    float64
+ 18  det_TKEO_mean_8_coef         754 non-null    float64
+ 19  det_TKEO_mean_9_coef         754 non-null    float64
+dtypes: float64(20)
+memory usage: 118.2 KB
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 756 entries, 0 to 755
+Data columns (total 20 columns):
+ #   Column                      Non-Null Count  Dtype  
+---  ------                      --------------  -----  
+ 0   det_TKEO_mean_10_coef       754 non-null    float64
+ 1   det_TKEO_std_1_coef         754 non-null    float64
+ 2   det_TKEO_std_2_coef         754 non-null    float64
+ 3   det_TKEO_std_3_coef         754 non-null    float64
+ 4   det_TKEO_std_4_coef         754 non-null    float64
+ 5   det_TKEO_std_5_coef         754 non-null    float64
+ 6   det_TKEO_std_6_coef         754 non-null    float64
+ 7   det_TKEO_std_7_coef         754 non-null    float64
+ 8   det_TKEO_std_8_coef         754 non-null    float64
+ 9   det_TKEO_std_9_coef         754 non-null    float64
+ 10  det_TKEO_std_10_coef        754 non-null    float64
+ 11  app_entropy_shannon_1_coef  754 non-null    float64
+ 12  app_entropy_shannon_2_coef  754 non-null    float64
+ 13  app_entropy_shannon_3_coef  754 non-null    float64
+ 14  app_entropy_shannon_4_coef  754 non-null    float64
+ 15  app_entropy_shannon_5_coef  754 non-null    float64
+ 16  app_entropy_shannon_6_coef  754 non-null    float64
+ 17  app_entropy_shannon_7_coef  755 non-null    float64
+ 18  app_entropy_shannon_8_coef  756 non-null    float64
+ 19  app_entropy_shannon_9_coef  756 non-null    float64
+dtypes: float64(20)
+memory usage: 118.2 KB
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 756 entries, 0 to 755
+Data columns (total 20 columns):
+ #   Column                       Non-Null Count  Dtype  
+---  ------                       --------------  -----  
+ 0   app_entropy_shannon_10_coef  756 non-null    int64  
+ 1   app_entropy_log_1_coef       756 non-null    float64
+ 2   app_entropy_log_2_coef       756 non-null    float64
+ 3   app_entropy_log_3_coef       756 non-null    float64
+ 4   app_entropy_log_4_coef       756 non-null    float64
+ 5   app_entropy_log_5_coef       756 non-null    float64
+ 6   app_entropy_log_6_coef       756 non-null    float64
+ 7   app_entropy_log_7_coef       756 non-null    float64
+ 8   app_entropy_log_8_coef       756 non-null    float64
+ 9   app_entropy_log_9_coef       756 non-null    float64
+ 10  app_entropy_log_10_coef      756 non-null    float64
+ 11  app_det_TKEO_mean_1_coef     756 non-null    float64
+ 12  app_det_TKEO_mean_2_coef     756 non-null    float64
+ 13  app_det_TKEO_mean_3_coef     756 non-null    float64
+ 14  app_det_TKEO_mean_4_coef     756 non-null    float64
+ 15  app_det_TKEO_mean_5_coef     756 non-null    float64
+ 16  app_det_TKEO_mean_6_coef     756 non-null    float64
+ 17  app_det_TKEO_mean_7_coef     756 non-null    float64
+ 18  app_det_TKEO_mean_8_coef     756 non-null    float64
+ 19  app_det_TKEO_mean_9_coef     756 non-null    float64
+dtypes: float64(19), int64(1)
+memory usage: 118.2 KB
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 756 entries, 0 to 755
+Data columns (total 20 columns):
+ #   Column                     Non-Null Count  Dtype  
+---  ------                     --------------  -----  
+ 0   app_det_TKEO_mean_10_coef  756 non-null    float64
+ 1   app_TKEO_std_1_coef        756 non-null    float64
+ 2   app_TKEO_std_2_coef        756 non-null    float64
+ 3   app_TKEO_std_3_coef        756 non-null    float64
+ 4   app_TKEO_std_4_coef        756 non-null    float64
+ 5   app_TKEO_std_5_coef        756 non-null    float64
+ 6   app_TKEO_std_6_coef        756 non-null    float64
+ 7   app_TKEO_std_7_coef        756 non-null    float64
+ 8   app_TKEO_std_8_coef        756 non-null    float64
+ 9   app_TKEO_std_9_coef        756 non-null    float64
+ 10  app_TKEO_std_10_coef       756 non-null    float64
+ 11  Ea2                        756 non-null    float64
+ 12  Ed2_1_coef                 756 non-null    float64
+ 13  Ed2_2_coef                 756 non-null    float64
+ 14  Ed2_3_coef                 756 non-null    float64
+ 15  Ed2_4_coef                 756 non-null    float64
+ 16  Ed2_5_coef                 756 non-null    float64
+ 17  Ed2_6_coef                 756 non-null    float64
+ 18  Ed2_7_coef                 756 non-null    float64
+ 19  Ed2_8_coef                 756 non-null    float64
+dtypes: float64(20)
+memory usage: 118.2 KB
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 756 entries, 0 to 755
+Data columns (total 20 columns):
+ #   Column                          Non-Null Count  Dtype  
+---  ------                          --------------  -----  
+ 0   Ed2_9_coef                      756 non-null    float64
+ 1   Ed2_10_coef                     756 non-null    float64
+ 2   det_LT_entropy_shannon_1_coef   756 non-null    float64
+ 3   det_LT_entropy_shannon_2_coef   756 non-null    float64
+ 4   det_LT_entropy_shannon_3_coef   756 non-null    float64
+ 5   det_LT_entropy_shannon_4_coef   756 non-null    float64
+ 6   det_LT_entropy_shannon_5_coef   756 non-null    float64
+ 7   det_LT_entropy_shannon_6_coef   756 non-null    float64
+ 8   det_LT_entropy_shannon_7_coef   756 non-null    float64
+ 9   det_LT_entropy_shannon_8_coef   756 non-null    float64
+ 10  det_LT_entropy_shannon_9_coef   756 non-null    float64
+ 11  det_LT_entropy_shannon_10_coef  756 non-null    float64
+ 12  det_LT_entropy_log_1_coef       756 non-null    float64
+ 13  det_LT_entropy_log_2_coef       756 non-null    float64
+ 14  det_LT_entropy_log_3_coef       756 non-null    float64
+ 15  det_LT_entropy_log_4_coef       756 non-null    float64
+ 16  det_LT_entropy_log_5_coef       756 non-null    float64
+ 17  det_LT_entropy_log_6_coef       756 non-null    float64
+ 18  det_LT_entropy_log_7_coef       756 non-null    float64
+ 19  det_LT_entropy_log_8_coef       756 non-null    float64
+dtypes: float64(20)
+memory usage: 118.2 KB
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 756 entries, 0 to 755
+Data columns (total 20 columns):
+ #   Column                      Non-Null Count  Dtype  
+---  ------                      --------------  -----  
+ 0   det_LT_entropy_log_9_coef   756 non-null    float64
+ 1   det_LT_entropy_log_10_coef  756 non-null    float64
+ 2   det_LT_TKEO_mean_1_coef     756 non-null    float64
+ 3   det_LT_TKEO_mean_2_coef     756 non-null    float64
+ 4   det_LT_TKEO_mean_3_coef     756 non-null    float64
+ 5   det_LT_TKEO_mean_4_coef     756 non-null    float64
+ 6   det_LT_TKEO_mean_5_coef     756 non-null    float64
+ 7   det_LT_TKEO_mean_6_coef     756 non-null    float64
+ 8   det_LT_TKEO_mean_7_coef     756 non-null    float64
+ 9   det_LT_TKEO_mean_8_coef     756 non-null    float64
+ 10  det_LT_TKEO_mean_9_coef     756 non-null    float64
+ 11  det_LT_TKEO_mean_10_coef    756 non-null    float64
+ 12  det_LT_TKEO_std_1_coef      756 non-null    float64
+ 13  det_LT_TKEO_std_2_coef      756 non-null    float64
+ 14  det_LT_TKEO_std_3_coef      756 non-null    float64
+ 15  det_LT_TKEO_std_4_coef      756 non-null    float64
+ 16  det_LT_TKEO_std_5_coef      756 non-null    float64
+ 17  det_LT_TKEO_std_6_coef      222 non-null    float64
+ 18  det_LT_TKEO_std_7_coef      756 non-null    float64
+ 19  det_LT_TKEO_std_8_coef      756 non-null    float64
+dtypes: float64(20)
+memory usage: 118.2 KB
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 756 entries, 0 to 755
+Data columns (total 20 columns):
+ #   Column                          Non-Null Count  Dtype  
+---  ------                          --------------  -----  
+ 0   det_LT_TKEO_std_9_coef          756 non-null    float64
+ 1   det_LT_TKEO_std_10_coef         756 non-null    float64
+ 2   app_LT_entropy_shannon_1_coef   756 non-null    float64
+ 3   app_LT_entropy_shannon_2_coef   756 non-null    float64
+ 4   app_LT_entropy_shannon_3_coef   756 non-null    float64
+ 5   app_LT_entropy_shannon_4_coef   756 non-null    float64
+ 6   app_LT_entropy_shannon_5_coef   756 non-null    float64
+ 7   app_LT_entropy_shannon_6_coef   756 non-null    float64
+ 8   app_LT_entropy_shannon_7_coef   756 non-null    float64
+ 9   app_LT_entropy_shannon_8_coef   756 non-null    float64
+ 10  app_LT_entropy_shannon_9_coef   756 non-null    float64
+ 11  app_LT_entropy_shannon_10_coef  756 non-null    float64
+ 12  app_LT_entropy_log_1_coef       756 non-null    float64
+ 13  app_LT_entropy_log_2_coef       756 non-null    float64
+ 14  app_LT_entropy_log_3_coef       756 non-null    float64
+ 15  app_LT_entropy_log_4_coef       756 non-null    float64
+ 16  app_LT_entropy_log_5_coef       756 non-null    float64
+ 17  app_LT_entropy_log_6_coef       756 non-null    float64
+ 18  app_LT_entropy_log_7_coef       756 non-null    float64
+ 19  app_LT_entropy_log_8_coef       756 non-null    float64
+dtypes: float64(20)
+memory usage: 118.2 KB
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 756 entries, 0 to 755
+Data columns (total 20 columns):
+ #   Column                      Non-Null Count  Dtype  
+---  ------                      --------------  -----  
+ 0   app_LT_entropy_log_9_coef   756 non-null    float64
+ 1   app_LT_entropy_log_10_coef  756 non-null    float64
+ 2   app_LT_TKEO_mean_1_coef     756 non-null    float64
+ 3   app_LT_TKEO_mean_2_coef     756 non-null    float64
+ 4   app_LT_TKEO_mean_3_coef     756 non-null    float64
+ 5   app_LT_TKEO_mean_4_coef     756 non-null    float64
+ 6   app_LT_TKEO_mean_5_coef     756 non-null    float64
+ 7   app_LT_TKEO_mean_6_coef     756 non-null    float64
+ 8   app_LT_TKEO_mean_7_coef     756 non-null    float64
+ 9   app_LT_TKEO_mean_8_coef     756 non-null    float64
+ 10  app_LT_TKEO_mean_9_coef     756 non-null    float64
+ 11  app_LT_TKEO_mean_10_coef    756 non-null    float64
+ 12  app_LT_TKEO_std_1_coef      756 non-null    float64
+ 13  app_LT_TKEO_std_2_coef      756 non-null    float64
+ 14  app_LT_TKEO_std_3_coef      756 non-null    float64
+ 15  app_LT_TKEO_std_4_coef      756 non-null    float64
+ 16  app_LT_TKEO_std_5_coef      756 non-null    float64
+ 17  app_LT_TKEO_std_6_coef      756 non-null    float64
+ 18  app_LT_TKEO_std_7_coef      756 non-null    float64
+ 19  app_LT_TKEO_std_8_coef      756 non-null    float64
+dtypes: float64(20)
+memory usage: 118.2 KB
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 756 entries, 0 to 755
+Data columns (total 20 columns):
+ #   Column                   Non-Null Count  Dtype  
+---  ------                   --------------  -----  
+ 0   app_LT_TKEO_std_9_coef   756 non-null    float64
+ 1   app_LT_TKEO_std_10_coef  756 non-null    float64
+ 2   tqwt_energy_dec_1        756 non-null    float64
+ 3   tqwt_energy_dec_2        756 non-null    float64
+ 4   tqwt_energy_dec_3        756 non-null    float64
+ 5   tqwt_energy_dec_4        756 non-null    float64
+ 6   tqwt_energy_dec_5        756 non-null    float64
+ 7   tqwt_energy_dec_6        756 non-null    float64
+ 8   tqwt_energy_dec_7        756 non-null    float64
+ 9   tqwt_energy_dec_8        756 non-null    float64
+ 10  tqwt_energy_dec_9        756 non-null    float64
+ 11  tqwt_energy_dec_10       756 non-null    float64
+ 12  tqwt_energy_dec_11       756 non-null    float64
+ 13  tqwt_energy_dec_12       756 non-null    float64
+ 14  tqwt_energy_dec_13       756 non-null    float64
+ 15  tqwt_energy_dec_14       756 non-null    float64
+ 16  tqwt_energy_dec_15       756 non-null    float64
+ 17  tqwt_energy_dec_16       756 non-null    float64
+ 18  tqwt_energy_dec_17       756 non-null    float64
+ 19  tqwt_energy_dec_18       756 non-null    float64
+dtypes: float64(20)
+memory usage: 118.2 KB
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 756 entries, 0 to 755
+Data columns (total 20 columns):
+ #   Column                      Non-Null Count  Dtype  
+---  ------                      --------------  -----  
+ 0   tqwt_energy_dec_19          756 non-null    float64
+ 1   tqwt_energy_dec_20          756 non-null    float64
+ 2   tqwt_energy_dec_21          756 non-null    float64
+ 3   tqwt_energy_dec_22          756 non-null    float64
+ 4   tqwt_energy_dec_23          756 non-null    float64
+ 5   tqwt_energy_dec_24          756 non-null    float64
+ 6   tqwt_energy_dec_25          756 non-null    float64
+ 7   tqwt_energy_dec_26          756 non-null    float64
+ 8   tqwt_energy_dec_27          756 non-null    float64
+ 9   tqwt_energy_dec_28          756 non-null    float64
+ 10  tqwt_energy_dec_29          756 non-null    float64
+ 11  tqwt_energy_dec_30          756 non-null    float64
+ 12  tqwt_energy_dec_31          756 non-null    float64
+ 13  tqwt_energy_dec_32          756 non-null    float64
+ 14  tqwt_energy_dec_33          756 non-null    float64
+ 15  tqwt_energy_dec_34          756 non-null    float64
+ 16  tqwt_energy_dec_35          756 non-null    float64
+ 17  tqwt_energy_dec_36          756 non-null    float64
+ 18  tqwt_entropy_shannon_dec_1  756 non-null    float64
+ 19  tqwt_entropy_shannon_dec_2  756 non-null    float64
+dtypes: float64(20)
+memory usage: 118.2 KB
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 756 entries, 0 to 755
+Data columns (total 20 columns):
+ #   Column                       Non-Null Count  Dtype  
+---  ------                       --------------  -----  
+ 0   tqwt_entropy_shannon_dec_3   756 non-null    float64
+ 1   tqwt_entropy_shannon_dec_4   756 non-null    float64
+ 2   tqwt_entropy_shannon_dec_5   756 non-null    float64
+ 3   tqwt_entropy_shannon_dec_6   756 non-null    float64
+ 4   tqwt_entropy_shannon_dec_7   756 non-null    float64
+ 5   tqwt_entropy_shannon_dec_8   756 non-null    float64
+ 6   tqwt_entropy_shannon_dec_9   756 non-null    float64
+ 7   tqwt_entropy_shannon_dec_10  756 non-null    float64
+ 8   tqwt_entropy_shannon_dec_11  756 non-null    float64
+ 9   tqwt_entropy_shannon_dec_12  756 non-null    float64
+ 10  tqwt_entropy_shannon_dec_13  756 non-null    float64
+ 11  tqwt_entropy_shannon_dec_14  756 non-null    float64
+ 12  tqwt_entropy_shannon_dec_15  756 non-null    float64
+ 13  tqwt_entropy_shannon_dec_16  756 non-null    float64
+ 14  tqwt_entropy_shannon_dec_17  756 non-null    float64
+ 15  tqwt_entropy_shannon_dec_18  756 non-null    float64
+ 16  tqwt_entropy_shannon_dec_19  756 non-null    float64
+ 17  tqwt_entropy_shannon_dec_20  756 non-null    float64
+ 18  tqwt_entropy_shannon_dec_21  756 non-null    float64
+ 19  tqwt_entropy_shannon_dec_22  756 non-null    float64
+dtypes: float64(20)
+memory usage: 118.2 KB
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 756 entries, 0 to 755
+Data columns (total 20 columns):
+ #   Column                       Non-Null Count  Dtype  
+---  ------                       --------------  -----  
+ 0   tqwt_entropy_shannon_dec_23  756 non-null    float64
+ 1   tqwt_entropy_shannon_dec_24  756 non-null    float64
+ 2   tqwt_entropy_shannon_dec_25  756 non-null    float64
+ 3   tqwt_entropy_shannon_dec_26  756 non-null    float64
+ 4   tqwt_entropy_shannon_dec_27  756 non-null    float64
+ 5   tqwt_entropy_shannon_dec_28  756 non-null    float64
+ 6   tqwt_entropy_shannon_dec_29  756 non-null    float64
+ 7   tqwt_entropy_shannon_dec_30  756 non-null    float64
+ 8   tqwt_entropy_shannon_dec_31  756 non-null    float64
+ 9   tqwt_entropy_shannon_dec_32  756 non-null    float64
+ 10  tqwt_entropy_shannon_dec_33  756 non-null    float64
+ 11  tqwt_entropy_shannon_dec_34  756 non-null    float64
+ 12  tqwt_entropy_shannon_dec_35  756 non-null    float64
+ 13  tqwt_entropy_shannon_dec_36  756 non-null    float64
+ 14  tqwt_entropy_log_dec_1       756 non-null    float64
+ 15  tqwt_entropy_log_dec_2       756 non-null    float64
+ 16  tqwt_entropy_log_dec_3       756 non-null    float64
+ 17  tqwt_entropy_log_dec_4       756 non-null    float64
+ 18  tqwt_entropy_log_dec_5       756 non-null    float64
+ 19  tqwt_entropy_log_dec_6       756 non-null    float64
+dtypes: float64(20)
+memory usage: 118.2 KB
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 756 entries, 0 to 755
+Data columns (total 20 columns):
+ #   Column                   Non-Null Count  Dtype  
+---  ------                   --------------  -----  
+ 0   tqwt_entropy_log_dec_7   756 non-null    float64
+ 1   tqwt_entropy_log_dec_8   756 non-null    float64
+ 2   tqwt_entropy_log_dec_9   756 non-null    float64
+ 3   tqwt_entropy_log_dec_10  756 non-null    float64
+ 4   tqwt_entropy_log_dec_11  756 non-null    float64
+ 5   tqwt_entropy_log_dec_12  756 non-null    float64
+ 6   tqwt_entropy_log_dec_13  756 non-null    float64
+ 7   tqwt_entropy_log_dec_14  756 non-null    float64
+ 8   tqwt_entropy_log_dec_15  756 non-null    float64
+ 9   tqwt_entropy_log_dec_16  756 non-null    float64
+ 10  tqwt_entropy_log_dec_17  756 non-null    float64
+ 11  tqwt_entropy_log_dec_18  756 non-null    float64
+ 12  tqwt_entropy_log_dec_19  756 non-null    float64
+ 13  tqwt_entropy_log_dec_20  756 non-null    float64
+ 14  tqwt_entropy_log_dec_21  756 non-null    float64
+ 15  tqwt_entropy_log_dec_22  756 non-null    float64
+ 16  tqwt_entropy_log_dec_23  756 non-null    float64
+ 17  tqwt_entropy_log_dec_24  756 non-null    float64
+ 18  tqwt_entropy_log_dec_25  756 non-null    float64
+ 19  tqwt_entropy_log_dec_26  756 non-null    float64
+dtypes: float64(20)
+memory usage: 118.2 KB
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 756 entries, 0 to 755
+Data columns (total 20 columns):
+ #   Column                   Non-Null Count  Dtype  
+---  ------                   --------------  -----  
+ 0   tqwt_entropy_log_dec_27  756 non-null    float64
+ 1   tqwt_entropy_log_dec_28  756 non-null    float64
+ 2   tqwt_entropy_log_dec_29  756 non-null    float64
+ 3   tqwt_entropy_log_dec_30  756 non-null    float64
+ 4   tqwt_entropy_log_dec_31  756 non-null    float64
+ 5   tqwt_entropy_log_dec_32  756 non-null    float64
+ 6   tqwt_entropy_log_dec_33  756 non-null    float64
+ 7   tqwt_entropy_log_dec_34  756 non-null    float64
+ 8   tqwt_entropy_log_dec_35  756 non-null    float64
+ 9   tqwt_entropy_log_dec_36  756 non-null    float64
+ 10  tqwt_TKEO_mean_dec_1     756 non-null    float64
+ 11  tqwt_TKEO_mean_dec_2     756 non-null    float64
+ 12  tqwt_TKEO_mean_dec_3     756 non-null    float64
+ 13  tqwt_TKEO_mean_dec_4     756 non-null    float64
+ 14  tqwt_TKEO_mean_dec_5     756 non-null    float64
+ 15  tqwt_TKEO_mean_dec_6     756 non-null    float64
+ 16  tqwt_TKEO_mean_dec_7     756 non-null    float64
+ 17  tqwt_TKEO_mean_dec_8     756 non-null    float64
+ 18  tqwt_TKEO_mean_dec_9     756 non-null    float64
+ 19  tqwt_TKEO_mean_dec_10    756 non-null    float64
+dtypes: float64(20)
+memory usage: 118.2 KB
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 756 entries, 0 to 755
+Data columns (total 20 columns):
+ #   Column                 Non-Null Count  Dtype  
+---  ------                 --------------  -----  
+ 0   tqwt_TKEO_mean_dec_11  756 non-null    float64
+ 1   tqwt_TKEO_mean_dec_12  756 non-null    float64
+ 2   tqwt_TKEO_mean_dec_13  756 non-null    float64
+ 3   tqwt_TKEO_mean_dec_14  756 non-null    float64
+ 4   tqwt_TKEO_mean_dec_15  756 non-null    float64
+ 5   tqwt_TKEO_mean_dec_16  756 non-null    float64
+ 6   tqwt_TKEO_mean_dec_17  756 non-null    float64
+ 7   tqwt_TKEO_mean_dec_18  756 non-null    float64
+ 8   tqwt_TKEO_mean_dec_19  756 non-null    float64
+ 9   tqwt_TKEO_mean_dec_20  756 non-null    float64
+ 10  tqwt_TKEO_mean_dec_21  756 non-null    float64
+ 11  tqwt_TKEO_mean_dec_22  756 non-null    float64
+ 12  tqwt_TKEO_mean_dec_23  756 non-null    float64
+ 13  tqwt_TKEO_mean_dec_24  756 non-null    float64
+ 14  tqwt_TKEO_mean_dec_25  756 non-null    float64
+ 15  tqwt_TKEO_mean_dec_26  756 non-null    float64
+ 16  tqwt_TKEO_mean_dec_27  756 non-null    float64
+ 17  tqwt_TKEO_mean_dec_28  756 non-null    float64
+ 18  tqwt_TKEO_mean_dec_29  756 non-null    float64
+ 19  tqwt_TKEO_mean_dec_30  756 non-null    float64
+dtypes: float64(20)
+memory usage: 118.2 KB
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 756 entries, 0 to 755
+Data columns (total 20 columns):
+ #   Column                 Non-Null Count  Dtype  
+---  ------                 --------------  -----  
+ 0   tqwt_TKEO_mean_dec_31  756 non-null    float64
+ 1   tqwt_TKEO_mean_dec_32  756 non-null    float64
+ 2   tqwt_TKEO_mean_dec_33  756 non-null    float64
+ 3   tqwt_TKEO_mean_dec_34  756 non-null    float64
+ 4   tqwt_TKEO_mean_dec_35  756 non-null    float64
+ 5   tqwt_TKEO_mean_dec_36  756 non-null    float64
+ 6   tqwt_TKEO_std_dec_1    756 non-null    float64
+ 7   tqwt_TKEO_std_dec_2    756 non-null    float64
+ 8   tqwt_TKEO_std_dec_3    756 non-null    float64
+ 9   tqwt_TKEO_std_dec_4    756 non-null    float64
+ 10  tqwt_TKEO_std_dec_5    756 non-null    float64
+ 11  tqwt_TKEO_std_dec_6    756 non-null    float64
+ 12  tqwt_TKEO_std_dec_7    756 non-null    float64
+ 13  tqwt_TKEO_std_dec_8    756 non-null    float64
+ 14  tqwt_TKEO_std_dec_9    756 non-null    float64
+ 15  tqwt_TKEO_std_dec_10   756 non-null    float64
+ 16  tqwt_TKEO_std_dec_11   756 non-null    float64
+ 17  tqwt_TKEO_std_dec_12   756 non-null    float64
+ 18  tqwt_TKEO_std_dec_13   756 non-null    float64
+ 19  tqwt_TKEO_std_dec_14   756 non-null    float64
+dtypes: float64(20)
+memory usage: 118.2 KB
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 756 entries, 0 to 755
+Data columns (total 20 columns):
+ #   Column                Non-Null Count  Dtype  
+---  ------                --------------  -----  
+ 0   tqwt_TKEO_std_dec_15  756 non-null    float64
+ 1   tqwt_TKEO_std_dec_16  756 non-null    float64
+ 2   tqwt_TKEO_std_dec_17  756 non-null    float64
+ 3   tqwt_TKEO_std_dec_18  756 non-null    float64
+ 4   tqwt_TKEO_std_dec_19  756 non-null    float64
+ 5   tqwt_TKEO_std_dec_20  756 non-null    float64
+ 6   tqwt_TKEO_std_dec_21  756 non-null    float64
+ 7   tqwt_TKEO_std_dec_22  756 non-null    float64
+ 8   tqwt_TKEO_std_dec_23  756 non-null    float64
+ 9   tqwt_TKEO_std_dec_24  756 non-null    float64
+ 10  tqwt_TKEO_std_dec_25  756 non-null    float64
+ 11  tqwt_TKEO_std_dec_26  756 non-null    float64
+ 12  tqwt_TKEO_std_dec_27  756 non-null    float64
+ 13  tqwt_TKEO_std_dec_28  756 non-null    float64
+ 14  tqwt_TKEO_std_dec_29  756 non-null    float64
+ 15  tqwt_TKEO_std_dec_30  756 non-null    float64
+ 16  tqwt_TKEO_std_dec_31  756 non-null    float64
+ 17  tqwt_TKEO_std_dec_32  756 non-null    float64
+ 18  tqwt_TKEO_std_dec_33  756 non-null    float64
+ 19  tqwt_TKEO_std_dec_34  756 non-null    float64
+dtypes: float64(20)
+memory usage: 118.2 KB
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 756 entries, 0 to 755
+Data columns (total 20 columns):
+ #   Column                   Non-Null Count  Dtype  
+---  ------                   --------------  -----  
+ 0   tqwt_TKEO_std_dec_35     756 non-null    float64
+ 1   tqwt_TKEO_std_dec_36     756 non-null    float64
+ 2   tqwt_medianValue_dec_1   756 non-null    float64
+ 3   tqwt_medianValue_dec_2   756 non-null    float64
+ 4   tqwt_medianValue_dec_3   756 non-null    float64
+ 5   tqwt_medianValue_dec_4   756 non-null    float64
+ 6   tqwt_medianValue_dec_5   756 non-null    float64
+ 7   tqwt_medianValue_dec_6   756 non-null    float64
+ 8   tqwt_medianValue_dec_7   756 non-null    float64
+ 9   tqwt_medianValue_dec_8   756 non-null    float64
+ 10  tqwt_medianValue_dec_9   756 non-null    float64
+ 11  tqwt_medianValue_dec_10  756 non-null    float64
+ 12  tqwt_medianValue_dec_11  756 non-null    float64
+ 13  tqwt_medianValue_dec_12  756 non-null    float64
+ 14  tqwt_medianValue_dec_13  756 non-null    float64
+ 15  tqwt_medianValue_dec_14  756 non-null    float64
+ 16  tqwt_medianValue_dec_15  756 non-null    float64
+ 17  tqwt_medianValue_dec_16  756 non-null    float64
+ 18  tqwt_medianValue_dec_17  756 non-null    float64
+ 19  tqwt_medianValue_dec_18  756 non-null    float64
+dtypes: float64(20)
+memory usage: 118.2 KB
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 756 entries, 0 to 755
+Data columns (total 20 columns):
+ #   Column                   Non-Null Count  Dtype  
+---  ------                   --------------  -----  
+ 0   tqwt_medianValue_dec_19  756 non-null    float64
+ 1   tqwt_medianValue_dec_20  756 non-null    float64
+ 2   tqwt_medianValue_dec_21  756 non-null    float64
+ 3   tqwt_medianValue_dec_22  756 non-null    float64
+ 4   tqwt_medianValue_dec_23  756 non-null    float64
+ 5   tqwt_medianValue_dec_24  756 non-null    float64
+ 6   tqwt_medianValue_dec_25  756 non-null    float64
+ 7   tqwt_medianValue_dec_26  756 non-null    float64
+ 8   tqwt_medianValue_dec_27  756 non-null    float64
+ 9   tqwt_medianValue_dec_28  756 non-null    float64
+ 10  tqwt_medianValue_dec_29  756 non-null    float64
+ 11  tqwt_medianValue_dec_30  756 non-null    float64
+ 12  tqwt_medianValue_dec_31  756 non-null    float64
+ 13  tqwt_medianValue_dec_32  756 non-null    float64
+ 14  tqwt_medianValue_dec_33  756 non-null    float64
+ 15  tqwt_medianValue_dec_34  756 non-null    float64
+ 16  tqwt_medianValue_dec_35  756 non-null    float64
+ 17  tqwt_medianValue_dec_36  756 non-null    float64
+ 18  tqwt_meanValue_dec_1     756 non-null    float64
+ 19  tqwt_meanValue_dec_2     756 non-null    float64
+dtypes: float64(20)
+memory usage: 118.2 KB
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 756 entries, 0 to 755
+Data columns (total 20 columns):
+ #   Column                 Non-Null Count  Dtype  
+---  ------                 --------------  -----  
+ 0   tqwt_meanValue_dec_3   756 non-null    float64
+ 1   tqwt_meanValue_dec_4   756 non-null    float64
+ 2   tqwt_meanValue_dec_5   756 non-null    float64
+ 3   tqwt_meanValue_dec_6   756 non-null    float64
+ 4   tqwt_meanValue_dec_7   756 non-null    float64
+ 5   tqwt_meanValue_dec_8   756 non-null    float64
+ 6   tqwt_meanValue_dec_9   756 non-null    float64
+ 7   tqwt_meanValue_dec_10  756 non-null    float64
+ 8   tqwt_meanValue_dec_11  756 non-null    float64
+ 9   tqwt_meanValue_dec_12  756 non-null    float64
+ 10  tqwt_meanValue_dec_13  756 non-null    float64
+ 11  tqwt_meanValue_dec_14  756 non-null    float64
+ 12  tqwt_meanValue_dec_15  756 non-null    float64
+ 13  tqwt_meanValue_dec_16  756 non-null    float64
+ 14  tqwt_meanValue_dec_17  756 non-null    float64
+ 15  tqwt_meanValue_dec_18  756 non-null    float64
+ 16  tqwt_meanValue_dec_19  756 non-null    float64
+ 17  tqwt_meanValue_dec_20  756 non-null    float64
+ 18  tqwt_meanValue_dec_21  756 non-null    float64
+ 19  tqwt_meanValue_dec_22  756 non-null    float64
+dtypes: float64(20)
+memory usage: 118.2 KB
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 756 entries, 0 to 755
+Data columns (total 20 columns):
+ #   Column                 Non-Null Count  Dtype  
+---  ------                 --------------  -----  
+ 0   tqwt_meanValue_dec_23  756 non-null    float64
+ 1   tqwt_meanValue_dec_24  756 non-null    float64
+ 2   tqwt_meanValue_dec_25  756 non-null    float64
+ 3   tqwt_meanValue_dec_26  756 non-null    float64
+ 4   tqwt_meanValue_dec_27  756 non-null    float64
+ 5   tqwt_meanValue_dec_28  756 non-null    float64
+ 6   tqwt_meanValue_dec_29  756 non-null    float64
+ 7   tqwt_meanValue_dec_30  756 non-null    float64
+ 8   tqwt_meanValue_dec_31  756 non-null    float64
+ 9   tqwt_meanValue_dec_32  756 non-null    float64
+ 10  tqwt_meanValue_dec_33  756 non-null    float64
+ 11  tqwt_meanValue_dec_34  756 non-null    float64
+ 12  tqwt_meanValue_dec_35  756 non-null    float64
+ 13  tqwt_meanValue_dec_36  756 non-null    float64
+ 14  tqwt_stdValue_dec_1    756 non-null    float64
+ 15  tqwt_stdValue_dec_2    756 non-null    float64
+ 16  tqwt_stdValue_dec_3    756 non-null    float64
+ 17  tqwt_stdValue_dec_4    756 non-null    float64
+ 18  tqwt_stdValue_dec_5    756 non-null    float64
+ 19  tqwt_stdValue_dec_6    756 non-null    float64
+dtypes: float64(20)
+memory usage: 118.2 KB
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 756 entries, 0 to 755
+Data columns (total 20 columns):
+ #   Column                Non-Null Count  Dtype  
+---  ------                --------------  -----  
+ 0   tqwt_stdValue_dec_7   756 non-null    float64
+ 1   tqwt_stdValue_dec_8   756 non-null    float64
+ 2   tqwt_stdValue_dec_9   756 non-null    float64
+ 3   tqwt_stdValue_dec_10  756 non-null    float64
+ 4   tqwt_stdValue_dec_11  756 non-null    float64
+ 5   tqwt_stdValue_dec_12  756 non-null    float64
+ 6   tqwt_stdValue_dec_13  756 non-null    float64
+ 7   tqwt_stdValue_dec_14  756 non-null    float64
+ 8   tqwt_stdValue_dec_15  756 non-null    float64
+ 9   tqwt_stdValue_dec_16  756 non-null    float64
+ 10  tqwt_stdValue_dec_17  756 non-null    float64
+ 11  tqwt_stdValue_dec_18  756 non-null    float64
+ 12  tqwt_stdValue_dec_19  756 non-null    float64
+ 13  tqwt_stdValue_dec_20  756 non-null    float64
+ 14  tqwt_stdValue_dec_21  756 non-null    float64
+ 15  tqwt_stdValue_dec_22  756 non-null    float64
+ 16  tqwt_stdValue_dec_23  756 non-null    float64
+ 17  tqwt_stdValue_dec_24  756 non-null    float64
+ 18  tqwt_stdValue_dec_25  756 non-null    float64
+ 19  tqwt_stdValue_dec_26  756 non-null    float64
+dtypes: float64(20)
+memory usage: 118.2 KB
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 756 entries, 0 to 755
+Data columns (total 20 columns):
+ #   Column                Non-Null Count  Dtype  
+---  ------                --------------  -----  
+ 0   tqwt_stdValue_dec_27  756 non-null    float64
+ 1   tqwt_stdValue_dec_28  756 non-null    float64
+ 2   tqwt_stdValue_dec_29  756 non-null    float64
+ 3   tqwt_stdValue_dec_30  756 non-null    float64
+ 4   tqwt_stdValue_dec_31  756 non-null    float64
+ 5   tqwt_stdValue_dec_32  756 non-null    float64
+ 6   tqwt_stdValue_dec_33  756 non-null    float64
+ 7   tqwt_stdValue_dec_34  756 non-null    float64
+ 8   tqwt_stdValue_dec_35  756 non-null    float64
+ 9   tqwt_stdValue_dec_36  756 non-null    float64
+ 10  tqwt_minValue_dec_1   756 non-null    float64
+ 11  tqwt_minValue_dec_2   756 non-null    float64
+ 12  tqwt_minValue_dec_3   756 non-null    float64
+ 13  tqwt_minValue_dec_4   756 non-null    float64
+ 14  tqwt_minValue_dec_5   756 non-null    float64
+ 15  tqwt_minValue_dec_6   756 non-null    float64
+ 16  tqwt_minValue_dec_7   756 non-null    float64
+ 17  tqwt_minValue_dec_8   756 non-null    float64
+ 18  tqwt_minValue_dec_9   756 non-null    float64
+ 19  tqwt_minValue_dec_10  756 non-null    float64
+dtypes: float64(20)
+memory usage: 118.2 KB
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 756 entries, 0 to 755
+Data columns (total 20 columns):
+ #   Column                Non-Null Count  Dtype  
+---  ------                --------------  -----  
+ 0   tqwt_minValue_dec_11  756 non-null    float64
+ 1   tqwt_minValue_dec_12  756 non-null    float64
+ 2   tqwt_minValue_dec_13  756 non-null    float64
+ 3   tqwt_minValue_dec_14  756 non-null    float64
+ 4   tqwt_minValue_dec_15  756 non-null    float64
+ 5   tqwt_minValue_dec_16  756 non-null    float64
+ 6   tqwt_minValue_dec_17  756 non-null    float64
+ 7   tqwt_minValue_dec_18  756 non-null    float64
+ 8   tqwt_minValue_dec_19  756 non-null    float64
+ 9   tqwt_minValue_dec_20  756 non-null    float64
+ 10  tqwt_minValue_dec_21  756 non-null    float64
+ 11  tqwt_minValue_dec_22  756 non-null    float64
+ 12  tqwt_minValue_dec_23  756 non-null    float64
+ 13  tqwt_minValue_dec_24  756 non-null    float64
+ 14  tqwt_minValue_dec_25  756 non-null    float64
+ 15  tqwt_minValue_dec_26  756 non-null    float64
+ 16  tqwt_minValue_dec_27  756 non-null    float64
+ 17  tqwt_minValue_dec_28  756 non-null    float64
+ 18  tqwt_minValue_dec_29  756 non-null    float64
+ 19  tqwt_minValue_dec_30  756 non-null    float64
+dtypes: float64(20)
+memory usage: 118.2 KB
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 756 entries, 0 to 755
+Data columns (total 20 columns):
+ #   Column                Non-Null Count  Dtype  
+---  ------                --------------  -----  
+ 0   tqwt_minValue_dec_31  756 non-null    float64
+ 1   tqwt_minValue_dec_32  756 non-null    float64
+ 2   tqwt_minValue_dec_33  756 non-null    float64
+ 3   tqwt_minValue_dec_34  756 non-null    float64
+ 4   tqwt_minValue_dec_35  756 non-null    float64
+ 5   tqwt_minValue_dec_36  756 non-null    float64
+ 6   tqwt_maxValue_dec_1   756 non-null    float64
+ 7   tqwt_maxValue_dec_2   756 non-null    float64
+ 8   tqwt_maxValue_dec_3   756 non-null    float64
+ 9   tqwt_maxValue_dec_4   756 non-null    float64
+ 10  tqwt_maxValue_dec_5   756 non-null    float64
+ 11  tqwt_maxValue_dec_6   756 non-null    float64
+ 12  tqwt_maxValue_dec_7   756 non-null    float64
+ 13  tqwt_maxValue_dec_8   756 non-null    float64
+ 14  tqwt_maxValue_dec_9   756 non-null    float64
+ 15  tqwt_maxValue_dec_10  756 non-null    float64
+ 16  tqwt_maxValue_dec_11  756 non-null    float64
+ 17  tqwt_maxValue_dec_12  756 non-null    float64
+ 18  tqwt_maxValue_dec_13  756 non-null    float64
+ 19  tqwt_maxValue_dec_14  756 non-null    float64
+dtypes: float64(20)
+memory usage: 118.2 KB
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 756 entries, 0 to 755
+Data columns (total 20 columns):
+ #   Column                Non-Null Count  Dtype  
+---  ------                --------------  -----  
+ 0   tqwt_maxValue_dec_15  756 non-null    float64
+ 1   tqwt_maxValue_dec_16  756 non-null    float64
+ 2   tqwt_maxValue_dec_17  756 non-null    float64
+ 3   tqwt_maxValue_dec_18  756 non-null    float64
+ 4   tqwt_maxValue_dec_19  756 non-null    float64
+ 5   tqwt_maxValue_dec_20  756 non-null    float64
+ 6   tqwt_maxValue_dec_21  756 non-null    float64
+ 7   tqwt_maxValue_dec_22  756 non-null    float64
+ 8   tqwt_maxValue_dec_23  756 non-null    float64
+ 9   tqwt_maxValue_dec_24  756 non-null    float64
+ 10  tqwt_maxValue_dec_25  756 non-null    float64
+ 11  tqwt_maxValue_dec_26  756 non-null    float64
+ 12  tqwt_maxValue_dec_27  756 non-null    float64
+ 13  tqwt_maxValue_dec_28  756 non-null    float64
+ 14  tqwt_maxValue_dec_29  756 non-null    float64
+ 15  tqwt_maxValue_dec_30  756 non-null    float64
+ 16  tqwt_maxValue_dec_31  756 non-null    float64
+ 17  tqwt_maxValue_dec_32  756 non-null    float64
+ 18  tqwt_maxValue_dec_33  756 non-null    float64
+ 19  tqwt_maxValue_dec_34  756 non-null    float64
+dtypes: float64(20)
+memory usage: 118.2 KB
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 756 entries, 0 to 755
+Data columns (total 20 columns):
+ #   Column                     Non-Null Count  Dtype  
+---  ------                     --------------  -----  
+ 0   tqwt_maxValue_dec_35       756 non-null    float64
+ 1   tqwt_maxValue_dec_36       756 non-null    float64
+ 2   tqwt_skewnessValue_dec_1   756 non-null    float64
+ 3   tqwt_skewnessValue_dec_2   756 non-null    float64
+ 4   tqwt_skewnessValue_dec_3   756 non-null    float64
+ 5   tqwt_skewnessValue_dec_4   756 non-null    float64
+ 6   tqwt_skewnessValue_dec_5   756 non-null    float64
+ 7   tqwt_skewnessValue_dec_6   756 non-null    float64
+ 8   tqwt_skewnessValue_dec_7   756 non-null    float64
+ 9   tqwt_skewnessValue_dec_8   756 non-null    float64
+ 10  tqwt_skewnessValue_dec_9   756 non-null    float64
+ 11  tqwt_skewnessValue_dec_10  756 non-null    float64
+ 12  tqwt_skewnessValue_dec_11  756 non-null    float64
+ 13  tqwt_skewnessValue_dec_12  756 non-null    float64
+ 14  tqwt_skewnessValue_dec_13  756 non-null    float64
+ 15  tqwt_skewnessValue_dec_14  756 non-null    float64
+ 16  tqwt_skewnessValue_dec_15  756 non-null    float64
+ 17  tqwt_skewnessValue_dec_16  756 non-null    float64
+ 18  tqwt_skewnessValue_dec_17  756 non-null    float64
+ 19  tqwt_skewnessValue_dec_18  756 non-null    float64
+dtypes: float64(20)
+memory usage: 118.2 KB
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 756 entries, 0 to 755
+Data columns (total 20 columns):
+ #   Column                     Non-Null Count  Dtype  
+---  ------                     --------------  -----  
+ 0   tqwt_skewnessValue_dec_19  756 non-null    float64
+ 1   tqwt_skewnessValue_dec_20  756 non-null    float64
+ 2   tqwt_skewnessValue_dec_21  756 non-null    float64
+ 3   tqwt_skewnessValue_dec_22  756 non-null    float64
+ 4   tqwt_skewnessValue_dec_23  756 non-null    float64
+ 5   tqwt_skewnessValue_dec_24  756 non-null    float64
+ 6   tqwt_skewnessValue_dec_25  756 non-null    float64
+ 7   tqwt_skewnessValue_dec_26  756 non-null    float64
+ 8   tqwt_skewnessValue_dec_27  756 non-null    float64
+ 9   tqwt_skewnessValue_dec_28  756 non-null    float64
+ 10  tqwt_skewnessValue_dec_29  756 non-null    float64
+ 11  tqwt_skewnessValue_dec_30  756 non-null    float64
+ 12  tqwt_skewnessValue_dec_31  756 non-null    float64
+ 13  tqwt_skewnessValue_dec_32  756 non-null    float64
+ 14  tqwt_skewnessValue_dec_33  756 non-null    float64
+ 15  tqwt_skewnessValue_dec_34  756 non-null    float64
+ 16  tqwt_skewnessValue_dec_35  756 non-null    float64
+ 17  tqwt_skewnessValue_dec_36  756 non-null    float64
+ 18  tqwt_kurtosisValue_dec_1   756 non-null    float64
+ 19  tqwt_kurtosisValue_dec_2   756 non-null    float64
+dtypes: float64(20)
+memory usage: 118.2 KB
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 756 entries, 0 to 755
+Data columns (total 20 columns):
+ #   Column                     Non-Null Count  Dtype  
+---  ------                     --------------  -----  
+ 0   tqwt_kurtosisValue_dec_3   756 non-null    float64
+ 1   tqwt_kurtosisValue_dec_4   756 non-null    float64
+ 2   tqwt_kurtosisValue_dec_5   756 non-null    float64
+ 3   tqwt_kurtosisValue_dec_6   756 non-null    float64
+ 4   tqwt_kurtosisValue_dec_7   756 non-null    float64
+ 5   tqwt_kurtosisValue_dec_8   756 non-null    float64
+ 6   tqwt_kurtosisValue_dec_9   756 non-null    float64
+ 7   tqwt_kurtosisValue_dec_10  756 non-null    float64
+ 8   tqwt_kurtosisValue_dec_11  756 non-null    float64
+ 9   tqwt_kurtosisValue_dec_12  756 non-null    float64
+ 10  tqwt_kurtosisValue_dec_13  756 non-null    float64
+ 11  tqwt_kurtosisValue_dec_14  756 non-null    float64
+ 12  tqwt_kurtosisValue_dec_15  756 non-null    float64
+ 13  tqwt_kurtosisValue_dec_16  756 non-null    float64
+ 14  tqwt_kurtosisValue_dec_17  756 non-null    float64
+ 15  tqwt_kurtosisValue_dec_18  756 non-null    float64
+ 16  tqwt_kurtosisValue_dec_19  756 non-null    float64
+ 17  tqwt_kurtosisValue_dec_20  756 non-null    float64
+ 18  tqwt_kurtosisValue_dec_21  756 non-null    float64
+ 19  tqwt_kurtosisValue_dec_22  756 non-null    float64
+dtypes: float64(20)
+memory usage: 118.2 KB
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 756 entries, 0 to 755
+Data columns (total 15 columns):
+ #   Column                     Non-Null Count  Dtype  
+---  ------                     --------------  -----  
+ 0   tqwt_kurtosisValue_dec_23  756 non-null    float64
+ 1   tqwt_kurtosisValue_dec_24  756 non-null    float64
+ 2   tqwt_kurtosisValue_dec_25  756 non-null    float64
+ 3   tqwt_kurtosisValue_dec_26  756 non-null    float64
+ 4   tqwt_kurtosisValue_dec_27  756 non-null    float64
+ 5   tqwt_kurtosisValue_dec_28  756 non-null    float64
+ 6   tqwt_kurtosisValue_dec_29  756 non-null    float64
+ 7   tqwt_kurtosisValue_dec_30  756 non-null    float64
+ 8   tqwt_kurtosisValue_dec_31  756 non-null    float64
+ 9   tqwt_kurtosisValue_dec_32  756 non-null    float64
+ 10  tqwt_kurtosisValue_dec_33  756 non-null    float64
+ 11  tqwt_kurtosisValue_dec_34  756 non-null    float64
+ 12  tqwt_kurtosisValue_dec_35  756 non-null    float64
+ 13  tqwt_kurtosisValue_dec_36  756 non-null    float64
+ 14  class                      756 non-null    int64  
+dtypes: float64(14), int64(1)
+memory usage: 88.7 KB
