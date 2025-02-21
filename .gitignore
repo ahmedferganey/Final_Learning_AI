@@ -28,7 +28,7 @@
 !Plans/.gitkeep
 !05_Machine_Learning/.gitkeep
 !06_DeepLearning_NeuralNetwork/.gitkeep
-!07_Mathematics_Generative_Models/.gitkeep
+!07_Computer_Vision/.gitkeep
 !08_NLP/.gitkeep
 !09_Mathematics_Generative_Models/.gitkeep
 !10_Gen_AI/.gitkeep
@@ -42,7 +42,7 @@
 !04_Mathematics/**
 !05_Machine_Learning/**
 !06_DeepLearning_NeuralNetwork/**
-!07_Mathematics_Generative_Models/**
+!07_Computer_Vision/**
 !08_NLP/**
 !09_Mathematics_Generative_Models/**
 !10_Gen_AI/**
