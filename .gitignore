@@ -18,6 +18,8 @@
 !09_Mathematics_Generative_Models/
 !10_Gen_AI/
 !Final_Learning_AI-Projects/
+!11_Management/
+!08_Embedded_AI/
 #
 #
 ## Allow .gitkeep files
@@ -33,6 +35,8 @@
 !09_Mathematics_Generative_Models/.gitkeep
 !10_Gen_AI/.gitkeep
 !Final_Learning_AI-Projects/.gitkeep
+!11_Management/.gitkeep
+!08_Embedded_AI/.gitkeep
 #
 ## Allow all files within the specified directories
 !01_ComputerArchitecture_Linux_Networking/**
@@ -47,6 +51,8 @@
 !09_Mathematics_Generative_Models/**
 !10_Gen_AI/**
 !Final_Learning_AI-Projects/**
+!11_Management/**
+!08_Embedded_AI/**
 #
 ## Ignore unwanted directories
 ##02_Programming_OOP/02_C++_DS_AL_DP/The-C-20-Masterclass-Source-Code/
