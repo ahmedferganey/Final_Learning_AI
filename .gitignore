@@ -55,6 +55,9 @@
 !08_Embedded_AI/**
 #
 ## Ignore unwanted directories
+#/home/ferganey/GitHub/personal/Final_Learning_AI/07_Computer_Vision/02_APIs/00_API_COURSE_PROJECT/venv/
+#/home/ferganey/GitHub/personal/Final_Learning_AI/07_Computer_Vision/02_APIs/00_API_COURSE_PROJECT/.env
+
 ##02_Programming_OOP/02_C++_DS_AL_DP/The-C-20-Masterclass-Source-Code/
 ##02_Programming_OOP/Educational_files/ahmed_samy/
 ##03_DataStructure_Algorithms_ProblemSolving/ref/GitHubGrakonCodeExamples/
