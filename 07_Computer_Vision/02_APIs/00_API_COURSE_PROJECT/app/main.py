@@ -1,11 +1,12 @@
-from fastapi import FastAPI
-from . import models
-from .database import engine
+# app/main.py
 
-models.Base.metadata.create_all(bind=engine)
+from fastapi import FastAPI
+from app.core.config import settings
+
+app = FastAPI(title=settings.PROJECT_NAME)
 
 app = FastAPI()
 
 @app.get("/")
 def read_root():
-    return {"message": "FastAPI + PostgreSQL works!"}
+    return {"message": f"Welcome to {settings.PROJECT_NAME}!"}
