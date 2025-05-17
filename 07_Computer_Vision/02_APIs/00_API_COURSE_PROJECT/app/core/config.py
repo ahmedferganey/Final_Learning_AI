@@ -5,5 +5,7 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "My_API_Project"
     class Config:
         env_file = ".env"
+        extra = "ignore"
+        
 
 settings = Settings()
