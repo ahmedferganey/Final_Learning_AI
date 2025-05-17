@@ -1,5 +1,36 @@
 # 🗓️ car-qc-platform Development Schedule
+----------------------------------------------------------------------------
 
+# 🚗 Car Quality Control Platform (QC API)
+
+A FastAPI-based backend service for uploading and analyzing quality control data for automotive manufacturing.
+
+## 📦 Features
+
+- Upload QC data from CSV or Excel
+- Analyze rejection rates and top defect reasons
+- Store data in PostgreSQL
+- Dockerized for easy deployment
+
+## 🛠 Tech Stack
+
+- FastAPI
+- SQLAlchemy
+- PostgreSQL
+- Alembic (migrations)
+- Docker + Docker Compose
+
+## 📁 Folder Structure
+```plaintext
+app/
+├── api/           # Routes & dependencies
+├── core/          # Config and auth
+├── db/            # Models, session, CRUD
+├── schemas/       # Pydantic schemas
+├── services/      # Business logic
+├── main.py        # FastAPI entrypoint
+```
+----------------------------------------------------------------------------
 ## Core Setup
 - **Start:** 2025-05-16
 - **End:** 2025-05-17
@@ -35,3 +66,5 @@
 ## Finalize & Documentation
 - **Start:** 2025-06-08
 - **End:** 2025-06-10
+
+----------------------------------------------------------------------------

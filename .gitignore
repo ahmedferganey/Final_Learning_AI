@@ -66,3 +66,29 @@
 ##03_DataStructure_Algorithms_ProblemSolving/ref/MIT/**
 #
 #
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+
+# Environments
+.env
+venv/
+ENV/
+.venv/
+
+# IDEs
+.vscode/
+.idea/
+
+# Bytecode
+*.pyc
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Alembic
+alembic/versions/*.pyc
+alembic/versions/*.pyo
