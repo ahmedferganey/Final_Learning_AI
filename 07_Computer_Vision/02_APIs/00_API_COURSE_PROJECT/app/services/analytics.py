@@ -11,9 +11,7 @@ def get_total_rejected_count(db: Session) -> int:
 def calculate_rejection_rate(db: Session) -> float:
     total = get_total_inspected_count(db)
     rejected = get_total_rejected_count(db)
-    if total == 0:
-        return 0.0
-    return round((rejected / total) * 100, 2)
+    return 0.0 if total == 0 else round((rejected / total) * 100, 2)
 
 def get_top_defect_reasons(db: Session, limit: int = 5):
     return (
