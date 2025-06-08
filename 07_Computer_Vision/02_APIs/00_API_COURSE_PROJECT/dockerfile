@@ -1,0 +1,92 @@
+FROM python:3.9.7
+
+# Set the working directory in the container
+WORKDIR /usr/src/app
+# Copy the requirements file from local machine into the container "/usr/src/app"
+COPY requirements.txt ./
+# Install the dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+# Copy the rest of the application code in the current dir into the container
+COPY . /usr/src/app
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Note: The "--reload" option is useful for development but should be removed in production.
+
+
+
+
+
+
+# To build the Docker image, run:
+# docker build -t api_project .
+# To run the Docker container, use:
+# docker run -p 8000:8000 api_project
+# To stop the container, use:
+# docker stop <container_id>
+# To remove the container, use:
+# docker rm <container_id>
+# To remove the image, use:
+# docker rmi api_project
+# To run the container in detached mode, use:
+# docker run -d -p 8000:8000 api_project
+# To view the logs of the running container, use:
+# docker logs <container_id>
+# To access the container's shell, use:
+# docker exec -it <container_id> /bin/bash
+# To build and run the container in one command, you can use:
+# docker build -t api_project . && docker run -p 8000:8000 api_project
+# To remove all stopped containers, use:
+# docker container prune
+# To remove all unused images, use:
+# docker image prune
+# To remove all unused volumes, use:
+# docker volume prune
+# To remove all unused networks, use:
+# docker network prune
+# To remove all unused resources (containers, images, volumes, networks), use:
+# docker system prune
+# To run the container with a specific name, use:
+# docker run --name my_api_container -p 8000:8000 api_project
+# To run the container with a specific environment variable, use:
+# docker run -e MY_ENV_VAR=value -p 8000:8000 api_project
+# To run the container with a specific volume, use:
+# docker run -v /path/on/host:/path/in/container -p 8000:8000 api_project
+# To run the container with a specific network, use:
+# docker run --network my_network -p 8000:8000 api_project
+# To run the container with a specific user, use:
+# docker run -u my_user -p 8000:8000 api_project
+# To run the container with a specific restart policy, use:
+# docker run --restart unless-stopped -p 8000:8000 api_project
+# To run the container with a specific health check, use:
+# docker run --health-cmd="curl --fail http://localhost:8000/health" --health-interval=30s --health-timeout=10s --health-retries=3 -p 8000:8000 api_project
+# To run the container with a specific logging driver, use:
+# docker run --log-driver=json-file --log-opt max-size=10m --log-opt max-file=3 -p 8000:8000 api_project
+# To run the container with a specific entrypoint, use:
+# docker run --entrypoint my_entrypoint.sh -p 8000:8000 api_project
+# To run the container with a specific command, use:
+# docker run api_project my_command
+# To run the container with a specific command and arguments, use:
+# docker run api_project my_command arg1 arg2
+# To run the container with a specific command and arguments in interactive mode, use:
+# docker run -it api_project my_command arg1 arg2
+# To run the container with a specific command and arguments in detached mode, use:
+# docker run -d api_project my_command arg1 arg2
+# To run the container with a specific command and arguments in interactive mode with a TTY, use:
+# docker run -it --rm api_project my_command arg1 arg2
+# To run the container with a specific command and arguments in detached mode with a TTY, use:
+# docker run -d -t api_project my_command arg1 arg2
+# To run the container with a specific command and arguments in detached mode with a TTY and a specific name, use:
+# docker run -d -t --name my_api_container api_project my_command arg1 arg2
+# To run the container with a specific command and arguments in detached mode with a TTY and a specific name and environment variable, use:
+# docker run -d -t --name my_api_container -e MY_ENV_VAR=value api_project my_command arg1 arg2
+# To run the container with a specific command and arguments in detached mode with a TTY and a specific name, environment variable, and volume, use:
+# docker run -d -t --name my_api_container -e MY_ENV_VAR=value -v /path/on/host:/path/in/container api_project my_command arg1 arg2
+# To run the container with a specific command and arguments in detached mode with a TTY and a specific name, environment variable, volume, and network, use:
+# docker run -d -t --name my_api_container -e MY_ENV_VAR=value -v /path/on/host:/path/in/container --network my_network api_project my_command arg1 arg2
+# To run the container with a specific command and arguments in detached mode with a TTY and a specific name, environment variable, volume, network, and user, use:
+# docker run -d -t --name my_api_container -e MY_ENV_VAR=value -v /path/on/host:/path/in/container --network my_network -u my_user api_project my_command arg1 arg2
+# To run the container with a specific command and arguments in detached mode with a TTY and a specific name, environment variable, volume, network, user, and restart policy, use:
+# docker run -d -t --name my_api_container -e MY_ENV_VAR=value -v /path/on/host:/path/in/container --network my_network -u my_user --restart unless-stopped api_project my_command arg1 arg2
+# To run the container with a specific command and arguments in detached mode with a TTY and a specific name, environment variable, volume, network, user, restart policy, and health check, use:
+# docker run -d -t --name my_api_container -e MY_ENV_VAR=value -v /path/on/host:/path/in/container --network my_network -u my_user --restart unless-stopped --health-cmd="curl --fail http://localhost:8000/health" --health-interval=30s --health-timeout=10s --health-retries=3 api_project my_command arg1 arg2
+# To run the container with a specific command and arguments in detached mode with a TTY and a specific name, environment variable, volume, network, user, restart policy, health check, and logging driver, use:
+# docker run -d -t --name my_api_container -e MY_ENV_VAR=value -v /path/on/host:/path/in/container --network my_network -u my_user --restart unless-stopped --health-cmd="curl --fail http://localhost:8000/health" --health-interval=30s --health-timeout=10s --health-retries=3 --log-driver=json-file --log-opt max-size=10m --log-opt max-file=3 api_project my_command arg1 arg2
