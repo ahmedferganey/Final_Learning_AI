@@ -92,3 +92,7 @@ ENV/
 # Alembic
 alembic/versions/*.pyc
 alembic/versions/*.pyo
+###################################3
+# Ignore only RawData and Model under this project
+07_Computer_Vision/04_EndtoEndProjects/Documentation/RawData/
+07_Computer_Vision/04_EndtoEndProjects/Documentation/Model/
