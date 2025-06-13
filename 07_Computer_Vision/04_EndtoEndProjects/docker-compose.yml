@@ -1,0 +1,46 @@
+version: '3.8'
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"     # RabbitMQ (AMQP) default port
+      - "15672:15672"   # RabbitMQ web UI
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5      
+
+  frame_reader:
+    build: ./frame_reader
+    container_name: frame_reader
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_QUEUE=frame_queue
+      - RABBITMQ_EXCHANGE=video_exchange
+      - RABBITMQ_ROUTING_KEY=video_frame
+      - VIDEO_SOURCE=/data/pizza.mp4
+      
+    volumes:
+      - ./data:/data
+
+
+  # detection_service:
+  #   build: ./detection_service
+  #   container_name: detection_service
+  #   depends_on:
+  #     - rabbitmq
+  #   environment:
+  #     - RABBITMQ_HOST=rabbitmq
+  #     - RABBITMQ_QUEUE=frame_queue
+
+  # Optional: streaming service, frontend, etc.
+  # Add other services similarly...
+
