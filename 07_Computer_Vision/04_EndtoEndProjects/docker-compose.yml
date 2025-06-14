@@ -1,11 +1,12 @@
 version: '3.8'
+
 services:
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq
     ports:
-      - "5672:5672"     # RabbitMQ (AMQP) default port
-      - "15672:15672"   # RabbitMQ web UI
+      - "5672:5672"     # RabbitMQ (AMQP)
+      - "15672:15672"   # RabbitMQ Web UI
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
@@ -27,20 +28,57 @@ services:
       - RABBITMQ_EXCHANGE=video_exchange
       - RABBITMQ_ROUTING_KEY=video_frame
       - VIDEO_SOURCE=/data/pizza.mp4
-      
     volumes:
       - ./data:/data
+      - ./logs:/app/logs
+      
 
+  detection_service:
+    build: ./detection_service
+    container_name: detection_service
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_QUEUE=frame_queue
+      - RABBITMQ_EXCHANGE=video_exchange
+      - RABBITMQ_ROUTING_KEY=video_frame
+      - MODEL_PATH=app/models/yolo12m-v2.pt
+      - OUTPUT_PATH=/processed_frames
+    volumes:
+      - ./detection_service:/app
+      - ./shared/processed_frames:/processed_frames
+    ports:
+      - "8001:8000"
+      
+  streaming_service:
+    build: ./streaming_service
+    container_name: streaming_service
+    depends_on:
+      detection_service:
+        condition: service_started
+    environment:
+      - FRAMES_PATH=/processed_frames
+      - METADATA_PATH=/processed_frames/metadata.json
+      - STREAM_PORT=8000    
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./streaming_service:/app
+      - ./shared/processed_frames:/processed_frames    
+      - ./data:/data        
 
-  # detection_service:
-  #   build: ./detection_service
-  #   container_name: detection_service
-  #   depends_on:
-  #     - rabbitmq
-  #   environment:
-  #     - RABBITMQ_HOST=rabbitmq
-  #     - RABBITMQ_QUEUE=frame_queue
-
-  # Optional: streaming service, frontend, etc.
-  # Add other services similarly...
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    depends_on:
+      streaming_service:
+        condition: service_started
+    ports:
+      - "3000:80"
+    environment:
+      - NODE_ENV=production      
+    volumes:
+      - ./frontend:/app
 
