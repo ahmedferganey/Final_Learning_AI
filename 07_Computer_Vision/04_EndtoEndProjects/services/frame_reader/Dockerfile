@@ -13,8 +13,8 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Now copy the rest of the app code
-COPY . .
+COPY app ./app
 
 # Default command to run the microservice
-CMD ["python", "main.py"]
+CMD ["python", "app/reader.py"]
 
