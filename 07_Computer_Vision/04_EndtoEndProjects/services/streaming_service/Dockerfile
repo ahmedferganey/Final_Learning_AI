@@ -1,7 +1,25 @@
-FROM demisto/opencv:1.0.0.3252732
+FROM python:3.9
+
+# Set working directory
 WORKDIR /app
-COPY requirements.txt .
+
+# Install OpenCV GUI-related dependencies
+RUN apt-get update && apt-get install -y \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy app source and requirements
+COPY app /app/app
+COPY requirements.txt /app/
+
+# Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
-COPY ./app ./app
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+# Run FastAPI app
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8004"]
 

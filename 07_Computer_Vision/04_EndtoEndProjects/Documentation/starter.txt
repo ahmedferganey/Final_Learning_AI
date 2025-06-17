@@ -1,0 +1,136 @@
+# ✅ 1. config/settings.py
+import os
+from dotenv import load_dotenv
+
+# Choose environment
+ENV = os.getenv("ENV", "dev")
+dotenv_path = f".env.{ENV}"
+load_dotenv(dotenv_path)
+
+# Access variables
+BROKER_URL = os.getenv("BROKER_URL")
+DB_URI = os.getenv("DB_URI")
+MODEL_PATH = os.getenv("MODEL_PATH")
+DEBUG = os.getenv("DEBUG", "false").lower() == "true"
+
+
+# ✅ 2. .env.dev
+ENV=dev
+BROKER_URL=amqp://guest:guest@localhost:5672/
+DB_URI=postgresql://user:password@localhost:5432/pizzadb
+MODEL_PATH=models/yolov8n-pizza.pt
+DEBUG=true
+
+
+# ✅ 3. .env.prod
+
+ENV=prod
+BROKER_URL=amqp://user:secure_pass@rabbitmq:5672/
+DB_URI=postgresql://prod_user:prod_pass@db:5432/pizzadb
+MODEL_PATH=models/yolov8n-pizza.pt
+DEBUG=false
+
+
+# ✅ 4. scripts/deploy.sh
+
+#!/bin/bash
+echo "Deploying Pizza Store CV stack..."
+
+export ENV=prod
+docker compose -f docker/docker-compose.yml --env-file config/.env.prod up -d --build
+
+
+# ✅ 5. scripts/backup/db_backup.sh
+
+#!/bin/bash
+DATE=$(date +%Y-%m-%d_%H-%M)
+BACKUP_DIR="scripts/backup"
+FILENAME="$BACKUP_DIR/pizzadb_backup_$DATE.sql"
+
+mkdir -p $BACKUP_DIR
+pg_dump -U user -h localhost -d pizzadb > $FILENAME
+
+echo "Backup saved to $FILENAME"
+
+
+
+# ✅ 6. .github/workflows/ci.yml
+
+
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install deps
+        run: |
+          pip install -r frame-reader/requirements.txt
+          pip install -r detection-service/requirements.txt
+          pip install -r streaming-service/requirements.txt
+
+      - name: Run tests
+        run: |
+          pytest frame-reader/tests
+          pytest detection-service/tests
+          pytest streaming-service/tests
+
+
+# ✅ 7. .github/workflows/cd.yml
+
+name: CD
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Deploy to VPS
+        run: |
+          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
+            cd /path/to/pizza-store-cv
+            git pull
+            ENV=prod ./scripts/deploy.sh
+          EOF
+
+
+# ✅ 8. monitoring/prometheus.yml
+
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'frame-reader'
+    static_configs:
+      - targets: ['localhost:8001']
+
+  - job_name: 'detection-service'
+    static_configs:
+      - targets: ['localhost:8002']
+
+  - job_name: 'streaming-service'
+    static_configs:
+      - targets: ['localhost:8003']
+
+
+# ✅ 9. monitoring/grafana/dashboards/system-health.json
+Placeholder — You can create dashboards via Grafana UI and then export JSON to save here.

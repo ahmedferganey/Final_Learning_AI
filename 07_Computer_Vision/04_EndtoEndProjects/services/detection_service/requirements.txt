@@ -1,9 +1,12 @@
-numpy
-pika==1.3.2
-ultralytics==8.0.203
-opencv-python==4.9.0.80
-
-
-psycopg2-binary==2.9.9
+pika
 requests==2.31.0
+ultralytics==8.0.20
+opencv-python
+numpy
+psycopg2-binary
+requests
+python-dotenv
+
+# For handling base64 frames
+Pillow
 
