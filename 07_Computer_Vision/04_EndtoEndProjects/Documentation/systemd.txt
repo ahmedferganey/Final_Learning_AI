@@ -1,0 +1,17 @@
+Create files under /etc/systemd/system/: called pizza-cv.service
+
+
+
+[Unit]
+Description=Pizza Store CV System
+After=docker.service
+Requires=docker.service
+
+[Service]
+User=root
+WorkingDirectory=/opt/pizza-store-cv/scripts
+ExecStart=/bin/bash deploy.sh
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

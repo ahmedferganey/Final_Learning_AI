@@ -1,0 +1,141 @@
+pizza-store-cv/
+├── docker/
+│   
+│   ├── docker-compose.yml
+│   ├── frame-reader.Dockerfile
+│   ├── detection-service.Dockerfile
+│   ├── streaming-service.Dockerfile
+│   ├── frontend.Dockerfile
+│   └── message-broker/
+│       ├── rabbitmq-setup.sh
+│       └── broker-config.json
+
+# docker-compose.yml
+version: '3.8'
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - pizza-net
+
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: pizzadb
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - pizza-net
+
+  frame-reader:
+    build:
+      context: ../frame-reader
+      dockerfile: ../docker/frame-reader.Dockerfile
+    networks:
+      - pizza-net
+
+  detection-service:
+    build:
+      context: ../detection-service
+      dockerfile: ../docker/detection-service.Dockerfile
+    networks:
+      - pizza-net
+
+  streaming-service:
+    build:
+      context: ../streaming-service
+      dockerfile: ../docker/streaming-service.Dockerfile
+    networks:
+      - pizza-net
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: ../docker/frontend.Dockerfile
+    ports:
+      - "3000:3000"
+    networks:
+      - pizza-net
+
+volumes:
+  rabbitmq_data:
+  db_data:
+
+networks:
+  pizza-net:
+
+# frame-reader.Dockerfile
+FROM python:3.10-slim
+WORKDIR /app
+COPY ../frame-reader/requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+COPY ../frame-reader/ .
+CMD ["python", "app/main.py"]
+
+# detection-service.Dockerfile
+FROM python:3.10-slim
+WORKDIR /app
+COPY ../detection-service/requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+COPY ../detection-service/ .
+CMD ["python", "app/main.py"]
+
+# streaming-service.Dockerfile
+FROM python:3.10-slim
+WORKDIR /app
+COPY ../streaming-service/requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+COPY ../streaming-service/ .
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+# frontend.Dockerfile
+FROM node:20-alpine
+WORKDIR /app
+COPY ../frontend/package*.json ./
+RUN npm install
+COPY ../frontend/ .
+RUN npm run build
+CMD ["npm", "run", "dev"]
+
+# message-broker/rabbitmq-setup.sh
+#!/bin/bash
+curl -u guest:guest -H "content-type: application/json" \
+  -X POST -d @broker-config.json \
+  http://localhost:15672/api/definitions
+
+# message-broker/broker-config.json
+{
+  "vhosts": [{"name": "/"}],
+  "exchanges": [
+    {
+      "name": "frame_exchange",
+      "vhost": "/",
+      "type": "fanout",
+      "durable": true,
+      "auto_delete": false
+    }
+  ],
+  "queues": [
+    {"name": "frame_queue", "vhost": "/", "durable": true}
+  ],
+  "bindings": [
+    {
+      "source": "frame_exchange",
+      "vhost": "/",
+      "destination": "frame_queue",
+      "destination_type": "queue",
+      "routing_key": "",
+      "arguments": {}
+    }
+  ]
+}

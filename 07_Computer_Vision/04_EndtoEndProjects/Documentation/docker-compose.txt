@@ -1,0 +1,100 @@
+version: '3.8'
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"  # Management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      - pizza-net
+
+  rabbitmq-exporter:
+    image: kbudde/rabbitmq-exporter
+    environment:
+      RABBIT_URL: http://rabbitmq:15672
+      RABBIT_USER: guest
+      RABBIT_PASSWORD: guest
+    ports:
+      - "9419:9419"
+    networks:
+      - pizza-net
+
+
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: pizzadb
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - pizza-net
+
+  frame-reader:
+    build:
+      context: ../frame-reader
+      dockerfile: ../docker/frame-reader.Dockerfile
+    environment:
+      - ENV=prod
+    networks:
+      - pizza-net
+
+  detection-service:
+    build:
+      context: ../detection-service
+      dockerfile: ../docker/detection-service.Dockerfile
+    environment:
+      - ENV=prod
+    networks:
+      - pizza-net
+
+  streaming-service:
+    build:
+      context: ../streaming-service
+      dockerfile: ../docker/streaming-service.Dockerfile
+    environment:
+      - ENV=prod
+    networks:
+      - pizza-net
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: ../docker/frontend.Dockerfile
+    ports:
+      - "3000:3000"
+    networks:
+      - pizza-net
+
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ../monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - pizza-net
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3001:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ../monitoring/grafana:/etc/grafana/provisioning
+    networks:
+      - pizza-net
+
+networks:
+  pizza-net:
+
+volumes:
+  db_data:
+  grafana_data:

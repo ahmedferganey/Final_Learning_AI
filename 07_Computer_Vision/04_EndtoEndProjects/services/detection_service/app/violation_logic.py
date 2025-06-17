@@ -13,8 +13,8 @@ DB_NAME = os.getenv("DB_NAME", "violations_db")
 print("[ENV] DB_NAME:", DB_NAME)  # Debug line to verify the DB name is correct
 
 #DB_NAME = os.environ["DB_NAME"]
-DB_USER = os.getenv("DB_USER", "admin")
-DB_PASS = os.getenv("DB_PASS", "adminpass")
+DB_USER = os.getenv("DB_USER", "postgres")
+DB_PASS = os.getenv("DB_PASS", "postgres")
 
 # === Directories and metadata ===
 VIOLATION_DIR = os.path.join(VIOLATION_SAVE_DIR, "violations")

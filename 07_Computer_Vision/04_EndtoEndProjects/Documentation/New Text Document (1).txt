@@ -1,0 +1,128 @@
+
+├── 📂 detection-service/
+│   ├── app/
+│   │   ├── main.py
+│   │   ├── rabbitmq_consumer.py
+│   │   ├── violation_logic.py
+│   │   ├── db.py
+│   │   └── config.py
+│   ├── models/
+│   │   └── yolov8n-pizza.pt
+│   ├── requirements.txt
+│   └── tests/
+│       ├── test_violation_logic.py
+│       └── test_main.py
+
+# detection-service/app/config.py
+RABBITMQ_HOST = "rabbitmq"
+QUEUE_NAME = "frame_queue"
+
+# detection-service/app/rabbitmq_consumer.py
+import pika
+import json
+from violation_logic import process_frame
+from db import save_violation
+
+def callback(ch, method, properties, body):
+    frame_data = json.loads(body)
+    violations = process_frame(frame_data)
+    for violation in violations:
+        save_violation(violation)
+
+def consume_frames():
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host="rabbitmq"))
+    channel = connection.channel()
+    channel.queue_declare(queue="frame_queue")
+    channel.basic_consume(queue="frame_queue", on_message_callback=callback, auto_ack=True)
+    print("[x] Waiting for frames. To exit press CTRL+C")
+    channel.start_consuming()
+
+# detection-service/app/violation_logic.py
+def process_frame(frame_data):
+    # Dummy logic placeholder
+    return [{"timestamp": frame_data["timestamp"], "type": "ROI violation"}]
+
+# detection-service/app/db.py
+def save_violation(violation):
+    print(f"Violation saved: {violation}")
+
+# detection-service/app/main.py
+from rabbitmq_consumer import consume_frames
+
+if __name__ == "__main__":
+    consume_frames()
+
+# detection-service/requirements.txt
+pika
+
+# detection-service/tests/test_violation_logic.py
+from app.violation_logic import process_frame
+
+def test_process_frame():
+    frame = {"timestamp": 1234567890}
+    result = process_frame(frame)
+    assert len(result) > 0
+
+# detection-service/tests/test_main.py
+def test_dummy():
+    assert True
+
+├── 📂 streaming-service/
+│   ├── app/
+│   │   ├── main.py
+│   │   ├── api.py
+│   │   ├── websocket.py
+│   │   ├── rabbitmq_client.py
+│   │   └── config.py
+│   ├── requirements.txt
+│   └── tests/
+│       └── test_api.py
+
+# streaming-service/app/config.py
+RABBITMQ_HOST = "rabbitmq"
+QUEUE_NAME = "frame_queue"
+
+# streaming-service/app/rabbitmq_client.py
+import pika
+
+def get_connection():
+    return pika.BlockingConnection(pika.ConnectionParameters(host="rabbitmq"))
+
+# streaming-service/app/api.py
+from fastapi import APIRouter
+
+router = APIRouter()
+
+@router.get("/violations")
+def get_violations():
+    return {"total": 42}  # Stub
+
+# streaming-service/app/websocket.py
+from fastapi import WebSocket
+
+async def stream_video(websocket: WebSocket):
+    await websocket.accept()
+    for i in range(10):
+        await websocket.send_text(f"Frame {i}")
+    await websocket.close()
+
+# streaming-service/app/main.py
+from fastapi import FastAPI, WebSocket
+from api import router as api_router
+from websocket import stream_video
+
+app = FastAPI()
+app.include_router(api_router)
+
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await stream_video(websocket)
+
+# streaming-service/requirements.txt
+fastapi
+uvicorn
+pika
+
+# streaming-service/tests/test_api.py
+def test_dummy():
+    assert True

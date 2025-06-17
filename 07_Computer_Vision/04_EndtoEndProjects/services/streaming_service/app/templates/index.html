@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pizza Monitoring - Live View</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: #f0f0f0;
+        }
+        img {
+            width: 720px;
+            border: 3px solid black;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🍕 Pizza Store Hygiene Monitoring</h1>
+    <h2 id="violation-count">Violations: loading...</h2>
+    <img id="video-stream" />
+
+    <script>
+        const stream = document.getElementById("video-stream");
+        const socket = new WebSocket("ws://" + window.location.host + "/ws");
+        socket.binaryType = "arraybuffer";
+
+        socket.onmessage = (event) => {
+            const bytes = new Uint8Array(event.data);
+            const blob = new Blob([bytes], { type: "image/jpeg" });
+            stream.src = URL.createObjectURL(blob);
+        };
+
+        fetch("/violations/count")
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById("violation-count").innerText = "Violations: " + data.violations;
+            });
+    </script>
+</body>
+</html>
+
