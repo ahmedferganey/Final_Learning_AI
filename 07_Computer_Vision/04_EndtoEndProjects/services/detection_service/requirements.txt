@@ -1,12 +1,10 @@
+ultralytics==8.2.0
+torch==2.0.1
+opencv-python-headless
 pika
-requests==2.31.0
-ultralytics==8.0.20
-opencv-python
 numpy
 psycopg2-binary
 requests
 python-dotenv
-
-# For handling base64 frames
 Pillow
 

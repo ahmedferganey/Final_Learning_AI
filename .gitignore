@@ -96,3 +96,4 @@ alembic/versions/*.pyo
 # Ignore only RawData and Model under this project
 07_Computer_Vision/04_EndtoEndProjects/Documentation/RawData/
 07_Computer_Vision/04_EndtoEndProjects/Documentation/Model/
+02_DeepLearning_Projects/00_Speech_Recognition_RasPi_ContainerzedApp/02_Ref/
