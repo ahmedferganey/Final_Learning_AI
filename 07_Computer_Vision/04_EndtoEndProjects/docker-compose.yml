@@ -47,6 +47,7 @@ services:
       retries: 3      
     volumes:
       - ./shared/data/videos:/app/videos:ro     
+      - ./.env:/app/.env:ro      
     networks:
       - backend
 networks:
