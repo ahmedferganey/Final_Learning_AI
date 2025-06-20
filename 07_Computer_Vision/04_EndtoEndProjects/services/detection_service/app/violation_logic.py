@@ -1,85 +1,84 @@
-import os
-import json
-import cv2
-from datetime import datetime
-import psycopg2
-import requests
+## violation_logic.py
 
-VIOLATION_SAVE_DIR = os.getenv("OUTPUT_PATH", "/processed_frames")
-STREAMING_SERVICE_URL = os.getenv("STREAMING_SERVICE_URL", "http://streaming_service:8000/violation")
-DB_HOST = os.getenv("DB_HOST", "db")
-DB_NAME = os.getenv("DB_NAME", "violations_db")
-DB_USER = os.getenv("DB_USER", "postgres")
-DB_PASS = os.getenv("DB_PASS", "postgres")
 
-VIOLATION_DIR = os.path.join(VIOLATION_SAVE_DIR, "violations")
-os.makedirs(VIOLATION_DIR, exist_ok=True)
+# app/violation_logic.py
+from shapely.geometry import box as shapely_box, Polygon
+from typing import List, Tuple, Dict
 
-metadata_file = os.path.join(VIOLATION_SAVE_DIR, "metadata.json")
-if not os.path.exists(metadata_file):
-    with open(metadata_file, "w") as f:
-        json.dump({"violations": []}, f)
+# Define labels
+PROTEIN_LABELS = {"protein", "meat", "ingredient"}
+SCOOPER_LABELS = {"scooper", "spoon", "glove"}
+HAND_LABELS = {"hand", "bare_hand", "uncovered_hand"}
 
-def save_violation_to_db(timestamp: str, labels: list, image_path: str):
-    """Save violation event to PostgreSQL database."""
-    try:
-        conn = psycopg2.connect(host=DB_HOST, database=DB_NAME, user=DB_USER, password=DB_PASS)
-        cur = conn.cursor()
-        cur.execute("""
-            INSERT INTO violations (timestamp, labels, frame_path)
-            VALUES (%s, %s, %s);
-        """, (timestamp, ','.join(labels), image_path))
-        conn.commit()
-        cur.close()
-        conn.close()
-        print("[INFO] Violation saved to DB.")
-    except Exception as e:
-        print(f"[ERROR] Database error: {e}")
 
-def send_to_streaming_service(payload: dict):
-    """Send violation payload to streaming service."""
-    try:
-        response = requests.post(STREAMING_SERVICE_URL, json=payload)
-        if response.status_code != 200:
-            print(f"[ERROR] Streaming service responded with {response.status_code}: {response.text}")
-    except Exception as e:
-        print(f"[ERROR] Streaming service connection failed: {e}")
+# Default Zones of Interest for ingredient area
+# Format: [x1, y1, x2, y2] — you can customize or load per camera
+ZONES_OF_INTEREST = {
+    "protein_zone": [
+        [60, 200, 200, 720],   # Vertical tray zone (left side)
+        [220, 260, 400, 400]   # Front counter area near pizza
+    ]
+}
 
-def check_violation(frame: np.ndarray, detections: list):
-    """Check if a violation has occurred based on detection logic."""
-    height, width, _ = frame.shape
-    x1, y1 = int(0.05 * width), int(0.35 * height)
-    x2, y2 = int(0.55 * width), int(0.95 * height)
+def bbox_to_polygon(bbox: List[int]) -> Polygon:
+    """Convert bounding box list to a Shapely polygon."""
+    return shapely_box(*bbox)
 
-    relevant_detections = []
+
+def get_rois_polygons(zones: Dict[str, List[List[int]]]) -> List[Polygon]:
+    """Convert all ROIs from zone dictionary to Shapely polygons."""
+    return [bbox_to_polygon(bbox) for box_list in zones.values() for bbox in box_list]
+
+
+
+
+def check_violation(
+    detections: List[Dict],
+    roi_zones: Dict[str, List[List[int]]] = ZONES_OF_INTEREST
+) -> Tuple[bool, List[Dict]]:
+    """
+    Check for violations:
+    - If a hand intersects with ROI and no scooper is detected → violation
+
+    Returns:
+        Tuple of (bool: violation_detected, List[Dict]: violating_detections)
+    """
+
+    roi_polygons = get_rois_polygons(roi_zones)
+    if not roi_polygons:
+        print("[WARNING] No ROI zones configured.")
+        return False, []
+
+    scooper_present = False
+    hand_detections = []
+
+    # First pass: check for scooper and collect hands
     for det in detections:
-        box = det['box']
-        cx, cy = (box[0] + box[2]) // 2, (box[1] + box[3]) // 2
-        if x1 <= cx <= x2 and y1 <= cy <= y2:
-            relevant_detections.append(det)
+        label = det.get("label", "").lower()
+        bbox = det.get("bbox", [])
 
-    labels = [d['label'] for d in relevant_detections]
+        if not bbox or len(bbox) != 4:
+            continue  # Skip invalid bbox
 
-    if "hand" in labels and "protein" in labels and "scooper" not in labels:
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        image_path = os.path.join(VIOLATION_DIR, f"violation_{timestamp}.jpg")
-        cv2.imwrite(image_path, frame)
+        if label in SCOOPER_LABELS:
+            scooper_present = True
+        elif any(hand_label in label for hand_label in HAND_LABELS):
+            hand_detections.append({"label": label, "bbox": bbox})
 
-        with open(metadata_file, "r+") as f:
-            metadata = json.load(f)
-            metadata["violations"].append({
-                "timestamp": timestamp,
-                "labels": labels,
-                "violation": True,
-                "image_path": image_path
-            })
-            f.seek(0)
-            json.dump(metadata, f, indent=4)
+    # If no hands, nothing to check
+    if not hand_detections:
+        return False, []
 
-        save_violation_to_db(timestamp, labels, image_path)
-        send_to_streaming_service({
-            "timestamp": timestamp,
-            "labels": labels,
-            "violation": True,
-            "image_path": image_path
-        })
+    # Second pass: check each hand against all ROIs
+    for hand in hand_detections:
+        hand_poly = bbox_to_polygon(hand["bbox"])
+        for roi in roi_polygons:
+            if hand_poly.intersects(roi):
+                if not scooper_present:
+                    print(f"[VIOLATION] Hand entered ROI without scooper: {hand}")
+                    return True, [hand]
+                else:
+                    print(f"[SAFE] Hand in ROI but scooper is present.")
+                    return False, []
+
+    return False, []
