@@ -1,13 +1,14 @@
 # ---------------------------------------------
 # Stage 1: Build stage (install Python packages)
 # ---------------------------------------------
-FROM python:3.10-slim AS builder
+FROM python:3.11-slim AS builder
 
 WORKDIR /app
 
-# Install system dependencies (OpenCV, etc.)
+# Install system dependencies (OpenCV, PostgreSQL, etc.)
 RUN apt-get update && apt-get install -y \
     git \
+    wget \
     libgl1 \
     libglib2.0-0 \
     libsm6 \
@@ -20,47 +21,58 @@ RUN apt-get update && apt-get install -y \
     build-essential \
  && rm -rf /var/lib/apt/lists/*
 
-# Clone YOLOv5 repo to use its internal loader
-RUN git clone https://github.com/ultralytics/yolov5.git /app/yolov5
-
 # Install Python dependencies
 COPY requirements.txt .
-RUN pip install --no-cache-dir --upgrade pip \
- && pip install --no-cache-dir -r requirements.txt \
- && pip install --no-cache-dir -r /app/yolov5/requirements.txt
+
+
+# Download and install FlashAttention wheel
+RUN wget https://github.com/Dao-AILab/flash-attention/releases/download/v2.7.3/flash_attn-2.7.3+cu11torch2.2cxx11abiFALSE-cp311-cp311-linux_x86_64.whl && \
+    pip install --no-cache-dir flash_attn-2.7.3+cu11torch2.2cxx11abiFALSE-cp311-cp311-linux_x86_64.whl && \
+    rm flash_attn-2.7.3+cu11torch2.2cxx11abiFALSE-cp311-cp311-linux_x86_64.whl
+
+# Install all other dependencies
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
 # ---------------------------------------------
 # Stage 2: Runtime stage
 # ---------------------------------------------
-FROM python:3.10-slim
+FROM python:3.11-slim
 
-# Create a user for better security
+# Install runtime dependencies (OpenCV runtime libs)
+RUN apt-get update && apt-get install -y \
+    libgl1 \
+    libglib2.0-0 \
+ && rm -rf /var/lib/apt/lists/*
+
+# Create a user for security
 RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
 
 WORKDIR /app
 
-# Copy installed Python environment from builder
+# Copy Python environment from builder
 COPY --from=builder /usr/local /usr/local
 
-# Copy YOLOv5 source code and set PYTHONPATH
-COPY --from=builder /app/yolov5 /app/yolov5
-ENV PYTHONPATH="${PYTHONPATH}:/app/yolov5"
-
-# Copy your own app
+# Copy your application code
 COPY app/ app/
 COPY models/ models/
 COPY requirements.txt .
 
-# Set environment variables
+# Environment variables
 ENV PYTHONUNBUFFERED=1 \
-    ENV=production
+    ENV=production \
+    MPLCONFIGDIR=/tmp/matplotlib \
+    YOLO_CONFIG_DIR=/tmp/yolo_config
 
-# Permissions
-RUN chown -R appuser:appgroup /app
+# Create config directories and set permissions
+RUN mkdir -p /tmp/matplotlib /tmp/yolo_config && \
+    chown -R appuser:appgroup /tmp/matplotlib /tmp/yolo_config && \
+    chown -R appuser:appgroup /app
+
 
 # Use non-root user
 USER appuser
 
-# Entrypoint: run DB migration, then service
-CMD ["sh", "-c", "python app/init_db.py && python app/rabbitmq_consumer.py"]
+
+CMD ["python", "app/rabbitmq_consumer.py"]
 

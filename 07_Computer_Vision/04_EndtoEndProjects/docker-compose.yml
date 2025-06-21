@@ -103,6 +103,39 @@ services:
       retries: 5
     networks:
       - backend
+
+  # 5. streaming_service
+  streaming_service:
+    build:
+      context: ./services/streaming_service
+      dockerfile: streaming-service.Dockerfile
+    container_name: streaming_service
+    ports:
+      - "9000:9000"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_QUEUE: annotated_frames
+    networks:
+      - backend
+      
+  # 6. ui_frontend
+  ui_frontend:
+    build:
+      context: ./services/ui_frontend
+      dockerfile: ui-frontend.Dockerfile
+    container_name: ui_frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - streaming_service
+    networks:
+      - backend
+
+
+
       
 networks:
   backend:
