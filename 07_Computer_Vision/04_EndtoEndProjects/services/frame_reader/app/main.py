@@ -16,10 +16,13 @@ def start():
         while True:
             src, name = work_queue.get()
             try:
-                logging.info(f"[START] Reading from source: {name}")
-                read_frames(src, publisher.publish_json, name)
+               logging.info(f"[START] Reading from source: {name}")
+               read_frames(src, publisher.publish_json, name)
+            except Exception as e:
+                logging.exception(f"[ERROR] Failed to process source {name}: {e}")
             finally:
                 work_queue.task_done()
+
 
     with ThreadPoolExecutor(max_workers=4) as executor:
         for _ in range(4):

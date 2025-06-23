@@ -26,7 +26,7 @@ class FrameProcessor:
         data = json.loads(body)
         frame = self.decode_frame(data['frame_data'])
         detections = self.detector.detect(frame)
-        violation, boxes = self.violation_service.check_violation(detections)
+        violation, boxes = self.violation_service.check_violation(detections, frame, data['frame_id'])
         frame_path = self.save_frame_to_disk(frame, data['source'], data['frame_id']) if violation else None
 
         if violation:

@@ -1,33 +1,38 @@
 import React, { useEffect, useRef } from 'react';
+
 import { connectSocket } from '../services/socket';
 
-const VideoStream = () => {
-  const canvasRef = useRef(null);
+function VideoStream() {
+  const imgRef = useRef(null);
 
   useEffect(() => {
     const socket = connectSocket();
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
+    socket.binaryType = 'blob';
 
     socket.onmessage = (event) => {
       const blob = new Blob([event.data], { type: 'image/jpeg' });
-      const img = new Image();
-      img.onload = () => {
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      };
-      img.src = URL.createObjectURL(blob);
+      const url = URL.createObjectURL(blob);
+      if (imgRef.current) {
+        imgRef.current.src = url;
+      }
     };
 
-    return () => socket.close();
+    socket.onerror = (err) => {
+      console.error('[WebSocket Error]', err);
+    };
+
+    return () => {
+      socket.close();
+    };
   }, []);
 
   return (
     <div>
-      <h2>Live Video</h2>
-      <canvas ref={canvasRef} width="640" height="480" />
+      <h2>🎥 Live Stream</h2>
+      <img ref={imgRef} alt="Live video" style={{ width: '640px', border: '2px solid #ccc' }} />
     </div>
   );
-};
+}
 
 export default VideoStream;
 

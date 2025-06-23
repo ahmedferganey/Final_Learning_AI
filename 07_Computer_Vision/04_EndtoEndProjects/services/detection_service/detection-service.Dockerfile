@@ -74,5 +74,6 @@ RUN mkdir -p /tmp/matplotlib /tmp/yolo_config && \
 USER appuser
 
 
-CMD ["python", "app/rabbitmq_consumer.py"]
+CMD ["python", "-m", "app.rabbitmq_consumer"]
+
 

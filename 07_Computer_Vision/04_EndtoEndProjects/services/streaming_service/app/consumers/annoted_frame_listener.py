@@ -13,6 +13,7 @@ buffer = VideoBuffer()
 
 def callback(ch, method, properties, body):
     message = json.loads(body)
+    print(f"[Debug] Frame received: {len(message['frame'])} bytes | Violation: {message['violation']}")
     buffer.add_frame(message["frame"], message["violation"])
     ch.basic_ack(delivery_tag=method.delivery_tag)
 

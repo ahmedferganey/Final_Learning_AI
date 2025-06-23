@@ -13,7 +13,7 @@ scipy==1.13.0
 onnxslim==0.1.31
 onnxruntime-gpu==1.18.0
 gradio==4.44.1
-opencv-python==4.9.0.80
+opencv-python==4.9.0.80  # 👈 Already good for MediaPipe
 psutil==5.9.8
 py-cpuinfo==9.0.0
 huggingface-hub==0.23.2
@@ -24,13 +24,20 @@ supervision==0.22.0
 # --- Ultralytics from GitHub fork ---
 git+https://github.com/sunsmarterjie/yolov12.git@3a336a4adf3683d280e1a50d03fa24bbe7f24a5b
 
-
-# Your service dependencies
+# --- Your service dependencies ---
 pika
 python-dotenv
 psycopg2-binary
 shapely
 requests
 
+# --- 🔥 NEW: Required for hand action classification ---
+mediapipe==0.10.9
+
+# --- (Optional) Deep SORT dependencies ---
+scikit-learn
+filterpy
+lap
+deep_sort_realtime==1.3.2
 
 

@@ -1,63 +1,55 @@
-# violation_service.py
+# Enhanced violation_service.py
 from shapely.geometry import box as shapely_box, Polygon
 from typing import List, Dict
+from .hand_classifier import HandActionClassifier
+from .hand_scooper_tracker import HandScooperTracker
 
 class ViolationService:
     PROTEIN_LABELS = {"protein", "meat", "ingredient"}
     SCOOPER_LABELS = {"scooper", "spoon", "glove"}
     HAND_LABELS = {"hand", "bare_hand", "uncovered_hand"}
 
-    # Default zones (same as old logic)
     DEFAULT_ZONES_OF_INTEREST = {
         "protein_zone": [
-            [60, 200, 200, 720],   # Vertical tray zone (left side)
-            [220, 260, 400, 400]   # Front counter area near pizza
+            [319, 525, 389, 590]  # Actual protein area in the video
         ]
     }
 
     def __init__(self, roi_zones: Dict[str, List[List[int]]] = None):
         self.roi_zones = roi_zones or self.DEFAULT_ZONES_OF_INTEREST
         self.roi_polygons = self.get_rois_polygons(self.roi_zones)
+        self.hand_action_classifier = HandActionClassifier()
+        self.tracker = HandScooperTracker()
 
     def bbox_to_polygon(self, bbox: List[int]) -> Polygon:
-        """Convert a bounding box to a Shapely polygon."""
         return shapely_box(*bbox)
 
     def get_rois_polygons(self, zones: Dict[str, List[List[int]]]) -> List[Polygon]:
-        """Convert zone bboxes into shapely polygons."""
         return [self.bbox_to_polygon(bbox) for zone in zones.values() for bbox in zone]
 
-    def check_violation(self, detections: List[Dict]) -> (bool, List[Dict]):
-        scooper_present = any(
-            det.get('label', '').lower() in self.SCOOPER_LABELS for det in detections
-        )
+    def check_violation(self, detections: List[Dict], frame: any, frame_idx: int) -> (bool, List[Dict]):
+        tracked_objects = self.tracker.update(detections, frame_idx)
+        violations = []
 
-        hand_detections = []
-        for det in detections:
-            label = det.get('label', '').lower()
-            bbox = det.get('bbox', [])
+        for obj in tracked_objects:
+            if obj["type"] != "hand":
+                continue
 
-            if not bbox or len(bbox) != 4:
-                continue  # Skip malformed bbox
+            hand_poly = self.bbox_to_polygon(obj["bbox"])
+            in_roi = any(hand_poly.intersects(roi) for roi in self.roi_polygons)
 
-            if any(hand_label in label for hand_label in self.HAND_LABELS):
-                hand_detections.append({"label": label, "bbox": bbox})
+            if not in_roi:
+                continue
 
-        if not hand_detections:
-            print("[VIOLATION] No hand detected — no violation.")
-            return False, []
+            # 🧠 Feed bounding box and frame to MediaPipe-based classifier
+            self.hand_action_classifier.update(obj["id"], frame, obj["bbox"])
 
-        for hand in hand_detections:
-            hand_poly = self.bbox_to_polygon(hand["bbox"])
-            for roi in self.roi_polygons:
-                if hand_poly.intersects(roi):
-                    if not scooper_present:
-                        print(f"[VIOLATION] Hand entered ROI without scooper: {hand}")
-                        return True, [hand]
-                    else:
-                        print(f"[SAFE] Hand entered ROI but scooper is present.")
-                        return False, []
+            scooper_nearby = obj.get("has_scooper", False)
+            action = self.hand_action_classifier.classify(obj["id"])
 
-        print("[SAFE] Hands detected but none in ROI.")
-        return False, []
+            if action == "grabbing" and not scooper_nearby:
+                print(f"[VIOLATION] Hand {obj['id']} grabbed from ROI without scooper.")
+                violations.append(obj)
+
+        return bool(violations), violations
 
