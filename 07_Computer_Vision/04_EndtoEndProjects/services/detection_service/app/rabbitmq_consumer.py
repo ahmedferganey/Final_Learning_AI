@@ -1,26 +1,27 @@
-## rabbitmq_consumer.py
-
-
-
 # app/rabbitmq_consumer.py
 
-# rabbitmq_consumer.py
 import pika
-from config import Config
-from controller import FrameProcessor
-from db_repository import ViolationRepository
-from detection import YOLO12Detector as YOLODetector
-from violation_service import ViolationService
-from stream_service import StreamService
+from .config import Config
+from .controller import FrameProcessor
+from .db_repository import ViolationRepository
+from .detection import YOLO12Detector as YOLODetector
+from .stream_service import StreamService
+from .violation_service import ViolationService
 
 if __name__ == '__main__':
     config = Config()
+
+    # Initialize components
     detector = YOLODetector(config.MODEL_PATH)
-    violation_service = ViolationService({"protein_zone": [[60, 200, 200, 720], [220, 260, 400, 400]]})
+
+    # ✅ Use default ROI zone from violation_service.py
+    violation_service = ViolationService()
+
     repo = ViolationRepository(config)
     streamer = StreamService(config)
     processor = FrameProcessor(detector, violation_service, repo, streamer)
 
+    # RabbitMQ setup
     connection = pika.BlockingConnection(pika.ConnectionParameters(host=config.RABBITMQ_HOST))
     channel = connection.channel()
     channel.queue_declare(queue=config.RABBITMQ_QUEUE, durable=True)
@@ -33,4 +34,15 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         channel.stop_consuming()
     connection.close()
+
+
+
+
+
+
+
+
+
+
+
 
