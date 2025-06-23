@@ -14,7 +14,7 @@
 !05_Machine_Learning/
 !06_DeepLearning_NeuralNetwork/
 !07_Computer_Vision/
-!08_NLP/
+!08_Embedded_AI_FrontEnd/
 !09_Mathematics_Generative_Models/
 !10_Gen_AI/
 !Final_Learning_AI-Projects/
@@ -31,7 +31,7 @@
 !05_Machine_Learning/.gitkeep
 !06_DeepLearning_NeuralNetwork/.gitkeep
 !07_Computer_Vision/.gitkeep
-!08_NLP/.gitkeep
+!08_Embedded_AI_FrontEnd/.gitkeep
 !09_Mathematics_Generative_Models/.gitkeep
 !10_Gen_AI/.gitkeep
 !Final_Learning_AI-Projects/.gitkeep
@@ -47,7 +47,7 @@
 !05_Machine_Learning/**
 !06_DeepLearning_NeuralNetwork/**
 !07_Computer_Vision/**
-!08_NLP/**
+!08_Embedded_AI_FrontEnd/**
 !09_Mathematics_Generative_Models/**
 !10_Gen_AI/**
 !Final_Learning_AI-Projects/**
