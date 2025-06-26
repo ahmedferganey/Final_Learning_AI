@@ -92,6 +92,35 @@ ENV/
 # Alembic
 alembic/versions/*.pyc
 alembic/versions/*.pyo
+
+
+
+# React
+## dependencies
+08_Embedded_AI_FrontEnd/FrontEnd/Practice/reactapp/node_modules
+
+## build
+08_Embedded_AI_FrontEnd/FrontEnd/Practice/reactapp/dist
+08_Embedded_AI_FrontEnd/FrontEnd/Practice/reactapp/build
+
+## environment variables
+08_Embedded_AI_FrontEnd/FrontEnd/Practice/reactapp/.env
+08_Embedded_AI_FrontEnd/FrontEnd/Practice/reactapp/.env.local
+
+## system files
+08_Embedded_AI_FrontEnd/FrontEnd/Practice/reactapp/.DS_Store
+
+## IDE settings
+08_Embedded_AI_FrontEnd/FrontEnd/Practice/reactapp/.vscode/
+08_Embedded_AI_FrontEnd/FrontEnd/Practice/reactapp/.idea/
+
+## logs
+08_Embedded_AI_FrontEnd/FrontEnd/Practice/reactapp/npm-debug.log*
+08_Embedded_AI_FrontEnd/FrontEnd/Practice/reactapp/yarn-debug.log*
+08_Embedded_AI_FrontEnd/FrontEnd/Practice/reactapp/yarn-error.log*
+
+
+
 ###################################3
 # Ignore only RawData and Model under this project
 07_Computer_Vision/04_EndtoEndProjects/Documentation/RawData/
