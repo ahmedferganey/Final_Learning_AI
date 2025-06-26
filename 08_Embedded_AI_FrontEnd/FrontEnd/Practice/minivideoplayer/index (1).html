@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mini Video Player</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <div class="container">
+    <h1>🎬 Media Player</h1>
+
+    <!-- 🎥 Video Element -->
+    <video id="myVideo" width="100%" controls poster="https://via.placeholder.com/800x450">
+      <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4" />
+      Your browser does not support HTML video.
+    </video>
+
+    <!-- 🎛️ Control Buttons -->
+    <div class="controls">
+      <button onclick="playVideo()">▶ Play</button>
+      <button onclick="pauseVideo()">⏸ Pause</button>
+      <button onclick="toggleMute()">🔇 Mute / Unmute</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
