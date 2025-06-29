@@ -121,6 +121,18 @@ alembic/versions/*.pyo
 
 
 
+
+
+07_Computer_Vision/04_EndtoEndProjects/services/ui_frontend/node_modules
+07_Computer_Vision/04_EndtoEndProjects/services/ui_frontend/dist
+07_Computer_Vision/04_EndtoEndProjects/services/ui_frontend/.git
+07_Computer_Vision/04_EndtoEndProjects/services/ui_frontend/.env
+07_Computer_Vision/04_EndtoEndProjects/services/ui_frontend/.vscode
+07_Computer_Vision/04_EndtoEndProjects/services/ui_frontend/Dockerfile
+07_Computer_Vision/04_EndtoEndProjects/services/ui_frontend/nginx.conf
+07_Computer_Vision/04_EndtoEndProjects/services/ui_frontend/README.md
+07_Computer_Vision/04_EndtoEndProjects/services/ui_frontend/*.log
+
 ###################################3
 # Ignore only RawData and Model under this project
 07_Computer_Vision/04_EndtoEndProjects/Documentation/RawData/
