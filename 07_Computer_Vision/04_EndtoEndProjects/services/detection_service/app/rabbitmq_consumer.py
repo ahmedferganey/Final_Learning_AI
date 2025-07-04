@@ -5,7 +5,7 @@ from .config import Config
 from .controller import FrameProcessor
 from .db_repository import ViolationRepository
 from .detection import YOLO12Detector as YOLODetector
-from .stream_service import StreamService
+from .annotated_publisher import AnnotatedFramePublisher
 from .violation_service import ViolationService
 
 if __name__ == '__main__':
@@ -18,8 +18,9 @@ if __name__ == '__main__':
     violation_service = ViolationService()
 
     repo = ViolationRepository(config)
-    streamer = StreamService(config)
-    processor = FrameProcessor(detector, violation_service, repo, streamer)
+    publisher = AnnotatedFramePublisher(config)
+    processor = FrameProcessor(detector, violation_service, repo, publisher)
+
 
     # RabbitMQ setup
     connection = pika.BlockingConnection(pika.ConnectionParameters(host=config.RABBITMQ_HOST))

@@ -3,9 +3,13 @@
 from fastapi import FastAPI
 from app.routes.api import router as api_router
 from app.streaming.websocket import websocket_endpoint
+from app.consumers.annoted_frame_listener import callback, shutdown_handler
 import subprocess
 import threading
 import os
+import pika
+import signal
+
 
 app = FastAPI(title="Streaming Service")
 
@@ -16,7 +20,7 @@ app.add_api_websocket_route("/ws", websocket_endpoint)
 
 def start_rabbitmq_listener():
     # Use full path in Docker to avoid path issues
-    subprocess.run(["python", "-u", "app/consumers/annoted_frame_listener.py"])
+    subprocess.Popen(["python", "-u", "app/consumers/annoted_frame_listener.py"])
 
 
 @app.on_event("startup")

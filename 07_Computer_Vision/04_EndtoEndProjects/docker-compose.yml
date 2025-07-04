@@ -111,12 +111,21 @@ services:
     container_name: ui_frontend
     ports:
       - "3000:80"
-    env_file:
-      - .env      
     depends_on:
       - streaming_service
     networks:
       - backend
+    env_file:
+      - .env.production 
+    environment:
+      VITE_BACKEND_API_URL: "http://streaming_service:9000/api"
+      VITE_WEBSOCKET_URL: "ws://streaming_service:9000/ws"      
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
       
 networks:
   backend:
