@@ -3,48 +3,44 @@ import time
 import logging
 from datetime import datetime
 from utils import encode_frame
+from concurrent.futures import ThreadPoolExecutor, TimeoutError
 
+# Create a single-thread executor for timed reads
+read_executor = ThreadPoolExecutor(max_workers=1)
 
-def flush_camera_buffer(cap, frames_to_clear=5):
-    """
-    Reduce latency by clearing OpenCV's internal frame buffer.
-    This is especially helpful for RTSP streams with buffering delays.
-    """
-    for _ in range(frames_to_clear):
+def flush_camera_buffer(cap, max_frames=10):
+    for _ in range(max_frames):
         cap.grab()
 
-
 def create_capture(source, source_name):
-    """
-    Create a VideoCapture object depending on source type (RTSP, webcam, or file).
-    """
-    if isinstance(source, str) and source.startswith("rtsp://"):
-        logging.info(f"[{source_name}] Connecting to RTSP stream...")
-        return cv2.VideoCapture(source, cv2.CAP_FFMPEG)
-    else:
-        logging.info(f"[{source_name}] Opening video source...")
-        return cv2.VideoCapture(source)
+    logging.info(f"[{source_name}] Opening stream...")
+    cap = cv2.VideoCapture(
+        source,
+        cv2.CAP_FFMPEG if isinstance(source, str) and source.startswith("rtsp://") else cv2.CAP_ANY
+    )
+    cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+    return cap
 
+def is_frame_stale(prev_frame, curr_frame):
+    return prev_frame is not None and cv2.norm(prev_frame, curr_frame) < 1e-6
 
-def reconnect(cap, source, source_name, delay=2):
-    """
-    Attempt to reconnect to the video source with optional delay.
-    """
-    logging.warning(f"[{source_name}] Reconnecting to source in {delay}s...")
-    cap.release()
-    time.sleep(delay)
-    return create_capture(source, source_name)
+def read_frame_with_timeout(cap, timeout=2.0):
+    """Attempt to read a frame with timeout protection."""
+    future = read_executor.submit(cap.read)
+    try:
+        return future.result(timeout=timeout)
+    except TimeoutError:
+        logging.error("[Reader] ❌ cap.read() timed out.")
+        return False, None
 
+def read_frames(source, callback, source_name, target_fps=15, max_retries=5, shutdown_event=None):
+    if shutdown_event is None:
+        raise ValueError("Missing shutdown_event")
 
-def read_frames(source, callback, source_name, target_fps=15, max_retries=5):
-    """
-    Continuously read frames from a video source and publish them using a callback.
-    Handles buffering, reconnection, and frame rate control.
-    """
     retry_count = 0
-    cap = None
+    prev_frame = None
 
-    while retry_count < max_retries:
+    while retry_count < max_retries and not shutdown_event.is_set():
         cap = create_capture(source, source_name)
 
         if not cap.isOpened():
@@ -54,39 +50,44 @@ def read_frames(source, callback, source_name, target_fps=15, max_retries=5):
             continue
 
         logging.info(f"[{source_name}] ✅ Stream opened successfully.")
-        fps = cap.get(cv2.CAP_PROP_FPS) or 30
-        frame_skip = max(1, int(fps / target_fps))
         frame_number = 0
+        frame_interval = 1.0 / target_fps
 
         try:
-            while True:
-                flush_camera_buffer(cap, frames_to_clear=4)
+            while not shutdown_event.is_set():
+                flush_camera_buffer(cap)
+                start_time = time.time()
 
-                ret, frame = cap.read()
-                if not ret:
-                    logging.warning(f"[{source_name}] ❌ Frame read failed.")
-                    cap = reconnect(cap, source, source_name)
-                    break  # Break inner loop and reconnect
+                ret, frame = read_frame_with_timeout(cap, timeout=2.0)
+                if not ret or is_frame_stale(prev_frame, frame):
+                    logging.warning(f"[{source_name}] ❌ Bad/stale/timed-out frame. Reconnecting...")
+                    break
 
                 frame_number += 1
-                if frame_number % frame_skip != 0:
-                    continue  # Drop frames to match target FPS
+                prev_frame = frame
 
                 h, w = frame.shape[:2]
+                encoded = encode_frame(frame, resize=(640, 480))
+                if not encoded:
+                    logging.warning(f"[{source_name}] ⚠️ Skipped frame {frame_number} due to encoding failure.")
+                    continue
 
                 payload = {
                     "frame_id": frame_number,
                     "timestamp": datetime.utcnow().isoformat(),
-                    "frame_data": encode_frame(frame),
+                    "frame_data": encoded,
                     "source": source_name,
                     "width": w,
                     "height": h
                 }
 
-                callback(payload)
-                logging.info(f"[{source_name}] 📤 Published frame {frame_number}")
+                if callback(payload):
+                  logging.info(f"[{source_name}] 📤 Published frame {frame_number}")
+                else:
+                  logging.warning(f"[{source_name}] ❌ Failed to publish frame {frame_number} after retries.")
 
-                time.sleep(1.0 / target_fps)
+                elapsed = time.time() - start_time
+                time.sleep(max(0, frame_interval - elapsed))
 
         except Exception as e:
             logging.exception(f"[{source_name}] Unexpected error: {e}")
@@ -94,9 +95,9 @@ def read_frames(source, callback, source_name, target_fps=15, max_retries=5):
             time.sleep(min(5, 2 ** retry_count))
 
         finally:
-            if cap:
-                cap.release()
-            logging.info(f"[{source_name}] Stream closed for reconnect.")
+            cap.release()
+            logging.info(f"[{source_name}] Stream closed.")
 
-    logging.error(f"[{source_name}] ❌ Max retries exceeded. Giving up.")
+    if retry_count >= max_retries:
+        logging.error(f"[{source_name}] ❌ Max retries exceeded. Giving up.")
 
