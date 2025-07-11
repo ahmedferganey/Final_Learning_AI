@@ -1,0 +1,122 @@
+version: "3.9"
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS}
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_running"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend
+
+  postgres:
+    image: postgres:14
+    container_name: postgres_db
+    env_file:
+      - .env
+    volumes:
+      - postgres-db:/var/lib/postgresql/data
+
+  frame_reader:
+    build:
+      context: services/frame_reader
+      dockerfile: frame-reader.Dockerfile
+    container_name: frame_reader
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    env_file: .env
+    volumes:
+      - ./shared/data:/shared/data
+    restart: unless-stopped
+    networks:
+      - backend
+
+  nginx:
+    image: nginx:latest
+    container_name: api_gateway
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - backend_service
+    networks:
+      - backend
+
+
+  backend_service:
+    build:
+      context: ./services/backend_service
+      dockerfile: backend-service.Dockerfile
+    container_name: backend_service
+    environment:
+      - DATABASE_HOSTNAME=${DATABASE_HOSTNAME}
+      - DATABASE_PORT=${DATABASE_PORT}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_NAME=${DATABASE_NAME}
+      - DATABASE_USERNAME=${DATABASE_USERNAME}
+      - SECRET_KEY=${SECRET_KEY}
+      - ALGORITHM=${ALGORITHM}
+      - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES}
+    ports:
+      - "80:8000"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      frame_reader:
+        condition: service_started
+    restart: unless-stopped
+    volumes:
+      - ./services/backend_service/app:/usr/src/app:ro
+    networks:
+      - backend
+
+
+  ui_frontend:
+    build:
+      context: ./services/ui_frontend
+      dockerfile: ui-frontend.Dockerfile
+    container_name: ui_frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend_service
+    env_file:
+      - .env.production
+    environment:
+      VITE_BACKEND_API_URL: "http://localhost:8000/api"
+      VITE_WEBSOCKET_URL: "ws://localhost:8000/ws/frames"
+      VITE_FIREBASE_API_KEY: "AIzaSyDraMniMgc-luWkxEUgwmZNZkgQM9QCiZc"
+      VITE_FIREBASE_AUTH_DOMAIN: "pizza-store-4fcd5.firebaseapp.com"
+      VITE_FIREBASE_PROJECT_ID: "pizza-store-4fcd5"
+      VITE_FIREBASE_MESSAGING_SENDER_ID: "552598277237"
+      VITE_FIREBASE_APP_ID: "1:552598277237:web:c47588f9c86c9319c27c3c"
+      VITE_FIREBASE_STORAGE_BUCKET: "pizza-store-4fcd5.appspot.com"
+      VITE_FIREBASE_MEASUREMENT_ID: "G-L0419C93N4"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - backend
+
+networks:
+  backend:

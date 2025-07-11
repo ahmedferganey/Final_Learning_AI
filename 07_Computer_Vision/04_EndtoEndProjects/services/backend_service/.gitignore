@@ -1,0 +1,64 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.so
+
+# Alembic migration cache
+alembic/versions/
+
+# Environment files
+.env
+*.env
+.env.*
+# Python virtual environments
+venv/
+.env/
+.venv/
+ENV/
+env.bak/
+env/
+
+# Logs and local DB
+*.log
+*.sqlite3
+*.db
+
+# Docker-related
+*.tar
+*.img
+*.pid
+
+# VSCode / IDEs
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Compiled C extensions
+*.egg-info/
+*.egg
+*.pyd
+
+# Test cache
+.pytest_cache/
+
+# MyPy cache
+.mypy_cache/
+
+# Coverage reports
+htmlcov/
+.coverage
+coverage.xml
+
+# pip
+pip-log.txt
+
+# Optional: Ignore build artifacts if any
+build/
+dist/
+
+# Optional: Ignore if you use Jupyter or IPython in dev
+.ipynb_checkpoints/
+

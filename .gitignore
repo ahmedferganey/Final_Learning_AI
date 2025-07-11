@@ -138,3 +138,6 @@ alembic/versions/*.pyo
 07_Computer_Vision/04_EndtoEndProjects/Documentation/RawData/
 07_Computer_Vision/04_EndtoEndProjects/Documentation/Model/
 02_DeepLearning_Projects/00_Speech_Recognition_RasPi_ContainerzedApp/02_Ref/
+07_Computer_Vision/04_EndtoEndProjects/services/backend_service/.backend/
+07_Computer_Vision/04_EndtoEndProjects/services/streaming_service/.streaming_service/
+07_Computer_Vision/04_EndtoEndProjects/services/frame_reader/.frame_reader/
