@@ -4,6 +4,9 @@
 ## Allow the .gitignore file itself
 !.gitignore
 #
+
+
+!Jenkinsfile
 ## Allow specific directories to be tracked
 !01_ComputerArchitecture_Linux_Networking/
 !02_Programming_OOP/
@@ -53,6 +56,7 @@
 !Final_Learning_AI-Projects/**
 !11_Management/**
 !08_Embedded_AI/**
+
 #
 ## Ignore unwanted directories
 #/home/ferganey/GitHub/personal/Final_Learning_AI/07_Computer_Vision/02_APIs/00_API_COURSE_PROJECT/venv/
