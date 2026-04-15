@@ -90,3 +90,4 @@ build/
 # Secrets
 **/secrets/
 **/*.json
+07_Computer_Vision/04_EndtoEndProjects/services/backend_service/app/core/secrets/
