@@ -94,7 +94,15 @@ ENV/
 **/env/
 **/ENV/
 **/.backend/
+.backend/
 
+
+**/.backend/
+
+07_Computer_Vision/04_EndtoEndProjects/services/backend_service/.backend/*
+.venv/
+venv/
+env/
 # Python cache
 __pycache__/
 *.pyc
