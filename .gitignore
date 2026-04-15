@@ -1,186 +1,86 @@
-## Ignore everything
+# Ignore everything by default
 *
-#
-## Allow the .gitignore file itself
+
+# Keep this file
 !.gitignore
-#
-## Allow specific directories to be tracked
+
+# Allowed top-level directories
 !01_ComputerArchitecture_Linux_Networking/
 !02_Programming_OOP/
 !03_DataStructure_Algorithms_ProblemSolving/
 !04_Mathematics/
-!Shared_For_ALL/
-!Plans/
 !05_Machine_Learning/
 !06_DeepLearning_NeuralNetwork/
 !07_Computer_Vision/
+!08_Embedded_AI/
 !08_Embedded_AI_FrontEnd/
 !09_Mathematics_Generative_Models/
 !10_Gen_AI/
-!Final_Learning_AI-Projects/
 !11_Management/
-!08_Embedded_AI/
-#
-#
-## Allow .gitkeep files
-!01_ComputerArchitecture_Linux_Networking/.gitkeep
-!02_Programming_OOP/.gitkeep
-!03_DataStructure_Algorithms_ProblemSolving/.gitkeep
-!04_Mathematics/.gitkeep
-!Plans/.gitkeep
-!05_Machine_Learning/.gitkeep
-!06_DeepLearning_NeuralNetwork/.gitkeep
-!07_Computer_Vision/.gitkeep
-!08_Embedded_AI_FrontEnd/.gitkeep
-!09_Mathematics_Generative_Models/.gitkeep
-!10_Gen_AI/.gitkeep
-!Final_Learning_AI-Projects/.gitkeep
-!11_Management/.gitkeep
-!08_Embedded_AI/.gitkeep
-#
-## Allow all files within the specified directories
+!Shared_For_ALL/
+!Plans/
+!Final_Learning_AI-Projects/
+
+# Allow all content inside allowed directories
 !01_ComputerArchitecture_Linux_Networking/**
 !02_Programming_OOP/**
 !03_DataStructure_Algorithms_ProblemSolving/**
-!Plans/**
 !04_Mathematics/**
 !05_Machine_Learning/**
 !06_DeepLearning_NeuralNetwork/**
 !07_Computer_Vision/**
+!08_Embedded_AI/**
 !08_Embedded_AI_FrontEnd/**
 !09_Mathematics_Generative_Models/**
 !10_Gen_AI/**
-!Final_Learning_AI-Projects/**
 !11_Management/**
-!08_Embedded_AI/**
-#
-## Ignore unwanted directories
-#/home/ferganey/GitHub/personal/Final_Learning_AI/07_Computer_Vision/02_APIs/00_API_COURSE_PROJECT/venv/
-#/home/ferganey/GitHub/personal/Final_Learning_AI/07_Computer_Vision/02_APIs/00_API_COURSE_PROJECT/.env
+!Shared_For_ALL/**
+!Plans/**
+!Final_Learning_AI-Projects/**
 
-##02_Programming_OOP/02_C++_DS_AL_DP/The-C-20-Masterclass-Source-Code/
-##02_Programming_OOP/Educational_files/ahmed_samy/
-##03_DataStructure_Algorithms_ProblemSolving/ref/GitHubGrakonCodeExamples/
-#
-## Ignore the directory and its contents
-##03_DataStructure_Algorithms_ProblemSolving/ref/MIT/**
-#
-#
+# Keep .gitkeep files
+!**/.gitkeep
+
 # Python
-__pycache__/
-*.py[cod]
-*.egg-info/
+**/__pycache__/
+**/*.py[cod]
+**/*.egg-info/
 dist/
 build/
-
-# Environments
-.env
-venv/
-ENV/
-.venv/
-# Python virtual environments
-venv/
-.venv/
-env/
-ENV/
-# Virtual environments
-.venv/
-venv/
-env/
-ENV/
-.backend/
-**/.venv/
-**/venv/
-**/env/
-**/ENV/
-**/.backend/
-.backend/
-
-
-**/.backend/
-
-07_Computer_Vision/04_EndtoEndProjects/services/backend_service/.backend/*
-.venv/
-venv/
-env/
-# Python cache
-__pycache__/
-*.pyc
-
-# Env files
-.env
-.env.*
-!.env.example
-# Any nested virtual env folders anywhere in the repo
-**/venv/
-**/.venv/
-**/env/
-**/ENV/
-
-# Python cache
-__pycache__/
-*.pyc
-
-# Local environment files
-.env
-.env.*
-!.env.example
-# IDEs
-.vscode/
-.idea/
-
-# Bytecode
-*.pyc
-
-# Jupyter
 .ipynb_checkpoints/
 
-# Alembic
-alembic/versions/*.pyc
-alembic/versions/*.pyo
+# Virtual environments
+**/.venv/
+**/venv/
+**/env/
+**/ENV/
+**/.backend/
 
+# Env files
+**/.env
+**/.env.*
+!**/.env.example
 
+# IDEs
+**/.vscode/
+**/.idea/
 
-# React
-## dependencies
-08_Embedded_AI_FrontEnd/FrontEnd/Practice/reactapp/node_modules
+# Node / React
+**/node_modules/
+**/dist/
+**/build/
+**/npm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
 
-## build
-08_Embedded_AI_FrontEnd/FrontEnd/Practice/reactapp/dist
-08_Embedded_AI_FrontEnd/FrontEnd/Practice/reactapp/build
+# System files
+**/.DS_Store
 
-## environment variables
-08_Embedded_AI_FrontEnd/FrontEnd/Practice/reactapp/.env
-08_Embedded_AI_FrontEnd/FrontEnd/Practice/reactapp/.env.local
+# Alembic compiled files
+**/alembic/versions/*.pyc
+**/alembic/versions/*.pyo
 
-## system files
-08_Embedded_AI_FrontEnd/FrontEnd/Practice/reactapp/.DS_Store
-
-## IDE settings
-08_Embedded_AI_FrontEnd/FrontEnd/Practice/reactapp/.vscode/
-08_Embedded_AI_FrontEnd/FrontEnd/Practice/reactapp/.idea/
-
-## logs
-08_Embedded_AI_FrontEnd/FrontEnd/Practice/reactapp/npm-debug.log*
-08_Embedded_AI_FrontEnd/FrontEnd/Practice/reactapp/yarn-debug.log*
-08_Embedded_AI_FrontEnd/FrontEnd/Practice/reactapp/yarn-error.log*
-
-
-
-
-
-07_Computer_Vision/04_EndtoEndProjects/services/ui_frontend/node_modules
-07_Computer_Vision/04_EndtoEndProjects/services/ui_frontend/dist
-07_Computer_Vision/04_EndtoEndProjects/services/ui_frontend/.git
-07_Computer_Vision/04_EndtoEndProjects/services/ui_frontend/.env
-07_Computer_Vision/04_EndtoEndProjects/services/ui_frontend/.vscode
-07_Computer_Vision/04_EndtoEndProjects/services/ui_frontend/Dockerfile
-07_Computer_Vision/04_EndtoEndProjects/services/ui_frontend/nginx.conf
-07_Computer_Vision/04_EndtoEndProjects/services/ui_frontend/README.md
-07_Computer_Vision/04_EndtoEndProjects/services/ui_frontend/*.log
-
-###################################3
-# Ignore only RawData and Model under this project
+# Project-specific ignores
 07_Computer_Vision/04_EndtoEndProjects/Documentation/RawData/
 07_Computer_Vision/04_EndtoEndProjects/Documentation/Model/
 02_DeepLearning_Projects/00_Speech_Recognition_RasPi_ContainerzedApp/02_Ref/
