@@ -78,7 +78,45 @@ build/
 venv/
 ENV/
 .venv/
+# Python virtual environments
+venv/
+.venv/
+env/
+ENV/
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+.backend/
+**/.venv/
+**/venv/
+**/env/
+**/ENV/
+**/.backend/
 
+# Python cache
+__pycache__/
+*.pyc
+
+# Env files
+.env
+.env.*
+!.env.example
+# Any nested virtual env folders anywhere in the repo
+**/venv/
+**/.venv/
+**/env/
+**/ENV/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Local environment files
+.env
+.env.*
+!.env.example
 # IDEs
 .vscode/
 .idea/
