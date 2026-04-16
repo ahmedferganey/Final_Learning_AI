@@ -1,0 +1,4 @@
+.env
+docs\ref
+Projects_All/llms
+uv.lock
