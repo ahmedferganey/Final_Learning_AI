@@ -1,0 +1,1 @@
+Monorepo tree is documented in README.md.

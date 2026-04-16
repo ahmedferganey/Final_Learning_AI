@@ -53,7 +53,15 @@ build/
 **/env/
 **/ENV/
 **/.backend/
+*.pyc
 
+.env
+**/.pytest_cache/
+**/.mypy_cache/
+**/.ruff_cache/
+dist/
+build/
+*.log
 # Env files
 **/.env
 **/.env.*

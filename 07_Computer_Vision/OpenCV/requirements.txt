@@ -1,0 +1,26 @@
+# --- Core Jupyter & Notebook Tools ---
+jupyter==1.0.0
+jupyterlab>=4.0.0
+notebook>=7.0.0
+nbconvert>=7.0.0
+nbformat>=5.9.0
+qtconsole>=5.4.0
+
+# --- Scientific & ML Stack ---
+numpy>=1.26.0
+matplotlib>=3.8.0
+scikit-learn>=1.5.0
+pillow>=10.0.0
+six>=1.16.0
+olefile>=0.47
+
+# --- Deep Learning Frameworks ---
+tensorflow>=2.20.0
+keras>=3.0.0
+
+# --- Computer Vision ---
+opencv-python>=4.9.0.80
+opencv-contrib-python>=4.9.0.80
+
+# --- Optional Utils ---
+ipykernel>=6.25.0
