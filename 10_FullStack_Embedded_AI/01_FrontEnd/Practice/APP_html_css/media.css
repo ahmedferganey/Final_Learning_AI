@@ -1,0 +1,249 @@
+/* ===== Reset & Base Styles ===== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f7f9fc;
+  color: #2c3e50;
+  line-height: 1.6;
+}
+
+a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* ===== Layout Container ===== */
+.container {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ===== Sidebar ===== */
+.sidebar {
+  width: 90px;
+  background-color: #2c3e50;
+  padding: 20px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.media-controls {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.media-controls li {
+  margin: 12px 0;
+}
+
+.media-controls button {
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.media-controls button:hover {
+  transform: scale(1.15);
+}
+
+.media-controls img {
+  width: 36px;
+  height: 36px;
+  filter: grayscale(1) brightness(0.85);
+  transition: filter 0.3s;
+}
+
+.media-controls img:hover {
+  filter: none;
+}
+
+/* ===== Header ===== */
+.site-header {
+  background-color: #ffffff;
+  padding: 20px 30px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.site-header h1 {
+  margin: 0;
+  font-size: 1.8rem;
+}
+
+.site-header p {
+  margin: 4px 0 12px;
+  color: #555;
+}
+
+.top-nav ul {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  gap: 15px;
+}
+
+.top-nav li a {
+  padding: 6px 12px;
+  background-color: #007bff;
+  color: #fff;
+  border-radius: 6px;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.top-nav li a:hover {
+  background-color: #0056b3;
+}
+
+/* ===== Main Content ===== */
+.main-content {
+  flex: 1;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.media-display {
+  max-width: 100%;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  text-align: center;
+}
+
+.media-display img,
+.media-display video {
+  width: 100%;
+  height: auto;
+  max-height: 500px;
+  border-radius: 8px;
+  transition: transform 0.3s ease;
+}
+
+.media-display img:hover,
+.media-display video:hover {
+  transform: scale(1.01);
+}
+
+/* ===== Media Info ===== */
+.media-info {
+  background-color: #f1f3f5;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.05);
+}
+
+/* ===== Comment Section ===== */
+.media-comments {
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1);
+}
+
+.media-comments form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.media-comments label {
+  font-weight: 600;
+}
+
+.media-comments input,
+.media-comments textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.media-comments button {
+  align-self: flex-start;
+  padding: 8px 16px;
+  background-color: #28a745;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.media-comments button:hover {
+  background-color: #218838;
+}
+
+#comments-section {
+  margin-top: 20px;
+}
+
+#comments-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+#comments-list li {
+  background-color: #f8f9fa;
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  border-left: 4px solid #007bff;
+}
+
+/* ===== Footer ===== */
+.site-footer {
+  background-color: #2c3e50;
+  color: #fff;
+  padding: 16px;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.site-footer a {
+  color: #9fd3fb;
+}
+
+.site-footer a:hover {
+  color: #ffffff;
+  text-decoration: underline;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    flex-direction: row;
+    justify-content: center;
+    width: 100%;
+    padding: 10px;
+  }
+
+  .main-content {
+    padding: 20px;
+  }
+
+  .top-nav ul {
+    flex-wrap: wrap;
+  }
+}
+

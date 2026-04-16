@@ -12,10 +12,9 @@
 !05_Machine_Learning/
 !06_DeepLearning_NeuralNetwork/
 !07_Computer_Vision/
-!08_Embedded_AI/
-!08_Embedded_AI_FrontEnd/
-!09_Mathematics_Generative_Models/
-!10_Gen_AI/
+!08_Mathematics_Generative_Models/
+!09_Gen_AI/
+!10_FullStack_Embedded_AI/
 !11_Management/
 !Shared_For_ALL/
 !Plans/
@@ -29,10 +28,9 @@
 !05_Machine_Learning/**
 !06_DeepLearning_NeuralNetwork/**
 !07_Computer_Vision/**
-!08_Embedded_AI/**
-!08_Embedded_AI_FrontEnd/**
-!09_Mathematics_Generative_Models/**
-!10_Gen_AI/**
+!08_Mathematics_Generative_Models/**
+!09_Gen_AI/**
+!10_FullStack_Embedded_AI/**
 !11_Management/**
 !Shared_For_ALL/**
 !Plans/**
@@ -81,8 +79,8 @@ build/
 **/alembic/versions/*.pyo
 
 # Project-specific ignores
-08_FullStack_Embedded_AI/04_EndtoEndProjects/Documentation/RawData/
-08_FullStack_Embedded_AI/04_EndtoEndProjects/Documentation/Model/
+10_FullStack_Embedded_AI/04_EndtoEndProjects/Documentation/RawData/
+10_FullStack_Embedded_AI/04_EndtoEndProjects/Documentation/Model/
 02_DeepLearning_Projects/00_Speech_Recognition_RasPi_ContainerzedApp/02_Ref/
 
 
@@ -90,4 +88,4 @@ build/
 # Secrets
 **/secrets/
 **/*.json
-08_FullStack_Embedded_AI/04_EndtoEndProjects/services/backend_service/app/core/secrets/
+10_FullStack_Embedded_AI/04_EndtoEndProjects/services/backend_service/app/core/secrets/

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Interactive Media Gallery</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <!-- Header -->
+  <header class="site-header">
+    <h1>📸 Interactive Media Gallery</h1>
+    <p>Click an icon on the sidebar to view images and videos.</p>
+    <nav class="top-nav">
+      <ul>
+        <li><a href="#">Home</a></li>
+        <li><a href="#">Gallery</a></li>
+        <li><a href="#">About</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- Layout Container -->
+  <div class="container">
+
+    <!-- Sidebar -->
+    <aside class="sidebar" aria-label="Media Navigation">
+      <nav>
+        <ul class="media-controls">
+          <li><button onclick="showMedia('image', 'https://via.placeholder.com/800x500?text=Mountain')" aria-label="Mountain"><img src="https://img.icons8.com/ios-filled/50/image.png" alt="Mountain" /></button></li>
+          <li><button onclick="showMedia('video', 'https://www.w3schools.com/html/mov_bbb.mp4')" aria-label="Video 1"><img src="https://img.icons8.com/ios-filled/50/video.png" alt="Video 1" /></button></li>
+          <li><button onclick="showMedia('image', 'https://via.placeholder.com/800x500?text=Sunset')" aria-label="Sunset"><img src="https://img.icons8.com/ios-filled/50/image-gallery.png" alt="Sunset" /></button></li>
+          <li><button onclick="showMedia('video', 'https://www.w3schools.com/html/movie.mp4')" aria-label="Video 2"><img src="https://img.icons8.com/ios-filled/50/clapperboard.png" alt="Video 2" /></button></li>
+          <li><button onclick="showMedia('image', 'https://via.placeholder.com/800x500?text=Ocean')" aria-label="Ocean"><img src="https://img.icons8.com/ios-filled/50/beach.png" alt="Ocean" /></button></li>
+          <li><button onclick="showMedia('video', 'https://www.w3schools.com/html/mov_bbb.mp4')" aria-label="Video 3"><img src="https://img.icons8.com/ios-filled/50/film-reel.png" alt="Video 3" /></button></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content" role="main">
+      <section class="media-display" id="media-display" aria-live="polite">
+        <img src="https://via.placeholder.com/800x500?text=Welcome+to+Gallery" alt="Default Gallery Image" />
+      </section>
+
+      <!-- Media Info Section -->
+      <section class="media-info" id="media-info">
+        <h2>📄 Media Information</h2>
+        <p>Select an item to display metadata about the media here.</p>
+      </section>
+
+      <!-- Comment Box -->
+      <section class="media-comments">
+        <h2>💬 Leave a Comment</h2>
+        <form id="comment-form">
+          <label for="username">Name:</label>
+          <input type="text" id="username" name="username" required />
+
+          <label for="comment">Comment:</label>
+          <textarea id="comment" name="comment" rows="4" required></textarea>
+
+          <button type="submit">Post Comment</button>
+        </form>
+
+        <div id="comments-section">
+          <h3>🗨️ Comments</h3>
+          <ul id="comments-list"></ul>
+        </div>
+      </section>
+    </main>
+
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <p>&copy; 2025 Media Gallery App. Designed by Ahmed Ferganey.</p>
+    <a href="https://www.facebook.com/ahmedferganey" target="_blank">Connect on Facebook</a>
+  </footer>
+
+  <!-- JavaScript -->
+  <script>
+    function showMedia(type, src) {
+      const container = document.getElementById('media-display');
+      const info = document.getElementById('media-info');
+      container.innerHTML = '';
+
+      if (type === 'image') {
+        const img = document.createElement('img');
+        img.src = src;
+        img.alt = "Selected Image";
+        container.appendChild(img);
+        info.innerHTML = '<h2>📄 Media Information</h2><p>This is an image from: ' + src + '</p>';
+      } else if (type === 'video') {
+        const video = document.createElement('video');
+        video.src = src;
+        video.controls = true;
+        video.autoplay = true;
+        video.setAttribute('aria-label', 'Selected Video');
+        container.appendChild(video);
+        info.innerHTML = '<h2>📄 Media Information</h2><p>This is a video from: ' + src + '</p>';
+      }
+    }
+
+    document.getElementById('comment-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const username = document.getElementById('username').value.trim();
+      const comment = document.getElementById('comment').value.trim();
+
+      if (username && comment) {
+        const li = document.createElement('li');
+        li.textContent = `${username}: ${comment}`;
+        document.getElementById('comments-list').appendChild(li);
+        this.reset();
+      }
+    });
+  </script>
+</body>
+
+</html>
+

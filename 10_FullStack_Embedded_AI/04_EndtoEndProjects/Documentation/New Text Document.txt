@@ -1,0 +1,111 @@
+pizza-store-cv/
+├── 📂 frame-reader/
+│   ├── app/
+│   │   ├── main.py
+│   │   ├── rabbitmq_publisher.py
+│   │   └── config.py
+│   ├── requirements.txt
+│   └── tests/
+│       └── test_main.py
+
+# frame-reader/app/config.py
+VIDEO_SOURCE = "video.mp4"  # Or RTSP stream URL
+RABBITMQ_HOST = "rabbitmq"
+RABBITMQ_PORT = 5672
+EXCHANGE_NAME = "frame_exchange"
+ROUTING_KEY = "frame.key"
+
+# frame-reader/app/rabbitmq_publisher.py
+import pika
+import json
+
+def get_channel():
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host="rabbitmq"))
+    channel = connection.channel()
+    channel.exchange_declare(exchange="frame_exchange", exchange_type="direct")
+    return channel
+
+def publish_frame(channel, frame_data, routing_key):
+    channel.basic_publish(
+        exchange="frame_exchange",
+        routing_key=routing_key,
+        body=json.dumps(frame_data)
+    )
+
+# frame-reader/app/main.py
+import cv2
+import base64
+import time
+from rabbitmq_publisher import get_channel, publish_frame
+import config
+
+if __name__ == "__main__":
+    cap = cv2.VideoCapture(config.VIDEO_SOURCE)
+    channel = get_channel()
+    
+    while cap.isOpened():
+        ret, frame = cap.read()
+        if not ret:
+            break
+
+        _, buffer = cv2.imencode(".jpg", frame)
+        frame_encoded = base64.b64encode(buffer).decode("utf-8")
+
+        frame_data = {
+            "timestamp": time.time(),
+            "frame": frame_encoded
+        }
+
+        publish_frame(channel, frame_data, config.ROUTING_KEY)
+        time.sleep(0.03)  # simulate ~30fps
+
+    cap.release()
+
+# frame-reader/requirements.txt
+opencv-python
+pika
+
+# frame-reader/tests/test_main.py
+def test_dummy():
+    assert True
+
+├── 📂 message-broker/
+│   ├── rabbitmq/
+│   │   ├── definitions.json
+│   │   └── rabbitmq.conf
+│   └── scripts/
+│       └── init_rabbitmq.sh
+
+# message-broker/rabbitmq/definitions.json
+{
+  "exchanges": [
+    {
+      "name": "frame_exchange",
+      "type": "direct",
+      "durable": true
+    }
+  ],
+  "queues": [
+    {
+      "name": "frame_queue",
+      "durable": true
+    }
+  ],
+  "bindings": [
+    {
+      "source": "frame_exchange",
+      "destination": "frame_queue",
+      "destination_type": "queue",
+      "routing_key": "frame.key"
+    }
+  ]
+}
+
+# message-broker/rabbitmq/rabbitmq.conf
+loopback_users = none
+management.load_definitions = /etc/rabbitmq/definitions.json
+
+# message-broker/scripts/init_rabbitmq.sh
+#!/bin/bash
+cp /config/definitions.json /etc/rabbitmq/definitions.json
+rabbitmq-server

@@ -1,0 +1,103 @@
+pizza-store-cv/
+├── 📂 docker/
+│   ├── docker-compose.yml
+│   ├── frame-reader.Dockerfile
+│   ├── detection-service.Dockerfile
+│   ├── streaming-service.Dockerfile
+│   ├── frontend.Dockerfile
+│   └── message-broker/
+│       ├── rabbitmq-setup.sh
+│       └── broker-config.json
+│
+├── 📂 docs/
+│   ├── ARCHITECTURE.md
+│   ├── API_DOCS.md
+│   └── SETUP.md
+│
+├── 📂 frame-reader/
+│   ├── app/
+│   │   ├── main.py
+│   │   ├── rabbitmq_publisher.py
+│   │   └── config.py
+│   ├── requirements.txt
+│   └── tests/
+│       └── test_main.py
+│
+├── 📂 message-broker/
+│   ├── rabbitmq/
+│   │   ├── definitions.json
+│   │   └── rabbitmq.conf
+│   └── scripts/
+│       └── init_rabbitmq.sh
+│
+├── 📂 detection-service/
+│   ├── app/
+│   │   ├── main.py
+│   │   ├── rabbitmq_consumer.py
+│   │   ├── violation_logic.py
+│   │   ├── db.py
+│   │   └── config.py
+│   ├── models/
+│   │   └── yolov8n-pizza.pt
+│   ├── requirements.txt
+│   └── tests/
+│       ├── test_violation_logic.py
+│       └── test_main.py
+│
+├── 📂 streaming-service/
+│   ├── app/
+│   │   ├── main.py
+│   │   ├── api.py
+│   │   ├── websocket.py
+│   │   ├── rabbitmq_client.py
+│   │   └── config.py
+│   ├── requirements.txt
+│   └── tests/
+│       └── test_api.py
+│
+├── 📂 frontend/
+│   ├── public/
+│   │   └── index.html
+│   ├── src/
+│   │   ├── App.jsx
+│   │   ├── components/
+│   │   │   ├── VideoPlayer.jsx
+│   │   │   ├── ROIVisualizer.jsx
+│   │   │   └── ViolationAlert.jsx
+│   │   └── styles/
+│   │       └── app.css
+│   ├── package.json
+│   └── vite.config.js
+│
+├── 📂 shared/
+│   ├── schemas/
+│   │   ├── message.py
+│   │   └── roi.py
+│   ├── rabbitmq_utils.py
+│   ├── logger.py
+│   └── utils.py
+│
+├── 📂 config/                          # 🛠️ Environment configs
+│   ├── .env.dev
+│   ├── .env.prod
+│   └── settings.py
+│
+├── 📂 scripts/                         # 🧪 Deployment & maintenance
+│   ├── deploy.sh                      # One-click deploy (docker-compose, env inject)
+│   └── backup/
+│       └── db_backup.sh               # Periodic DB backup automation
+│
+├── 📂 .github/                         # 🔁 CI/CD with GitHub Actions
+│   └── workflows/
+│       ├── ci.yml                     # Run tests & lint on push
+│       └── cd.yml                     # Deploy to staging/prod
+│
+├── 📂 monitoring/                      # 📊 Observability
+│   ├── prometheus.yml                 # Prometheus scraping config
+│   └── grafana/
+│       └── dashboards/
+│           └── system-health.json     # Custom dashboard JSONs
+│
+├── .env                               # Default fallback env
+├── README.md
+└── demo.mp4
