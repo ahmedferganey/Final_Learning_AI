@@ -81,8 +81,8 @@ build/
 **/alembic/versions/*.pyo
 
 # Project-specific ignores
-07_Computer_Vision/04_EndtoEndProjects/Documentation/RawData/
-07_Computer_Vision/04_EndtoEndProjects/Documentation/Model/
+08_FullStack_Embedded_AI/04_EndtoEndProjects/Documentation/RawData/
+08_FullStack_Embedded_AI/04_EndtoEndProjects/Documentation/Model/
 02_DeepLearning_Projects/00_Speech_Recognition_RasPi_ContainerzedApp/02_Ref/
 
 
@@ -90,4 +90,4 @@ build/
 # Secrets
 **/secrets/
 **/*.json
-07_Computer_Vision/04_EndtoEndProjects/services/backend_service/app/core/secrets/
+08_FullStack_Embedded_AI/04_EndtoEndProjects/services/backend_service/app/core/secrets/
