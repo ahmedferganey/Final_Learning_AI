@@ -1,0 +1,240 @@
+openapi: 3.1.0
+info:
+  title: User Service API
+  version: 1.0.0
+  summary: Production-grade user profile and role administration API for FastAPI services.
+  description: >
+    This specification defines authenticated profile retrieval and updates,
+    administrative role assignment, activation-state management, and strict validation rules.
+servers:
+  - url: https://api.example.com
+    description: Production
+  - url: https://staging-api.example.com
+    description: Staging
+tags:
+  - name: Users
+  - name: Roles
+security:
+  - bearerAuth: []
+paths:
+  /v1/users/me:
+    get:
+      tags: [Users]
+      summary: Get the authenticated user profile
+      operationId: getCurrentUserProfile
+      responses:
+        '200':
+          description: Current authenticated user profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    patch:
+      tags: [Users]
+      summary: Update the authenticated user profile
+      operationId: updateCurrentUserProfile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserProfileUpdateRequest'
+      responses:
+        '200':
+          description: Updated authenticated user profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+  /v1/users/{user_id}/roles:
+    put:
+      tags: [Roles]
+      summary: Replace role assignments and activation state for a user
+      description: Requires the `admin` role.
+      operationId: replaceUserRoles
+      x-required-roles:
+        - admin
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoleAssignmentRequest'
+      responses:
+        '200':
+          description: User profile after administrative update
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Access token containing the caller identity and resolved role claims.
+
+  parameters:
+    UserId:
+      name: user_id
+      in: path
+      required: true
+      description: UUID of the target user
+      schema:
+        type: string
+        format: uuid
+
+  responses:
+    BadRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: Authentication failed or token is invalid
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Forbidden:
+      description: Authenticated but missing required role
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Requested user was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    ValidationError:
+      description: Payload validation failed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationErrorResponse'
+
+  schemas:
+    UserProfile:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - email
+        - full_name
+        - roles
+        - is_active
+        - created_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        full_name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        roles:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
+            type: string
+            enum: [user, manager, admin]
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    UserProfileUpdateRequest:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        full_name:
+          type: string
+          minLength: 1
+          maxLength: 120
+    RoleAssignmentRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - roles
+        - is_active
+      properties:
+        roles:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
+            type: string
+            enum: [user, manager, admin]
+        is_active:
+          type: boolean
+          description: Administrative activation toggle for the target user.
+    ErrorResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        request_id:
+          type: string
+    ValidationErrorItem:
+      type: object
+      additionalProperties: false
+      required:
+        - field
+        - message
+      properties:
+        field:
+          type: string
+        message:
+          type: string
+    ValidationErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/ErrorResponse'
+        - type: object
+          required:
+            - details
+          properties:
+            details:
+              type: array
+              minItems: 1
+              items:
+                $ref: '#/components/schemas/ValidationErrorItem'

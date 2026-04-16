@@ -1,0 +1,422 @@
+openapi: 3.1.0
+info:
+  title: Auth Service API
+  version: 1.0.0
+  summary: Production-grade authentication and authorization API for FastAPI services.
+  description: >
+    This specification defines a JWT-based authentication service with refresh token rotation,
+    role-based access control, and strict request validation rules suitable for production use.
+servers:
+  - url: https://api.example.com
+    description: Production
+  - url: https://staging-api.example.com
+    description: Staging
+tags:
+  - name: Authentication
+  - name: Users
+  - name: Roles
+security:
+  - bearerAuth: []
+paths:
+  /v1/auth/register:
+    post:
+      tags: [Authentication]
+      summary: Register a new user account
+      description: Creates a local user account and assigns the default `user` role.
+      security: []
+      operationId: registerUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: User account created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Email already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+  /v1/auth/login:
+    post:
+      tags: [Authentication]
+      summary: Authenticate with email and password
+      description: >
+        Returns a short-lived JWT access token and a rotating refresh token.
+        Failed login attempts should be rate limited and audited.
+      security: []
+      operationId: loginUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+  /v1/auth/refresh:
+    post:
+      tags: [Authentication]
+      summary: Rotate refresh token and issue a new access token
+      description: >
+        Exchanges a valid refresh token for a new access token and a new refresh token.
+        Refresh tokens are single-use and previous tokens are revoked on successful rotation.
+      security: []
+      operationId: refreshSession
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+      responses:
+        '200':
+          description: Tokens rotated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Invalid or expired refresh token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+  /v1/auth/logout:
+    post:
+      tags: [Authentication]
+      summary: Revoke the current refresh token
+      description: Invalidates the presented refresh token and terminates the active session.
+      security: []
+      operationId: logoutUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+      responses:
+        '204':
+          description: Session revoked successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+  /v1/users/me:
+    get:
+      tags: [Users]
+      summary: Get the authenticated user profile
+      operationId: getCurrentUser
+      responses:
+        '200':
+          description: Current user profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /v1/users/{user_id}/roles:
+    put:
+      tags: [Roles]
+      summary: Replace a user's role assignments
+      description: Requires the `admin` role.
+      operationId: updateUserRoles
+      x-required-roles:
+        - admin
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoleAssignmentRequest'
+      responses:
+        '200':
+          description: Roles updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: >
+        Access token signed with the server's JWT signing key. The token must include `sub`,
+        `exp`, `iat`, `jti`, `token_type=access`, and `roles` claims.
+
+  parameters:
+    UserId:
+      name: user_id
+      in: path
+      required: true
+      description: UUID of the target user
+      schema:
+        type: string
+        format: uuid
+
+  responses:
+    BadRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: Authentication failed or token is invalid
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Forbidden:
+      description: Authenticated but missing required role
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Requested resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    TooManyRequests:
+      description: Rate limit exceeded
+      headers:
+        Retry-After:
+          description: Seconds until another attempt is allowed
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    ValidationError:
+      description: Payload validation failed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationErrorResponse'
+
+  schemas:
+    RegisterRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - email
+        - password
+        - full_name
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 254
+          description: RFC-compliant email address, normalized to lowercase before persistence.
+        password:
+          type: string
+          minLength: 12
+          maxLength: 128
+          pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).+$'
+          description: >
+            Password must contain at least one lowercase letter, one uppercase letter,
+            one digit, and one special character.
+        full_name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        role:
+          type: string
+          description: Optional role bootstrap field; ignored unless caller is already an admin.
+          enum: [user, manager, admin]
+    LoginRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        password:
+          type: string
+          minLength: 1
+          maxLength: 128
+    RefreshTokenRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - refresh_token
+      properties:
+        refresh_token:
+          type: string
+          minLength: 32
+          maxLength: 4096
+          description: Opaque or JWT refresh token bound to a server-side session record.
+    RoleAssignmentRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - roles
+      properties:
+        roles:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
+            type: string
+            enum: [user, manager, admin]
+    AuthResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - access_token
+        - refresh_token
+        - token_type
+        - expires_in
+        - refresh_expires_in
+        - user
+      properties:
+        access_token:
+          type: string
+          minLength: 32
+          description: JWT access token intended for the Authorization header.
+        refresh_token:
+          type: string
+          minLength: 32
+          description: Rotating refresh token for session renewal.
+        token_type:
+          type: string
+          const: bearer
+        expires_in:
+          type: integer
+          minimum: 60
+          maximum: 3600
+          description: Access token lifetime in seconds.
+        refresh_expires_in:
+          type: integer
+          minimum: 300
+          maximum: 2592000
+          description: Refresh token lifetime in seconds.
+        user:
+          $ref: '#/components/schemas/UserProfile'
+    UserProfile:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - email
+        - full_name
+        - roles
+        - is_active
+        - created_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        full_name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        roles:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
+            type: string
+            enum: [user, manager, admin]
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    ErrorResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          examples: [unauthorized]
+        message:
+          type: string
+        request_id:
+          type: string
+          description: Correlation ID for tracing.
+    ValidationErrorItem:
+      type: object
+      additionalProperties: false
+      required:
+        - field
+        - message
+      properties:
+        field:
+          type: string
+          description: Dot-notated field path.
+        message:
+          type: string
+    ValidationErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/ErrorResponse'
+        - type: object
+          required:
+            - details
+          properties:
+            details:
+              type: array
+              minItems: 1
+              items:
+                $ref: '#/components/schemas/ValidationErrorItem'

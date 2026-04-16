@@ -1,0 +1,28 @@
+openapi: 3.1.0
+info:
+  title: RAG Service API
+  version: 1.0.0
+  summary: Retrieval-augmented generation query API for FastAPI services.
+paths:
+  /v1/rag/query:
+    post:
+      summary: Execute a RAG query
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+      responses:
+        '200':
+          description: Answer with citations
+        '403':
+          description: Caller cannot access the requested collection
+        '422':
+          description: Validation failure
+        '502':
+          description: Upstream model provider failure
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
