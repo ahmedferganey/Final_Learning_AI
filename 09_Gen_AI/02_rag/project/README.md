@@ -53,6 +53,24 @@ $ cp .env.example .env
 ```
 
 
+## Run the FastAPI server (Development Mode)
+
+
+```bash
+(.venv) fragello@fragello:~/ME/Github/Learning/Final_Learning_AI/09_Gen_AI/02_rag/project/mini_rag_app$ uvicorn  main:app --reload --host 0.0.0.0 --port 5000
+```
+
+## POSTMAN Collection
+
+Download the POSTMAN collection from [/assets/mini-rag-app.postman_collection.json](/assets/mini-rag-app.postman_collection.json)
+
+
+
+
+
+
+
+
 ## Suggested Contents
 - `assets/`
 - `examples/`
