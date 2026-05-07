@@ -40,10 +40,23 @@ sudo apt install -y libpq-dev gcc python3-dev
 From the repo root:
 
 ```bash
+cd docker
+cp .env.example .env
+```
+
+- update `.env` with your credentials
+
+
+
+```bash
 docker compose -f docker/docker-compose.yml up -d
 ```
 
 MongoDB is exposed on `localhost:27007`.
+
+
+
+
 
 ### 2. Create and activate a virtual environment
 
