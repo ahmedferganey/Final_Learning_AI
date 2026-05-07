@@ -10,7 +10,9 @@ class ProjectModel(BaseDataModel):
 
     async def create_project(self, project: Project):
 
-        result = await self.collection.insert_one(project.dict(by_alias=True, exclude_unset=True))
+        result = await self.collection.insert_one(
+            project.model_dump(by_alias=True, exclude_unset=True, exclude_none=True)
+        )
         project.id = result.inserted_id
 
         return project
@@ -27,7 +29,18 @@ class ProjectModel(BaseDataModel):
             project = await self.create_project(project=project)
 
             return project
-        
+
+        if record.get("_id") is None:
+            await self.collection.delete_many({
+                "project_id": project_id,
+                "_id": None,
+            })
+
+            project = Project(project_id=project_id)
+            project = await self.create_project(project=project)
+
+            return project
+
         return Project.model_validate(record)
 
     async def get_all_projects(self, page: int=1, page_size: int=10):
