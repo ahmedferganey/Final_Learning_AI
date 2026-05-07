@@ -11,7 +11,7 @@ class ProjectModel(BaseDataModel):
     async def create_project(self, project: Project):
 
         result = await self.collection.insert_one(project.dict(by_alias=True, exclude_unset=True))
-        project._id = result.inserted_id
+        project.id = result.inserted_id
 
         return project
 
@@ -28,7 +28,7 @@ class ProjectModel(BaseDataModel):
 
             return project
         
-        return Project(**record)
+        return Project.model_validate(record)
 
     async def get_all_projects(self, page: int=1, page_size: int=10):
 
@@ -44,7 +44,18 @@ class ProjectModel(BaseDataModel):
         projects = []
         async for document in cursor:
             projects.append(
-                Project(**document)
+                Project.model_validate(document)
             )
 
         return projects, total_pages
+
+    async def get_project_object_id(self, project_id: str):
+        record = await self.collection.find_one(
+            {"project_id": project_id},
+            {"_id": 1}
+        )
+
+        if record is None:
+            return None
+
+        return record.get("_id")
