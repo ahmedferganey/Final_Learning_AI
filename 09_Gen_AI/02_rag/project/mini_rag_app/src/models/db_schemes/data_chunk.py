@@ -1,16 +1,14 @@
-from pydantic import BaseModel, Field, Validator
-from bson.objectid import ObjectId
+from pydantic import BaseModel, Field, validator
 from typing import Optional
-
+from bson.objectid import ObjectId
 
 class DataChunk(BaseModel):
-    _id: Optional[ObjectId] # automaticly created by mongodb
-    chunk_text : str = Field(..., min_length=1)
-    chunk_metadata : dict
-    chunk_order : int = Field(..., ge=0) # Ensure chunk_order is a non-negative integer
-    chunk_project_id : ObjectId
-    
-    
-    class config:
+    id: Optional[ObjectId] = Field(None, alias="_id")
+    chunk_text: str = Field(..., min_length=1)
+    chunk_metadata: dict
+    chunk_order: int = Field(..., gt=0)
+    chunk_project_id: ObjectId
+
+    class Config:
         arbitrary_types_allowed = True
-        
+
