@@ -115,72 +115,45 @@ async def process_endpoint(request: Request, project_id: str, process_request: P
             content={
                 "signal": ResponseSignal.PROCESSING_FAILED.value,
                 "project_id": project_id,
-                "file_id": file_id,
+                #"file_id": file_id,
             }
         )
 
-    process_controller = ProcessController(project_id=project_id)
+    asset_model = await AssetModel.create_instance(
+        db_client=request.app.db_client
+    )
 
-    try:
-        file_content = process_controller.get_file_content(file_id=file_id)
-
-        file_chunks = process_controller.process_file_content(
-            file_content=file_content,
-            file_id=file_id,
-            chunk_size=chunk_size,
-            overlap_size=overlap_size
+    if file_id is not None:
+        project_files_ids = await asset_model.get_project_asset_by_name(
+            asset_project_id=project_object_id,
+            asset_name=file_id,
+            asset_type=AssetTypeEnum.File.value
         )
-    except FileNotFoundError as exc:
-        logger.error(f"File not found while processing: {exc}")
+        if len(project_files_ids) == 0:
+            return JSONResponse(
+                status_code=status.HTTP_404_NOT_FOUND,
+                content={
+                    "signal": ResponseSignal.FILE_ID_ERORR.value,
+                    "project_id": project_id,
+                    "file_id": file_id,
+                }
+            )
+    else:
+        project_files_ids = await asset_model.get_all_project_assets(
+            asset_project_id=project_object_id,
+            asset_type=AssetTypeEnum.File.value
+        )
 
+    if len(project_files_ids) == 0:
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
             content={
                 "signal": ResponseSignal.FILE_NOT_FOUND.value,
-                "file_id": file_id,
-                "project_id": project_id,
-            }
-        )
-    except ValueError as exc:
-        logger.error(f"Invalid file while processing: {exc}")
-
-        return JSONResponse(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            content={
-                "signal": ResponseSignal.FILE_TYPE_NOT_SUPPORTED.value,
-                "file_id": file_id,
-                "project_id": project_id,
-            }
-        )
-    except Exception as exc:
-        logger.exception(f"Unexpected processing error: {exc}")
-
-        return JSONResponse(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content={
-                "signal": ResponseSignal.PROCESSING_FAILED.value,
-                "file_id": file_id,
                 "project_id": project_id,
             }
         )
 
-    if file_chunks is None or len(file_chunks) == 0:
-        return JSONResponse(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            content={
-                "signal": ResponseSignal.PROCESSING_FAILED.value
-            }
-        )
-
-    file_chunks_records = [
-        DataChunk(
-            chunk_text=chunk.page_content,
-            chunk_metadata=chunk.metadata,
-            chunk_order=i+1,
-            chunk_project_id=project_object_id,
-        )
-        for i, chunk in enumerate(file_chunks)
-    ]
+    process_controller = ProcessController(project_id=project_id)
 
     chunk_model = await ChunkModel.create_instance(
         db_client=request.app.db_client
@@ -191,11 +164,82 @@ async def process_endpoint(request: Request, project_id: str, process_request: P
             project_id=project_object_id
         )
 
-    no_records = await chunk_model.insert_many_chunks(chunks=file_chunks_records)
+    inserted_chunks = 0
+    processed_files = []
+    failed_files = []
+
+    for asset_id, current_file_id in project_files_ids.items():
+        try:
+            file_content = process_controller.get_file_content(file_id=current_file_id)
+
+            file_chunks = process_controller.process_file_content(
+                file_content=file_content,
+                file_id=current_file_id,
+                chunk_size=chunk_size,
+                overlap_size=overlap_size
+            )
+        except FileNotFoundError as exc:
+            logger.error(f"File not found while processing: {exc}")
+            failed_files.append({
+                "file_id": current_file_id,
+                "signal": ResponseSignal.FILE_NOT_FOUND.value,
+            })
+            continue
+        except ValueError as exc:
+            logger.error(f"Invalid file while processing: {exc}")
+            failed_files.append({
+                "file_id": current_file_id,
+                "signal": ResponseSignal.FILE_TYPE_NOT_SUPPORTED.value,
+            })
+            continue
+        except Exception as exc:
+            logger.exception(f"Unexpected processing error: {exc}")
+            failed_files.append({
+                "file_id": current_file_id,
+                "signal": ResponseSignal.PROCESSING_FAILED.value,
+            })
+            continue
+
+        if file_chunks is None or len(file_chunks) == 0:
+            failed_files.append({
+                "file_id": current_file_id,
+                "signal": ResponseSignal.PROCESSING_FAILED.value,
+            })
+            continue
+
+        file_chunks_records = [
+            DataChunk(
+                chunk_text=chunk.page_content,
+                chunk_metadata=chunk.metadata,
+                chunk_order=i + 1,
+                chunk_project_id=project_object_id,
+                chunk_asset_id=asset_id
+            )
+            for i, chunk in enumerate(file_chunks)
+        ]
+
+        inserted_chunks += await chunk_model.insert_many_chunks(chunks=file_chunks_records)
+        processed_files.append(current_file_id)
+
+    if len(processed_files) == 0:
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={
+                "signal": ResponseSignal.PROCESSING_FAILED.value,
+                "project_id": project_id,
+                "inserted_chunks": inserted_chunks,
+                "processed_files": processed_files,
+                "failed_files": failed_files,
+                "no_files": len(processed_files),
+            }
+        )
 
     return JSONResponse(
         content={
             "signal": ResponseSignal.PROCESSING_SUCCESS.value,
-            "inserted_chunks": no_records
+            "inserted_chunks": inserted_chunks,
+            "processed_files": processed_files,
+            "failed_files": failed_files,
+            "no_files": len(processed_files),
         }
     )

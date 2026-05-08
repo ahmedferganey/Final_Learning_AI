@@ -36,15 +36,38 @@ class AssetModel(BaseDataModel):
 
         return asset
     
-    async def get_all_project_assets(self, asset_project_id: str):
+    async def get_all_project_assets(self, asset_project_id: str, asset_type: str = None):
 
-        cursor = self.collection.find({
+        query = {
             "asset_project_id": ObjectId(asset_project_id) if isinstance(asset_project_id, str) else asset_project_id
-        })
+        }
 
-        assets = []
+        if asset_type is not None:
+            query["asset_type"] = asset_type
+
+        cursor = self.collection.find(query, {"_id": 1, "asset_name": 1})
+
+        assets = {}
         async for record in cursor:
-            asset = Asset.model_validate(record)
-            assets.append(asset)
+            assets[record["_id"]] = record["asset_name"]
 
         return assets
+
+    async def get_project_asset_by_name(self, asset_project_id: str, asset_name: str, asset_type: str = None):
+
+        query = {
+            "asset_project_id": ObjectId(asset_project_id) if isinstance(asset_project_id, str) else asset_project_id,
+            "asset_name": asset_name,
+        }
+
+        if asset_type is not None:
+            query["asset_type"] = asset_type
+
+        record = await self.collection.find_one(query, {"_id": 1, "asset_name": 1})
+
+        if record is None:
+            return {}
+
+        return {
+            record["_id"]: record["asset_name"]
+        }
