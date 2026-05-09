@@ -67,6 +67,13 @@ class OpenAIProvider(LlmInterface):
         return response.choices[0].message.content.strip()
 
     def embed_text(self, text: str, document_type: str = None):
+        embeddings = self.embed_texts([text], document_type=document_type)
+        if not embeddings:
+            return None
+
+        return embeddings[0]
+
+    def embed_texts(self, texts: list[str], document_type: str = None):
         if not self.client:
             self.logger.error("OpenAi client was not set")
             return None
@@ -79,14 +86,28 @@ class OpenAIProvider(LlmInterface):
             self.logger.warning("Embedding size for openai was not set")
             return None
 
-        response = self.client.embeddings.create(
-            input=text,
-            model=self.embedding_model_id
-        )
+        processed_texts = [
+            self.process_text_input(text)
+            for text in texts
+            if text is not None and len(text.strip()) > 0
+        ]
+        if len(processed_texts) == 0:
+            self.logger.error("No valid texts received for openai embeddings")
+            return None
+
+        try:
+            response = self.client.embeddings.create(
+                input=processed_texts,
+                model=self.embedding_model_id
+            )
+        except Exception as exc:
+            self.logger.error("OpenAI embedding request failed: %s", exc)
+            return None
+
         if not response or not response.data or len(response.data) == 0 or not response.data[0].embedding:
             self.logger.error("No embedding data returned from OpenAI")
             return None 
-        return response.data[0].embedding
+        return [item.embedding for item in response.data]
 
     def construct_prompt(self, prompt: str, role: str):
         return {
