@@ -28,6 +28,29 @@ class NLPController(BaseController):
             return self.vectordb_client.get_collection_info(collection_name)
         return None
 
+    def search_vector_db_collection(self, project: Project, query_text: str, top_k: int = 5, limit: int = 5):
+        collection_name = self.create_collection_name(project.project_id)
+
+        if not self.vectordb_client.collection_exists(collection_name):
+            return None, collection_name
+
+        query_vector = self.embedding_client.embed_text(
+            query_text,
+            document_type=DocumentTypeEnum.QUERY.value,
+        )
+
+        if query_vector is None:
+            return None, collection_name
+
+        hits = self.vectordb_client.search_by_vector(
+            collection_name=collection_name,
+            query_vector=query_vector,
+            top_k=top_k,
+            limit=limit,
+        )
+
+        return hits, collection_name
+
     def create_record_id(self, project: Project, chunk: DataChunk) -> str:
         seed = f"{project.project_id}:{chunk.id}:{chunk.chunk_asset_id}:{chunk.chunk_order}"
         return str(uuid.uuid5(uuid.NAMESPACE_URL, seed))

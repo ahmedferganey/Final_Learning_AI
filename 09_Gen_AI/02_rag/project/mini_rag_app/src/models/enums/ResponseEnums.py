@@ -18,3 +18,7 @@ class ResponseSignal(Enum):
 
     INSERT_INTO_VECTORDB_ERROR= "insert_into_vectordb_error"
     INSERT_INTO_VECTORDB_SUCESS= "insert_into_vectordb_sucess"
+    VECTORDB_INDEX_INFO_SUCCESS = "vectordb_index_info_success"
+    VECTORDB_INDEX_NOT_FOUND = "vectordb_index_not_found"
+    VECTORDB_SEARCH_SUCCESS = "vectordb_search_success"
+    VECTORDB_SEARCH_FAILED = "vectordb_search_failed"

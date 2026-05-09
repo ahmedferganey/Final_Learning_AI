@@ -60,6 +60,16 @@ class ProjectModel(BaseDataModel):
 
         return Project.model_validate(record)
 
+    async def get_project_by_project_id(self, project_id: str):
+        record = await self.collection.find_one({
+            "project_id": project_id
+        })
+
+        if record is None or record.get("_id") is None:
+            return None
+
+        return Project.model_validate(record)
+
     async def get_all_projects(self, page: int=1, page_size: int=10):
 
         # count total number of documents
