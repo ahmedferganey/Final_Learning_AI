@@ -1,5 +1,5 @@
-from pydantic import BaseModel, Field, validator
-from typing import Optional
+from pydantic import BaseModel, Field
+from typing import Any, Dict, Optional, Union
 from bson.objectid import ObjectId
 
 class DataChunk(BaseModel):
@@ -18,3 +18,12 @@ class DataChunk(BaseModel):
         return [
             {"key": [("chunk_project_id", 1)], "name": "chunk_project_id_index_1", "unique": False},
         ]
+
+
+# Vector DB (Qdrant) search result schema.
+# We keep this close to DataChunk since the payload typically contains chunk text/metadata.
+class RetrievedDocument(BaseModel):
+    id: Optional[Union[str, int]] = None
+    score: Optional[float] = None
+    text: Optional[str] = None
+    metadata: Dict[str, Any] = Field(default_factory=dict)

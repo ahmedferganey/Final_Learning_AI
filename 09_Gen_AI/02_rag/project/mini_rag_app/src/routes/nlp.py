@@ -169,12 +169,11 @@ async def search_index(request: Request, project_id: str, search_request: Search
             }
         )
 
+    # Qdrant provider returns app-level schemas (RetrievedDocument); dump them directly.
     hits = [
-        {
-            "id": getattr(item, "id", None),
-            "score": getattr(item, "score", None),
-            "payload": getattr(item, "payload", None),
-        }
+        item.model_dump()
+        if hasattr(item, "model_dump")
+        else item.dict()  # Fallback for Pydantic v1
         for item in search_result
     ]
 
