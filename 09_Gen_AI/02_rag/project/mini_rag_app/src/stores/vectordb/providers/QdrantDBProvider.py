@@ -5,6 +5,8 @@ from ..VectorDBEnums import VectorDBEnums, DistanceMethodEnums
 from typing import List
 import uuid
 
+from models.db_schemes import RetrievedDocument
+
 
 class QdrantDBProvider(VectorDBInterface):
     
@@ -164,7 +166,33 @@ class QdrantDBProvider(VectorDBInterface):
                 limit=limit or top_k,
                 with_payload=True
             )
-            return search_result
+            if not search_result or len(search_result) ==0:
+                return None
+            # Convert provider-specific objects (ScoredPoint) into app-level schemas.
+            docs: List[RetrievedDocument] = []
+            for item in (search_result or []):
+                payload = getattr(item, "payload", None) or {}
+                text = payload.get("text")
+
+                # Normalize metadata across our two insert paths:
+                # - insert_one: payload={"text": text, **metadata}
+                # - insert_many: payload={"text": text, "metadata": {...}}
+                metadata = payload.get("metadata")
+                if isinstance(metadata, dict):
+                    normalized_metadata = metadata
+                else:
+                    normalized_metadata = {k: v for k, v in payload.items() if k != "text"}
+
+                docs.append(
+                    RetrievedDocument(
+                        id=getattr(item, "id", None),
+                        score=getattr(item, "score", None),
+                        text=text,
+                        metadata=normalized_metadata,
+                    )
+                )
+
+            return docs
         except Exception as e:
             self.logger.error(f"Error searching points: {e}")
             return []
