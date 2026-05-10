@@ -268,4 +268,7 @@ async def rag_answer(request: Request, project_id: str, rag_request: RagAnswerRe
     if rag_request.debug:
         payload["debug"] = nlp_controller.last_llm_payload
 
-    return JSONResponse(content=payload["answer"])
+    return JSONResponse(content={
+        "signal":  ResponseSignal.RAG_ANSWER_SUCCESS.value,
+        "answer": payload["answer"],
+    })

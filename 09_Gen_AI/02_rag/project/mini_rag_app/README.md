@@ -6,6 +6,8 @@ Minimal FastAPI service for:
 - registering uploaded files as MongoDB assets
 - processing one file or all project files into text chunks
 - storing project, asset, and chunk metadata in MongoDB
+- indexing chunks into a local Qdrant vector store
+- searching the vector index and answering questions via RAG (en/ar prompt templates)
 
 ## Current Architecture
 
@@ -15,6 +17,7 @@ The application is organized as a small layered backend:
 - `controllers/`: file-system and content-processing logic
 - `models/`: MongoDB access layer plus Pydantic database schemas and enums
 - `helpers/`: configuration and environment loading
+- `stores/`: pluggable backends (LLM providers, vector DB providers, prompt templates)
 - `assets/files/`: uploaded file storage on disk
 - `docker/`: local MongoDB runtime
 
@@ -25,6 +28,8 @@ The runtime flow is:
 3. `POST /api/v1/data/process/{project_id}` resolves the target files from MongoDB assets.
 4. Each file is loaded from disk, split into chunks with LangChain, and inserted into the `chunks` collection.
 5. Processing is best-effort: one bad file does not stop the others.
+6. `POST /api/v1/nlp/index/push/{project_id}` indexes project chunks into Qdrant.
+7. `POST /api/v1/nlp/rag/answer/{project_id}` retrieves top-k chunks and generates a grounded answer.
 
 ## Project Structure
 
@@ -32,7 +37,6 @@ Current tree:
 
 ```text
 .
-├── .env
 ├── LICENSE
 ├── README.md
 ├── docker
@@ -50,12 +54,15 @@ Current tree:
     ├── assets
     │   ├── .gitignore
     │   ├── .gitkeep
+    │   ├── database
+    │   │   └── qdrant_db/
     │   ├── files
     │   │   └── <project_id>/
     │   └── mini-rag-app.postman_collection.json
     ├── controllers
     │   ├── BaseController.py
     │   ├── DataController.py
+    │   ├── NLPController.py
     │   ├── ProcessController.py
     │   ├── ProjectController.py
     │   └── __init__.py
@@ -85,10 +92,43 @@ Current tree:
         ├── __init__.py
         ├── base.py
         ├── data.py
+        ├── nlp.py
         └── schemes
             ├── __init__.py
-            └── data.py
+            ├── data.py
+            └── nlp.py
+    └── stores
+        ├── llm
+        │   ├── __init__.py
+        │   ├── LlmEnums.py
+        │   ├── LlmInterface.py
+        │   ├── LLMProviderFactory.py
+        │   ├── providers
+        │   │   ├── __init__.py
+        │   │   ├── CoHereProvider.py
+        │   │   └── OpenAIProvider.py
+        │   └── templates
+        │       ├── __init__.py
+        │       ├── template_parser.py
+        │       └── locales
+        │           ├── __init__.py
+        │           ├── en
+        │           │   ├── __init__.py
+        │           │   └── rag.py
+        │           └── ar
+        │               ├── __init__.py
+        │               └── rag.py
+        └── vectordb
+            ├── __init__.py
+            ├── VectorDBEnums.py
+            ├── VectorDBInterface.py
+            ├── VectorDBProviderFactory.py
+            └── providers
+                ├── __init__.py
+                └── QdrantDBProvider.py
 ```
+
+Note: `__pycache__/` folders are omitted for brevity.
 
 ## File Responsibilities
 
@@ -105,6 +145,7 @@ Current tree:
   - loads settings from `.env`
   - supports either a full `MONGODB_URL` or Mongo credential parts
   - builds MongoDB connection URL when needed
+  - includes template localization default via `DEFAULT_LANGUAGE` (e.g. `en`, `ar`)
 
 ### API Layer
 
@@ -116,8 +157,15 @@ Current tree:
   - process endpoint
   - project lookup, asset lookup, best-effort processing orchestration
 
+- `src/routes/nlp.py`
+  - vector index endpoints (index push/info/search)
+  - RAG answer endpoint (`/api/v1/nlp/rag/answer/{project_id}`)
+
 - `src/routes/schemes/data.py`
   - request schema for processing payload
+
+- `src/routes/schemes/nlp.py`
+  - request schemas for NLP endpoints (`SearchRequest`, `RagAnswerRequest`, etc.)
 
 ### Controllers
 
@@ -136,6 +184,11 @@ Current tree:
   - file loader selection by extension
   - disk existence checks
   - LangChain chunk generation
+
+- `src/controllers/NLPController.py`
+  - vector DB collection naming and indexing
+  - vector search and RAG prompt construction
+  - stores last LLM payload for debug (`last_llm_payload`)
 
 ### Persistence Layer
 
@@ -167,6 +220,35 @@ Current tree:
 
 - `src/models/db_schemes/data_chunk.py`
   - schema for `chunks`
+  - RAG schema: `RetrievedDocument` (vector search hit normalized to `id`, `score`, `text`, `metadata`)
+
+### Stores (Backends)
+
+- `src/stores/llm/`
+  - LLM provider abstraction and implementations
+
+- `src/stores/llm/providers/OpenAIProvider.py`
+  - OpenAI chat + embeddings client
+  - validates `OPENAI_API_URL` (must include `http(s)://` if set)
+
+- `src/stores/llm/providers/CoHereProvider.py`
+  - Cohere embeddings client
+
+- `src/stores/llm/templates/template_parser.py`
+  - loads locale templates from `src/stores/llm/templates/locales/<lang>/`
+
+- `src/stores/llm/templates/locales/en/rag.py`
+  - English RAG system/user/document/footer templates
+
+- `src/stores/llm/templates/locales/ar/rag.py`
+  - Arabic RAG system/user/document/footer templates
+
+- `src/stores/vectordb/`
+  - vector DB provider abstraction and implementations
+
+- `src/stores/vectordb/providers/QdrantDBProvider.py`
+  - Qdrant local vector store implementation (insert/search)
+  - returns normalized `RetrievedDocument` objects on search
 
 ### Enums
 
@@ -186,6 +268,9 @@ Current tree:
 
 - `src/assets/files/`
   - physical uploaded file storage
+
+- `src/assets/database/`
+  - local on-disk databases used by the app (currently Qdrant `VECTOR_DB_PATH`)
 
 - `src/assets/mini-rag-app.postman_collection.json`
   - starter Postman collection
@@ -254,6 +339,7 @@ Recommended authenticated Mongo configuration:
 APP_NAME="mini-RAG"
 APP_VERSION="0.1"
 OPENAI_API_KEY=""
+OPENAI_API_URL=
 
 FILE_ALLOWED_TYPES=["text/plain", "application/pdf"]
 FILE_MAX_SIZE=10
@@ -261,6 +347,20 @@ FILE_DEFAULT_CHUNK_SIZE=512000
 
 MONGODB_URL="mongodb://admin:admin@localhost:27007"
 MONGODB_DATABASE="mini-rag"
+
+# ============ LLM / Vector DB / Templates ===========
+GENERATION_BACKEND="OPENAI"
+EMBEDDING_BACKEND="COHERE"
+
+GENERATION_MODEL_ID="gpt-4o-mini"
+EMBEDDING_MODEL_ID="embed-multilingual-light-v3.0"
+EMBEDDING_MODEL_SIZE=384
+
+VECTOR_DB_BACKEND="QDRANT"
+VECTOR_DB_PATH="qdrant_db"
+VECTOR_DB_DISTANCE_METHOD="cosine"
+
+DEFAULT_LANGUAGE="en"
 ```
 
 Alternative split configuration supported by `config.py`:
@@ -280,6 +380,7 @@ Notes:
 - `FILE_MAX_SIZE` is in MB.
 - `FILE_DEFAULT_CHUNK_SIZE` is the streamed upload write size in bytes.
 - The server reads `.env` from `src/`, so run `uvicorn` from inside `src/`.
+- Leave `OPENAI_API_URL` empty unless you are using a custom gateway/proxy. If set, it must include `http://` or `https://`.
 
 ## Run the API
 
@@ -432,6 +533,66 @@ All-failed response shape:
 }
 ```
 
+### `POST /api/v1/nlp/index/push/{project_id}`
+
+Indexes all project chunks from MongoDB into the vector DB collection for this project.
+
+Request body:
+
+```json
+{ "do_reset": 1 }
+```
+
+Success response:
+
+```json
+{
+  "signal": "insert_into_vectordb_sucess",
+  "inserted_items_count": 123
+}
+```
+
+### `GET /api/v1/nlp/index/info/{project_id}`
+
+Returns vector DB collection info for the project (if exists).
+
+### `POST /api/v1/nlp/index/search/{project_id}`
+
+Searches the project vector DB index by a query string.
+
+Request body:
+
+```json
+{ "query_text": "your query", "top_k": 5, "limit": 5 }
+```
+
+Success response includes `hits` (retrieved documents with `text` + `metadata` + `score`).
+
+### `POST /api/v1/nlp/rag/answer/{project_id}`
+
+Retrieves relevant chunks from the vector DB and generates an answer grounded in the retrieved context.
+
+Request body:
+
+```json
+{
+  "question": "What is this project about?",
+  "language": "en",
+  "top_k": 5,
+  "limit": 5,
+  "temperature": 0.1,
+  "max_output_tokens": 300,
+  "system_message": null,
+  "debug": false
+}
+```
+
+Response:
+
+- `answer`: generated text
+- `hits`: retrieved documents (`id`, `score`, `text`, `metadata`)
+- if `debug=true`, returns a `debug` object that includes the exact messages/prompts sent to the LLM.
+
 ## MongoDB Collections
 
 ### `projects`
@@ -471,3 +632,4 @@ Current processing support:
 - Uploaded files are stored under `src/assets/files/<project_id>/`.
 - Asset metadata is stored in MongoDB and is used by the process endpoint.
 - The provided Postman collection is still minimal and may need manual extension for the current upload/process flow.
+- RAG prompt templates live under `src/stores/llm/templates/locales/<lang>/rag.py` (currently `en` and `ar`).
