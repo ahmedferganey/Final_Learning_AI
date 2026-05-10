@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+message PlayerMessage {
+    int32 id = 1;
+    string first = 2;
+    string last = 3;
+    optional string email = 4;
+}
