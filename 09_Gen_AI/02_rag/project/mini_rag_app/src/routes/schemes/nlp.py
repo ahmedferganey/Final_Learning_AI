@@ -22,3 +22,4 @@ class RagAnswerRequest(BaseModel):
     max_output_tokens: Optional[int] = None
     system_message: Optional[str] = None
     debug: Optional[bool] = False
+    include_chat_history: Optional[bool] = False

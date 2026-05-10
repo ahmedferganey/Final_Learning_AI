@@ -265,10 +265,48 @@ async def rag_answer(request: Request, project_id: str, rag_request: RagAnswerRe
         "hits": hits,
     }
 
+    if rag_request.include_chat_history:
+        raw_messages = None
+        if nlp_controller.last_llm_payload and isinstance(nlp_controller.last_llm_payload, dict):
+            raw_messages = nlp_controller.last_llm_payload.get("llm_messages")
+
+        def normalize_role(role: str | None) -> str:
+            if not role:
+                return "user"
+            r = str(role).strip().lower()
+            if r in ("system",):
+                return "system"
+            if r in ("user",):
+                return "user"
+            if r in ("assistant", "chatbot"):
+                return "assistant"
+            # Cohere may send uppercase roles; keep normalized lowercase.
+            if r in ("system", "user", "assistant"):
+                return r
+            return r
+
+        chat_history = []
+        if isinstance(raw_messages, list):
+            for msg in raw_messages:
+                if not isinstance(msg, dict):
+                    continue
+                role = normalize_role(msg.get("role"))
+                content = msg.get("content")
+                if content is None:
+                    content = msg.get("text")
+                chat_history.append({"role": role, "content": content or ""})
+
+        # Append the generated assistant response for downstream reuse.
+        chat_history.append({"role": "assistant", "content": answer})
+        payload["chat_history"] = chat_history
+
     if rag_request.debug:
         payload["debug"] = nlp_controller.last_llm_payload
 
-    return JSONResponse(content={
-        "signal":  ResponseSignal.RAG_ANSWER_SUCCESS.value,
-        "answer": payload["answer"],
-    })
+    return JSONResponse(
+        content={
+            "signal": ResponseSignal.RAG_ANSWER_SUCCESS.value,
+            "answer": payload["answer"],
+            "fullpayload": {k: v for k, v in payload.items() if k not in ("answer", "signal")},
+        }
+    )
