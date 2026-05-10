@@ -10,11 +10,12 @@ import uuid
 logger = logging.getLogger(__name__)
 
 class NLPController(BaseController):
-    def __init__(self, vectordb_client, generation_client, embedding_client):
+    def __init__(self, vectordb_client, generation_client, embedding_client, template_parser: Optional[TemplateParser] = None):
         super().__init__()
         self.vectordb_client = vectordb_client
         self.generation_client = generation_client
         self.embedding_client = embedding_client
+        self.template_parser = template_parser
         # Debug/audit: last messages/prompts we sent to the LLM.
         self.last_llm_payload: Optional[Dict[str, Any]] = None
 
@@ -61,7 +62,7 @@ class NLPController(BaseController):
         question: str,
         top_k: int = 5,
         limit: int = 5,
-        language: str = "en",
+        language: Optional[str] = None,
         system_message: Optional[str] = None,
         max_output_tokens: Optional[int] = None,
         temperature: Optional[float] = None,
@@ -78,7 +79,10 @@ class NLPController(BaseController):
             limit=limit,
         )
 
-        template_parser = TemplateParser(default_language="en")
+        default_language = getattr(self.app_settings, "DEFAULT_LANGUAGE", "en")
+        language = (language or default_language).strip().lower()
+
+        template_parser = self.template_parser or TemplateParser(default_language=default_language)
         tpl = template_parser.load(name="rag", language=language)
 
         # Allow caller to override the localized system prompt if needed.

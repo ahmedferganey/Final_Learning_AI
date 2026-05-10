@@ -2,11 +2,23 @@ from ..LlmInterface import LlmInterface
 from openai import OpenAI
 import logging
 from ..LlmEnums import OpenAIEnums
+from urllib.parse import urlparse
 
 class OpenAIProvider(LlmInterface):
     def __init__(self, api_key: str, api_url: str = None,
                 default_input_max_characters: int = 1000, default_generation_max_output_tokens: int = 1000, default_temperature: float = 0.1):
         self.api_key = api_key
+        # Treat empty strings as unset, and validate scheme to avoid httpx.UnsupportedProtocol.
+        api_url = api_url.strip() if isinstance(api_url, str) else api_url
+        if api_url == "":
+            api_url = None
+        if api_url is not None:
+            parsed = urlparse(api_url)
+            if parsed.scheme not in ("http", "https"):
+                raise ValueError(
+                    "OPENAI_API_URL must include scheme (http:// or https://). "
+                    f"Got: {api_url!r}"
+                )
         self.api_url = api_url
         self.default_input_max_characters = default_input_max_characters
         self.default_generation_max_output_tokens = default_generation_max_output_tokens

@@ -2,7 +2,7 @@ from fastapi import FastAPI, APIRouter, status, Request
 from fastapi.responses import JSONResponse
 import logging
 
-from routes.schemes.nlp import PushRequest, SearchRequest
+from routes.schemes.nlp import PushRequest, SearchRequest, RagAnswerRequest
 from models.ProjectModel import ProjectModel
 from models.ChunkModel import ChunkModel
 
@@ -42,7 +42,8 @@ async def index_project(request: Request, project_id: str, push_request: PushReq
     nlp_controller = NLPController(
         vectordb_client=request.app.vectordb_client,
         generation_client=request.app.generation_client,
-        embedding_client=request.app.embedding_client
+        embedding_client=request.app.embedding_client,
+        template_parser=getattr(request.app, "template_parser", None),
     )
 
     has_records = True
@@ -103,7 +104,8 @@ async def get_project_index_info(request: Request, project_id: str):
     nlp_controller = NLPController(
         vectordb_client=request.app.vectordb_client,
         generation_client=request.app.generation_client,
-        embedding_client=request.app.embedding_client
+        embedding_client=request.app.embedding_client,
+        template_parser=getattr(request.app, "template_parser", None),
     )
 
     collection_name = nlp_controller.create_collection_name(project.project_id)
@@ -148,7 +150,8 @@ async def search_index(request: Request, project_id: str, search_request: Search
     nlp_controller = NLPController(
         vectordb_client=request.app.vectordb_client,
         generation_client=request.app.generation_client,
-        embedding_client=request.app.embedding_client
+        embedding_client=request.app.embedding_client,
+        template_parser=getattr(request.app, "template_parser", None),
     )
 
     search_result, collection_name = nlp_controller.search_vector_db_collection(
@@ -185,3 +188,84 @@ async def search_index(request: Request, project_id: str, search_request: Search
             "hits": hits,
         }
     )
+
+
+@nlp_router.post("/rag/answer/{project_id}")
+async def rag_answer(request: Request, project_id: str, rag_request: RagAnswerRequest):
+    project_model = await ProjectModel.create_instance(
+        db_client=request.app.db_client,
+    )
+    project = await project_model.get_project_by_project_id(project_id)
+
+    if not project:
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={
+                "signal": ResponseSignal.PROJECT_NOT_FOUND.value,
+                "project_id": project_id,
+            }
+        )
+
+    nlp_controller = NLPController(
+        vectordb_client=request.app.vectordb_client,
+        generation_client=request.app.generation_client,
+        embedding_client=request.app.embedding_client,
+        template_parser=getattr(request.app, "template_parser", None),
+    )
+
+    default_language = getattr(getattr(request.app, "settings", None), "DEFAULT_LANGUAGE", "en")
+
+    answer, docs, collection_name = nlp_controller.answer_rag_question(
+        project=project,
+        question=rag_request.question,
+        top_k=rag_request.top_k or 5,
+        limit=rag_request.limit or 5,
+        language=(rag_request.language or default_language),
+        system_message=rag_request.system_message,
+        max_output_tokens=rag_request.max_output_tokens,
+        temperature=rag_request.temperature,
+    )
+
+    if not docs:
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={
+                "signal": ResponseSignal.RAG_ANSWER_FAILED.value,
+                "project_id": project.project_id,
+                "collection_name": collection_name,
+                "answer": None,
+                "hits": [],
+            }
+        )
+
+    hits = [
+        item.model_dump()
+        if hasattr(item, "model_dump")
+        else item.dict()  # Fallback for Pydantic v1
+        for item in docs
+    ]
+
+    if not answer:
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={
+                "signal": ResponseSignal.RAG_ANSWER_FAILED.value,
+                "project_id": project.project_id,
+                "collection_name": collection_name,
+                "answer": None,
+                "hits": hits,
+            }
+        )
+
+    payload = {
+        "signal": ResponseSignal.RAG_ANSWER_SUCCESS.value,
+        "project_id": project.project_id,
+        "collection_name": collection_name,
+        "answer": answer,
+        "hits": hits,
+    }
+
+    if rag_request.debug:
+        payload["debug"] = nlp_controller.last_llm_payload
+
+    return JSONResponse(content=payload)
