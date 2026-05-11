@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 
 from pgvector.sqlalchemy import Vector
-from sqlalchemy import DateTime, Index, String, Text, func, text as sa_text
+from sqlalchemy import DateTime, ForeignKey, Index, String, Text, func, text as sa_text
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -14,6 +14,7 @@ class VectorDocumentORM(Base):
     __table_args__ = (
         Index("ix_vector_documents_index_name", "index_name"),
         Index("ix_vector_documents_index_name_id", "index_name", "id"),
+        Index("ix_vector_documents_project_uuid", "project_uuid"),
     )
 
     # Use deterministic UUIDs when callers provide them (to match Qdrant record ids).
@@ -21,6 +22,11 @@ class VectorDocumentORM(Base):
         UUID(as_uuid=True),
         primary_key=True,
         default=uuid.uuid4,
+    )
+    project_uuid: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("projects.id", ondelete="CASCADE"),
+        nullable=True,
     )
     index_name: Mapped[str] = mapped_column(String(500), nullable=False)
     text: Mapped[str] = mapped_column(Text, nullable=False)

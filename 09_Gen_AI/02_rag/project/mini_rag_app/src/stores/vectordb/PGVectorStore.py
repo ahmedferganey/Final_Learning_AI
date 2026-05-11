@@ -3,6 +3,7 @@ from __future__ import annotations
 import uuid
 from dataclasses import dataclass
 from typing import List, Optional
+from uuid import UUID
 
 from sqlalchemy import delete, func, select, text as sql_text
 from sqlalchemy.dialects.postgresql import insert as pg_insert
@@ -47,18 +48,24 @@ class PGVectorStore(VectorStoreInterface):
         # Connection lifecycle is owned by SQLAlchemy engine/session factory.
         return None
 
-    async def index_exists(self, index_name: str) -> bool:
+    async def index_exists(self, index_name: str, project_uuid: Optional[UUID] = None) -> bool:
         async with self._session_factory() as session:
-            row = await session.scalar(
-                select(VectorDocumentORM.id).where(VectorDocumentORM.index_name == index_name).limit(1)
-            )
+            stmt = select(VectorDocumentORM.id).limit(1)
+            if project_uuid is not None:
+                stmt = stmt.where(VectorDocumentORM.project_uuid == project_uuid)
+            else:
+                stmt = stmt.where(VectorDocumentORM.index_name == index_name)
+            row = await session.scalar(stmt)
             return row is not None
 
-    async def get_index_info(self, index_name: str) -> dict:
+    async def get_index_info(self, index_name: str, project_uuid: Optional[UUID] = None) -> dict:
         async with self._session_factory() as session:
-            count = await session.scalar(
-                select(func.count()).select_from(VectorDocumentORM).where(VectorDocumentORM.index_name == index_name)
-            )
+            stmt = select(func.count()).select_from(VectorDocumentORM)
+            if project_uuid is not None:
+                stmt = stmt.where(VectorDocumentORM.project_uuid == project_uuid)
+            else:
+                stmt = stmt.where(VectorDocumentORM.index_name == index_name)
+            count = await session.scalar(stmt)
             return {
                 "provider": "PGVECTOR",
                 "index_name": index_name,
@@ -66,25 +73,37 @@ class PGVectorStore(VectorStoreInterface):
                 "embedding_dim": int(self._config.embedding_dim),
             }
 
-    async def delete(self, index_name: str) -> bool:
+    async def delete(self, index_name: str, project_uuid: Optional[UUID] = None) -> bool:
         async with self._session_factory() as session:
-            await session.execute(delete(VectorDocumentORM).where(VectorDocumentORM.index_name == index_name))
+            stmt = delete(VectorDocumentORM)
+            if project_uuid is not None:
+                stmt = stmt.where(VectorDocumentORM.project_uuid == project_uuid)
+            else:
+                stmt = stmt.where(VectorDocumentORM.index_name == index_name)
+            await session.execute(stmt)
             await session.commit()
         return True
 
-    async def ensure_index(self, index_name: str, embedding_size: int, do_reset: bool = False) -> bool:
+    async def ensure_index(
+        self,
+        index_name: str,
+        embedding_size: int,
+        do_reset: bool = False,
+        project_uuid: Optional[UUID] = None,
+    ) -> bool:
         # Table is global; `index_name` is only a namespace.
         if int(embedding_size) != int(self._config.embedding_dim):
             raise ValueError(
                 f"Embedding size mismatch: store expects {self._config.embedding_dim}, got {embedding_size}."
             )
         if do_reset:
-            await self.delete(index_name)
+            await self.delete(index_name, project_uuid=project_uuid)
         return True
 
     async def add_documents(
         self,
         index_name: str,
+        project_uuid: Optional[UUID],
         texts: List[str],
         vectors: List[List[float]],
         metadata: Optional[List[dict]] = None,
@@ -111,6 +130,9 @@ class PGVectorStore(VectorStoreInterface):
                 except Exception:
                     resolved_ids.append(uuid.uuid5(uuid.NAMESPACE_URL, str(rid)))
 
+        if project_uuid is None:
+            raise ValueError("PGVectorStore requires project_uuid for add_documents()")
+
         async with self._session_factory() as session:
             table = VectorDocumentORM.__table__
             for i in range(0, len(texts), batch_size):
@@ -118,6 +140,7 @@ class PGVectorStore(VectorStoreInterface):
                 rows = [
                     {
                         "id": resolved_ids[j],
+                        "project_uuid": project_uuid,
                         "index_name": index_name,
                         "text": texts[j],
                         "metadata": metadata[j] or {},
@@ -147,6 +170,7 @@ class PGVectorStore(VectorStoreInterface):
     async def similarity_search(
         self,
         index_name: str,
+        project_uuid: Optional[UUID],
         query_vector: List[float],
         top_k: int = 5,
         limit: int = 5,
@@ -155,10 +179,13 @@ class PGVectorStore(VectorStoreInterface):
         distance = VectorDocumentORM.embedding.cosine_distance(query_vector).label("distance")
         stmt = (
             select(VectorDocumentORM.id, VectorDocumentORM.text, VectorDocumentORM.metadata_, distance)
-            .where(VectorDocumentORM.index_name == index_name)
             .order_by(distance.asc())
             .limit(limit or top_k)
         )
+        if project_uuid is not None:
+            stmt = stmt.where(VectorDocumentORM.project_uuid == project_uuid)
+        else:
+            stmt = stmt.where(VectorDocumentORM.index_name == index_name)
 
         async with self._session_factory() as session:
             rows = (await session.execute(stmt)).all()

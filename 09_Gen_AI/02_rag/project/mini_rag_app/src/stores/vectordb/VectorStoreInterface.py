@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from typing import List, Optional, TYPE_CHECKING
+from uuid import UUID
 
 if TYPE_CHECKING:
     from models.db_schemes import RetrievedDocument
@@ -25,25 +26,32 @@ class VectorStoreInterface(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    async def index_exists(self, index_name: str) -> bool:
+    async def index_exists(self, index_name: str, project_uuid: Optional[UUID] = None) -> bool:
         raise NotImplementedError
 
     @abstractmethod
-    async def get_index_info(self, index_name: str) -> dict:
+    async def get_index_info(self, index_name: str, project_uuid: Optional[UUID] = None) -> dict:
         raise NotImplementedError
 
     @abstractmethod
-    async def delete(self, index_name: str) -> bool:
+    async def delete(self, index_name: str, project_uuid: Optional[UUID] = None) -> bool:
         raise NotImplementedError
 
     @abstractmethod
-    async def ensure_index(self, index_name: str, embedding_size: int, do_reset: bool = False) -> bool:
+    async def ensure_index(
+        self,
+        index_name: str,
+        embedding_size: int,
+        do_reset: bool = False,
+        project_uuid: Optional[UUID] = None,
+    ) -> bool:
         raise NotImplementedError
 
     @abstractmethod
     async def add_documents(
         self,
         index_name: str,
+        project_uuid: Optional[UUID],
         texts: List[str],
         vectors: List[List[float]],
         metadata: Optional[List[dict]] = None,
@@ -56,6 +64,7 @@ class VectorStoreInterface(ABC):
     async def similarity_search(
         self,
         index_name: str,
+        project_uuid: Optional[UUID],
         query_vector: List[float],
         top_k: int = 5,
         limit: int = 5,

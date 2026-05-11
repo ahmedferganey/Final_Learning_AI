@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import List, Optional
 
 import anyio
+from uuid import UUID
 
 from models.db_schemes import RetrievedDocument
 from stores.vectordb.VectorStoreInterface import VectorStoreInterface
@@ -24,16 +25,22 @@ class QdrantVectorStore(VectorStoreInterface):
     async def disconnect(self) -> None:
         await anyio.to_thread.run_sync(self._provider.disconnect)
 
-    async def index_exists(self, index_name: str) -> bool:
+    async def index_exists(self, index_name: str, project_uuid: Optional[UUID] = None) -> bool:
         return await anyio.to_thread.run_sync(self._provider.collection_exists, index_name)
 
-    async def get_index_info(self, index_name: str) -> dict:
+    async def get_index_info(self, index_name: str, project_uuid: Optional[UUID] = None) -> dict:
         return await anyio.to_thread.run_sync(self._provider.get_collection_info, index_name)
 
-    async def delete(self, index_name: str) -> bool:
+    async def delete(self, index_name: str, project_uuid: Optional[UUID] = None) -> bool:
         return bool(await anyio.to_thread.run_sync(self._provider.delete_collection, index_name))
 
-    async def ensure_index(self, index_name: str, embedding_size: int, do_reset: bool = False) -> bool:
+    async def ensure_index(
+        self,
+        index_name: str,
+        embedding_size: int,
+        do_reset: bool = False,
+        project_uuid: Optional[UUID] = None,
+    ) -> bool:
         def _create() -> bool:
             return bool(
                 self._provider.create_collection(
@@ -48,6 +55,7 @@ class QdrantVectorStore(VectorStoreInterface):
     async def add_documents(
         self,
         index_name: str,
+        project_uuid: Optional[UUID],
         texts: List[str],
         vectors: List[List[float]],
         metadata: Optional[List[dict]] = None,
@@ -71,6 +79,7 @@ class QdrantVectorStore(VectorStoreInterface):
     async def similarity_search(
         self,
         index_name: str,
+        project_uuid: Optional[UUID],
         query_vector: List[float],
         top_k: int = 5,
         limit: int = 5,

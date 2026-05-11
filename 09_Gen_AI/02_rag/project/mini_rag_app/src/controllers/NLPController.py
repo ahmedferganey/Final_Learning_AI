@@ -31,19 +31,19 @@ class NLPController(BaseController):
     
     async def reset_vector_db_collection(self, project: Project):
         collection_name = self.create_collection_name(project.project_id)
-        if await self.vector_store.index_exists(collection_name):
-            return await self.vector_store.delete(collection_name)
+        if await self.vector_store.index_exists(collection_name, project_uuid=project.id):
+            return await self.vector_store.delete(collection_name, project_uuid=project.id)
     
     async def get_vector_db_collection_info(self, project: Project):
         collection_name = self.create_collection_name(project.project_id)
-        if await self.vector_store.index_exists(collection_name):
-            return await self.vector_store.get_index_info(collection_name)
+        if await self.vector_store.index_exists(collection_name, project_uuid=project.id):
+            return await self.vector_store.get_index_info(collection_name, project_uuid=project.id)
         return None
 
     async def search_vector_db_collection(self, project: Project, query_text: str, top_k: int = 5, limit: int = 5):
         collection_name = self.create_collection_name(project.project_id)
 
-        if not await self.vector_store.index_exists(collection_name):
+        if not await self.vector_store.index_exists(collection_name, project_uuid=project.id):
             return None, collection_name
 
         query_vector = self.embedding_client.embed_text(
@@ -56,6 +56,7 @@ class NLPController(BaseController):
 
         hits = await self.vector_store.similarity_search(
             index_name=collection_name,
+            project_uuid=project.id,
             query_vector=query_vector,
             top_k=top_k,
             limit=limit,
@@ -209,15 +210,17 @@ class NLPController(BaseController):
                 logger.error("Embedding generation failed for project '%s'", project.project_id)
                 return False
 
-            if not await self.vector_store.index_exists(collection_name):
+            if not await self.vector_store.index_exists(collection_name, project_uuid=project.id):
                 await self.vector_store.ensure_index(
                     index_name=collection_name,
                     do_reset=do_reset,
                     embedding_size=self.embedding_client.embedding_size,
+                    project_uuid=project.id,
                 )
 
             return await self.vector_store.add_documents(
                 index_name=collection_name,
+                project_uuid=project.id,
                 texts=texts,
                 vectors=vectors,
                 metadata=metadata,
