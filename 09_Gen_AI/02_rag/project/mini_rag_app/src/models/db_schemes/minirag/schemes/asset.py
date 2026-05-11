@@ -11,9 +11,9 @@ from database.base import Base
 class AssetORM(Base):
     __tablename__ = "assets"
     __table_args__ = (
-        UniqueConstraint("project_id", "asset_name", name="uq_assets_project_id_asset_name"),
-        Index("ix_assets_project_id", "project_id"),
-        Index("ix_assets_project_id_asset_type", "project_id", "asset_type"),
+        UniqueConstraint("project_uuid", "asset_name", name="uq_assets_project_uuid_asset_name"),
+        Index("ix_assets_project_uuid", "project_uuid"),
+        Index("ix_assets_project_uuid_asset_type", "project_uuid", "asset_type"),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(
@@ -21,7 +21,7 @@ class AssetORM(Base):
         primary_key=True,
         default=uuid.uuid4,
     )
-    project_id: Mapped[uuid.UUID] = mapped_column(
+    project_uuid: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("projects.id", ondelete="CASCADE"),
         nullable=False,
@@ -36,7 +36,7 @@ class AssetORM(Base):
     )
     asset_config: Mapped[dict] = mapped_column(
         JSONB,
-        nullable=False,
+        nullable=True,
         default=dict,
         server_default=text("'{}'::jsonb"),
     )
@@ -49,7 +49,7 @@ class AssetORM(Base):
         DateTime(timezone=True),
         server_default=func.now(),
         onupdate=func.now(),
-        nullable=False,
+        nullable=True,
     )
 
     project = relationship("ProjectORM", back_populates="assets")

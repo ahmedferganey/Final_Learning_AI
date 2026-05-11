@@ -7,14 +7,16 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from database.base import Base
 
+from pydantic import BaseModel, Field
+from typing import Any, Dict, Optional, Union
 
 class DataChunkORM(Base):
     __tablename__ = "chunks"
     __table_args__ = (
         CheckConstraint("chunk_order > 0", name="ck_chunks_chunk_order_positive"),
-        UniqueConstraint("asset_id", "chunk_order", name="uq_chunks_asset_id_chunk_order"),
-        Index("ix_chunks_project_id", "project_id"),
-        Index("ix_chunks_asset_id", "asset_id"),
+        UniqueConstraint("asset_uuid", "chunk_order", name="uq_chunks_asset_uuid_chunk_order"),
+        Index("ix_chunks_project_uuid", "project_uuid"),
+        Index("ix_chunks_asset_uuid", "asset_uuid"),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(
@@ -30,12 +32,12 @@ class DataChunkORM(Base):
         server_default=text("'{}'::jsonb"),
     )
     chunk_order: Mapped[int] = mapped_column(Integer, nullable=False)
-    project_id: Mapped[uuid.UUID] = mapped_column(
+    project_uuid: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("projects.id", ondelete="CASCADE"),
         nullable=False,
     )
-    asset_id: Mapped[uuid.UUID] = mapped_column(
+    asset_uuid: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("assets.id", ondelete="CASCADE"),
         nullable=False,
@@ -49,8 +51,16 @@ class DataChunkORM(Base):
         DateTime(timezone=True),
         server_default=func.now(),
         onupdate=func.now(),
-        nullable=False,
+        nullable=True,
     )
 
     project = relationship("ProjectORM", back_populates="chunks")
     asset = relationship("AssetORM", back_populates="chunks")
+
+
+
+class RetrievedDocument(BaseModel):
+    id: Optional[Union[str, int]] = None
+    score: Optional[float] = None
+    text: Optional[str] = None
+    metadata: Dict[str, Any] = Field(default_factory=dict)

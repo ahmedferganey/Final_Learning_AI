@@ -15,6 +15,8 @@ class ProjectORM(Base):
         UUID(as_uuid=True),
         primary_key=True,
         default=uuid.uuid4,
+        unique=True,
+        nullable=False,
     )
     project_id: Mapped[str] = mapped_column(
         String(255),
@@ -30,7 +32,7 @@ class ProjectORM(Base):
         DateTime(timezone=True),
         server_default=func.now(),
         onupdate=func.now(),
-        nullable=False,
+        nullable=True,
     )
 
     assets = relationship("AssetORM", back_populates="project", cascade="all, delete-orphan")
