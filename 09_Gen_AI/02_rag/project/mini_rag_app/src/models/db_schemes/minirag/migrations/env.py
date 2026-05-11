@@ -31,7 +31,7 @@ load_dotenv(PROJECT_ROOT / ".env", override=False)
 
 from database.base import Base
 # any schemas will try inherit Base, this will permit alembic to detect it 
-from models.db_schemes.minirag.schemes import AssetORM, DataChunkORM, ProjectORM
+from models.db_schemes.minirag.schemes import AssetORM, DataChunkORM, ProjectORM, VectorDocumentORM
 
 
 def get_database_url() -> str:

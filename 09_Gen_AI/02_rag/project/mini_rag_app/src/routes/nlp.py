@@ -48,6 +48,7 @@ async def index_project(
     has_records = True
     page_no = 1
     inserted_items_count = 0
+    do_reset = push_request.do_reset
 
     while has_records:
         page_chunks = await chunk_repository.get_project_chunks(
@@ -61,11 +62,12 @@ async def index_project(
             has_records = False
             break
 
-        is_inserted = nlp_controller.index_into_vector_db(
+        is_inserted = await nlp_controller.index_into_vector_db(
             project=project,
             chunks=page_chunks,
-            do_reset=push_request.do_reset,
+            do_reset=do_reset,
         )
+        do_reset = 0
 
         if not is_inserted:
             await db_session.rollback()
@@ -112,7 +114,7 @@ async def get_project_index_info(
     )
 
     collection_name = nlp_controller.create_collection_name(project.project_id)
-    collection_info = nlp_controller.get_vector_db_collection_info(project)
+    collection_info = await nlp_controller.get_vector_db_collection_info(project)
 
     if not collection_info:
         return JSONResponse(
@@ -160,7 +162,7 @@ async def search_index(
         template_parser=getattr(request.app, "template_parser", None),
     )
 
-    search_result, collection_name = nlp_controller.search_vector_db_collection(
+    search_result, collection_name = await nlp_controller.search_vector_db_collection(
         project=project,
         query_text=search_request.query_text,
         top_k=search_request.top_k,
@@ -224,7 +226,7 @@ async def rag_answer(
 
     default_language = getattr(getattr(request.app, "settings", None), "DEFAULT_LANGUAGE", "en")
 
-    answer, docs, collection_name = nlp_controller.answer_rag_question(
+    answer, docs, collection_name = await nlp_controller.answer_rag_question(
         project=project,
         question=rag_request.question,
         top_k=rag_request.top_k or 5,

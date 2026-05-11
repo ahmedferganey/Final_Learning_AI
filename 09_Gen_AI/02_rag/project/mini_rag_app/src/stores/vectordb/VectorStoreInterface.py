@@ -17,31 +17,31 @@ class VectorStoreInterface(ABC):
     """
 
     @abstractmethod
-    def connect(self) -> None:
+    async def connect(self) -> None:
         raise NotImplementedError
 
     @abstractmethod
-    def disconnect(self) -> None:
+    async def disconnect(self) -> None:
         raise NotImplementedError
 
     @abstractmethod
-    def index_exists(self, index_name: str) -> bool:
+    async def index_exists(self, index_name: str) -> bool:
         raise NotImplementedError
 
     @abstractmethod
-    def get_index_info(self, index_name: str) -> dict:
+    async def get_index_info(self, index_name: str) -> dict:
         raise NotImplementedError
 
     @abstractmethod
-    def delete(self, index_name: str) -> bool:
+    async def delete(self, index_name: str) -> bool:
         raise NotImplementedError
 
     @abstractmethod
-    def ensure_index(self, index_name: str, embedding_size: int, do_reset: bool = False) -> bool:
+    async def ensure_index(self, index_name: str, embedding_size: int, do_reset: bool = False) -> bool:
         raise NotImplementedError
 
     @abstractmethod
-    def add_documents(
+    async def add_documents(
         self,
         index_name: str,
         texts: List[str],
@@ -53,7 +53,7 @@ class VectorStoreInterface(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def similarity_search(
+    async def similarity_search(
         self,
         index_name: str,
         query_vector: List[float],

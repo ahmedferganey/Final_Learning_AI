@@ -35,7 +35,7 @@ class Settings(BaseSettings):
     GENERATION_DAFAULT_TEMPERATURE: float = None
 
     VECTOR_DB_BACKEND: str
-    VECTOR_DB_PATH: str
+    VECTOR_DB_PATH: str = "qdrant_db"
     VECTOR_DB_DISTANCE_METHOD: str = None
 
     # Templates / localization

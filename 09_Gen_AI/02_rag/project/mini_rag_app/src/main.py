@@ -3,8 +3,7 @@ from routes import base, data, nlp
 from helpers.config import get_settings
 import logging
 from stores.llm.LLMProviderFactory import LLMProviderFactory
-from stores.vectordb.VectorDBProviderFactory import   VectorDBProviderFactory
-from stores.vectordb.QdrantVectorStore import QdrantVectorStore
+from stores.vectordb.VectorStoreFactory import VectorStoreFactory
 from stores.llm.templates import TemplateParser
 from database.session import create_engine_and_session_factory, check_database_connection
 
@@ -26,7 +25,6 @@ async def startup_span():
 
     settings_payload = settings.model_dump()
     llm_factory = LLMProviderFactory(config=settings_payload)
-    vectordb_provider_factory = VectorDBProviderFactory(config=settings_payload)
 
 
     # generation client
@@ -37,12 +35,9 @@ async def startup_span():
     app.embedding_client = llm_factory.create(settings.EMBEDDING_BACKEND)
     app.embedding_client.set_embedding_model(settings.EMBEDDING_MODEL_ID, settings.EMBEDDING_MODEL_SIZE)
 
-    #vector db client
-    app.vectordb_client = vectordb_provider_factory.create(settings.VECTOR_DB_BACKEND)
-    app.vectordb_client.connect()                                                           
-    # Provider-neutral interface for the rest of the app (Step 1/2).
-    # PGVector will be added later without changing callers.
-    app.vector_store = QdrantVectorStore(app.vectordb_client)
+    # Vector store (Qdrant by default; PGVector optional via config).
+    app.vector_store = VectorStoreFactory(settings, app.db_session_factory).create()
+    await app.vector_store.connect()
 
     # Shared template loader (language fallback + potential future caching).
     app.template_parser = TemplateParser(default_language=settings.DEFAULT_LANGUAGE)
@@ -53,8 +48,8 @@ async def shutdown_span():
     if hasattr(app, "db_engine"):
         await app.db_engine.dispose()
 
-    if hasattr(app, "vectordb_client"):
-        app.vectordb_client.disconnect()
+    if hasattr(app, "vector_store"):
+        await app.vector_store.disconnect()
 
 app.include_router(base.base_router)
 app.include_router(data.data_router)
