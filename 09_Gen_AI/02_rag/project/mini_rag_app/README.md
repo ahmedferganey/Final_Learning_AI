@@ -136,15 +136,15 @@ Note: `__pycache__/` folders are omitted for brevity.
 
 - `src/main.py`
   - FastAPI app creation
-  - MongoDB connection startup and shutdown
+  - PostgreSQL connection startup and shutdown
   - router registration
 
 ### Configuration
 
 - `src/helpers/config.py`
   - loads settings from `.env`
-  - supports either a full `MONGODB_URL` or Mongo credential parts
-  - builds MongoDB connection URL when needed
+  - supports either a full `DATABASE_URL` or `POSTGRES_*` credential parts
+  - builds PostgreSQL connection URL when needed
   - includes template localization default via `DEFAULT_LANGUAGE` (e.g. `en`, `ar`)
 
 ### API Layer
@@ -279,7 +279,7 @@ Note: `__pycache__/` folders are omitted for brevity.
   - local MongoDB service definition with authentication
 
 - `docker/.env.example`
-  - example Docker Mongo credentials
+  - example Docker PostgreSQL credentials
 
 ## Requirements
 
@@ -294,7 +294,7 @@ sudo apt install -y gcc python3-dev libpq-dev
 
 ## Setup
 
-### 1. Start MongoDB
+### 1. Start PostgreSQL (pgvector image)
 
 Create the Docker env file:
 
@@ -302,15 +302,15 @@ Create the Docker env file:
 cp docker/.env.example docker/.env
 ```
 
-Then update the credentials in `docker/.env`.
+Then update credentials in `docker/.env` if needed.
 
-Start MongoDB from the repo root:
+Start PostgreSQL from the repo root:
 
 ```bash
 docker compose --env-file docker/.env -f docker/docker-compose.yml up -d
 ```
 
-MongoDB is exposed on `localhost:27007`.
+PostgreSQL is exposed on `localhost:5432`.
 
 ### 2. Create and activate a virtual environment
 
@@ -333,7 +333,7 @@ Create the app env file:
 cp src/.env.example src/.env
 ```
 
-Recommended authenticated Mongo configuration:
+Recommended PostgreSQL metadata configuration:
 
 ```env
 APP_NAME="mini-RAG"
@@ -345,8 +345,12 @@ FILE_ALLOWED_TYPES=["text/plain", "application/pdf"]
 FILE_MAX_SIZE=10
 FILE_DEFAULT_CHUNK_SIZE=512000
 
-MONGODB_URL="mongodb://admin:admin@localhost:27007"
-MONGODB_DATABASE="mini-rag"
+DATABASE_URL="postgresql+asyncpg://mini_rag:mini_rag@localhost:5432/mini_rag"
+POSTGRES_HOST="localhost"
+POSTGRES_PORT=5432
+POSTGRES_DB="mini_rag"
+POSTGRES_USER="mini_rag"
+POSTGRES_PASSWORD="mini_rag"
 
 # ============ LLM / Vector DB / Templates ===========
 GENERATION_BACKEND="OPENAI"
@@ -363,24 +367,48 @@ VECTOR_DB_DISTANCE_METHOD="cosine"
 DEFAULT_LANGUAGE="en"
 ```
 
-Alternative split configuration supported by `config.py`:
-
-```env
-MONGODB_URL=""
-MONGODB_USERNAME="admin"
-MONGODB_PASSWORD="admin"
-MONGODB_HOST="localhost"
-MONGODB_PORT=27007
-MONGODB_AUTH_SOURCE="admin"
-MONGODB_DATABASE="mini-rag"
-```
-
 Notes:
 
 - `FILE_MAX_SIZE` is in MB.
 - `FILE_DEFAULT_CHUNK_SIZE` is the streamed upload write size in bytes.
-- The server reads `.env` from `src/`, so run `uvicorn` from inside `src/`.
+- The server reads `.env` from `src/`, so run commands from inside `src/`.
 - Leave `OPENAI_API_URL` empty unless you are using a custom gateway/proxy. If set, it must include `http://` or `https://`.
+
+### 5. Run Alembic migrations (metadata schema)
+
+From repo root:
+
+```bash
+cd src/models/db_schemes/minirag
+../../../../../.venv/bin/python -m alembic -c alembic.ini upgrade head
+```
+
+### 6. Start FastAPI
+
+From `src/`:
+
+```bash
+cd src
+source ../.venv/bin/activate
+uvicorn main:app --reload --host 0.0.0.0 --port 5000
+```
+
+### Local DB reset (development)
+
+Reset metadata schema with Alembic:
+
+```bash
+cd src/models/db_schemes/minirag
+../../../../../.venv/bin/python -m alembic -c alembic.ini downgrade base
+../../../../../.venv/bin/python -m alembic -c alembic.ini upgrade head
+```
+
+Or reset full PostgreSQL container volume:
+
+```bash
+docker compose --env-file docker/.env -f docker/docker-compose.yml down -v
+docker compose --env-file docker/.env -f docker/docker-compose.yml up -d
+```
 
 ## Run the API
 

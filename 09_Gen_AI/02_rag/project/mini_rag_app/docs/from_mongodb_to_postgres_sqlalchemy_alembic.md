@@ -279,16 +279,16 @@ Current code creates model instances from `request.app.db_client`. Replace this 
 
 Task list:
 
-- [ ] P6-T001 Add a FastAPI DB dependency, recommended location `src/database/dependencies.py`.
-- [ ] P6-T002 Implement `get_db_session(request: Request) -> AsyncIterator[AsyncSession]`.
-- [ ] P6-T003 Ensure the dependency opens one `AsyncSession` per request.
-- [ ] P6-T004 Add rollback handling for exceptions inside the dependency.
-- [ ] P6-T005 Update data routes to inject `AsyncSession` with `Depends(get_db_session)`.
-- [ ] P6-T006 Update NLP routes to inject `AsyncSession` with `Depends(get_db_session)`.
-- [ ] P6-T007 Instantiate repositories with the injected session.
-- [ ] P6-T008 Commit only after successful business operations.
-- [ ] P6-T009 Roll back on failed upload/process/index operations that changed PostgreSQL state.
-- [ ] P6-T010 Keep FastAPI startup free of `Base.metadata.create_all()` or any direct table creation.
+- [x] P6-T001 Add a FastAPI DB dependency, recommended location `src/database/dependencies.py`.
+- [x] P6-T002 Implement `get_db_session(request: Request) -> AsyncIterator[AsyncSession]`.
+- [x] P6-T003 Ensure the dependency opens one `AsyncSession` per request.
+- [x] P6-T004 Add rollback handling for exceptions inside the dependency.
+- [x] P6-T005 Update data routes to inject `AsyncSession` with `Depends(get_db_session)`.
+- [x] P6-T006 Update NLP routes to inject `AsyncSession` with `Depends(get_db_session)`.
+- [x] P6-T007 Instantiate repositories with the injected session.
+- [x] P6-T008 Commit only after successful business operations.
+- [x] P6-T009 Roll back on failed upload/process/index operations that changed PostgreSQL state.
+- [x] P6-T010 Keep FastAPI startup free of `Base.metadata.create_all()` or any direct table creation.
 
 Recommended dependency shape:
 
@@ -308,17 +308,17 @@ PostgreSQL is now the local metadata database.
 
 Task list:
 
-- [ ] P7-T001 Verify `docker/docker-compose.yml` runs PostgreSQL and does not require MongoDB for app metadata.
-- [ ] P7-T002 Verify `docker/.env.example` contains PostgreSQL variables only for metadata DB setup.
-- [ ] P7-T003 Verify `src/.env.example` contains `DATABASE_URL` or `POSTGRES_*` variables.
-- [ ] P7-T004 Remove active MongoDB environment examples from app docs.
-- [ ] P7-T005 Keep Qdrant/vector DB settings separate from PostgreSQL settings.
-- [ ] P7-T006 Add a local setup command sequence:
+- [x] P7-T001 Verify `docker/docker-compose.yml` runs PostgreSQL and does not require MongoDB for app metadata.
+- [x] P7-T002 Verify `docker/.env.example` contains PostgreSQL variables only for metadata DB setup.
+- [x] P7-T003 Verify `src/.env.example` contains `DATABASE_URL` or `POSTGRES_*` variables.
+- [x] P7-T004 Remove active MongoDB environment examples from app docs.
+- [x] P7-T005 Keep Qdrant/vector DB settings separate from PostgreSQL settings.
+- [x] P7-T006 Add a local setup command sequence:
   - start PostgreSQL
   - install dependencies
   - run Alembic migrations
   - start FastAPI
-- [ ] P7-T007 Document how to reset local metadata DB safely using Alembic downgrade/upgrade or container volume reset.
+- [x] P7-T007 Document how to reset local metadata DB safely using Alembic downgrade/upgrade or container volume reset.
 
 Example app environment:
 
@@ -331,7 +331,7 @@ POSTGRES_USER=mini_rag
 POSTGRES_PASSWORD=mini_rag
 ```
 
-## Phase 8: Data Migration
+## Phase 8: Data Migration "Optional"
 
 If existing MongoDB data must be preserved, write a one-time migration script.
 
@@ -356,7 +356,7 @@ Task list:
 - [ ] P8-T017 Run one sample upload/process/index/query flow after migration.
 - [ ] P8-T018 Do not regenerate embeddings unless vector payload migration proves impossible.
 
-## Phase 9: Tests and Verification
+## Phase 9: Tests and Verification "Optional"
 
 Task list:
 
