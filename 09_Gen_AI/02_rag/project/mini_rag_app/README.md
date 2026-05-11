@@ -69,17 +69,23 @@ Current tree:
     ├── helpers
     │   ├── __init__.py
     │   └── config.py
+    ├── database
+    │   ├── __init__.py
+    │   ├── base.py
+    │   ├── dependencies.py
+    │   └── session.py
     ├── main.py
     ├── models
-    │   ├── AssetModel.py
-    │   ├── BaseDataModel.py
-    │   ├── ChunkModel.py
-    │   ├── ProjectModel.py
     │   ├── __init__.py
     │   ├── db_schemes
     │   │   ├── __init__.py
     │   │   ├── asset.py
     │   │   ├── data_chunk.py
+    │   │   ├── minirag
+    │   │   │   ├── README.md
+    │   │   │   ├── alembic.ini.example
+    │   │   │   ├── migrations/
+    │   │   │   └── schemes/
     │   │   └── project.py
     │   └── enums
     │       ├── AssetTypeEnum.py
@@ -88,6 +94,13 @@ Current tree:
     │       ├── ResponseEnums.py
     │       └── __init__.py
     ├── requirements.txt
+    ├── repositories
+    │   ├── __init__.py
+    │   └── minirag
+    │       ├── __init__.py
+    │       ├── asset_repository.py
+    │       ├── chunk_repository.py
+    │       └── project_repository.py
     └── routes
         ├── __init__.py
         ├── base.py
@@ -147,6 +160,18 @@ Note: `__pycache__/` folders are omitted for brevity.
   - builds PostgreSQL connection URL when needed
   - includes template localization default via `DEFAULT_LANGUAGE` (e.g. `en`, `ar`)
 
+### Database Runtime
+
+- `src/database/base.py`
+  - SQLAlchemy declarative `Base`
+
+- `src/database/session.py`
+  - async engine/session-factory creation
+  - lightweight DB connectivity check helper
+
+- `src/database/dependencies.py`
+  - FastAPI dependency that yields per-request `AsyncSession`
+
 ### API Layer
 
 - `src/routes/base.py`
@@ -205,14 +230,26 @@ Note: `__pycache__/` folders are omitted for brevity.
 ### Database Schemas
 
 - `src/models/db_schemes/project.py`
-  - schema for `projects`
+  - public API/data-transfer schema for `projects`
 
 - `src/models/db_schemes/asset.py`
-  - schema for `assets`
+  - public API/data-transfer schema for `assets`
 
 - `src/models/db_schemes/data_chunk.py`
-  - schema for `chunks`
+  - public API/data-transfer schema for `chunks`
   - RAG schema: `RetrievedDocument` (vector search hit normalized to `id`, `score`, `text`, `metadata`)
+
+- `src/models/db_schemes/minirag/schemes/project.py`
+  - SQLAlchemy ORM table mapping for `projects`
+
+- `src/models/db_schemes/minirag/schemes/asset.py`
+  - SQLAlchemy ORM table mapping for `assets`
+
+- `src/models/db_schemes/minirag/schemes/chunk.py`
+  - SQLAlchemy ORM table mapping for `chunks`
+
+- `src/models/db_schemes/minirag/migrations/`
+  - Alembic migration scripts for PostgreSQL schema changes
 
 ### Stores (Backends)
 
