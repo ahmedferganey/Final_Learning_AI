@@ -70,6 +70,7 @@ async def upload_data(request: Request, project_id: str, file: UploadFile,
         )
 
         await db_session.commit()
+
     except Exception as exc:
         await db_session.rollback()
         logger.exception(f"Unable to persist upload metadata: {exc}")
@@ -228,6 +229,7 @@ async def process_endpoint(
             )
 
         await db_session.commit()
+                
         return JSONResponse(
             content={
                 "signal": ResponseSignal.PROCESSING_SUCCESS.value,

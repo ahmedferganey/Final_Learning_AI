@@ -78,6 +78,7 @@ async def index_project(
         inserted_items_count += len(page_chunks)
 
     await db_session.commit()
+    
     return JSONResponse(
         content={
             "signal": ResponseSignal.INSERT_INTO_VECTORDB_SUCESS.value,
