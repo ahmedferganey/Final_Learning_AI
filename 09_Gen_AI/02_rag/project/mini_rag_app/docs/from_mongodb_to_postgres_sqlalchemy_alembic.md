@@ -194,105 +194,133 @@ Alembic must be the only mechanism used to create or alter PostgreSQL tables. Do
 
 ## Phase 4: Replace Mongo Data Access Layer
 
-Replace the current Mongo implementation behind these files:
+Use the repository pattern for PostgreSQL instead of rewriting the old Mongo model classes in place.
 
-- `src/models/ProjectModel.py`
-- `src/models/AssetModel.py`
-- `src/models/ChunkModel.py`
+The old classes can remain temporarily for reference during the transition, but routes/controllers should move to new SQLAlchemy repositories backed by `AsyncSession`.
 
-Two acceptable approaches:
+Recommended repository location:
 
-1. Keep the same class names and method names, but rewrite internals to use `AsyncSession`.
-2. Create new repository classes and update routes/controllers to use them.
+- `src/repositories/minirag/project_repository.py`
+- `src/repositories/minirag/asset_repository.py`
+- `src/repositories/minirag/chunk_repository.py`
+- `src/repositories/minirag/__init__.py`
 
-Recommended for lower risk:
+Recommended class names:
 
-- Keep the existing class names and public method names first.
-- Change only their constructor dependencies and internals.
-- Refactor names later after behavior is stable.
+- `ProjectRepository`
+- `AssetRepository`
+- `ChunkRepository`
 
-Required method mappings:
+Task list:
 
-### `ProjectModel`
+- [ ] P4-T001 Create `src/repositories/` package and `src/repositories/minirag/` package.
+- [ ] P4-T002 Implement `ProjectRepository` using `AsyncSession` and `ProjectORM`.
+- [ ] P4-T003 Implement `AssetRepository` using `AsyncSession` and `AssetORM`.
+- [ ] P4-T004 Implement `ChunkRepository` using `AsyncSession` and `DataChunkORM`.
+- [ ] P4-T005 Add repository exports in `src/repositories/minirag/__init__.py`.
+- [ ] P4-T006 Keep transaction control outside repositories unless a method needs an atomic local operation.
+- [ ] P4-T007 Return Pydantic app schemas or plain DTOs from repositories, not raw ORM objects, where route/controller code expects serializable objects.
+- [ ] P4-T008 Update `src/routes/data.py` to use repositories instead of `ProjectModel`, `AssetModel`, and `ChunkModel`.
+- [ ] P4-T009 Update `src/routes/nlp.py` to use repositories instead of `ProjectModel` and `ChunkModel`.
+- [ ] P4-T010 Remove route usage of `request.app.db_client`.
+- [ ] P4-T011 Verify no active route imports `src/models/ProjectModel.py`, `src/models/AssetModel.py`, or `src/models/ChunkModel.py`.
 
-- `create_project()` becomes SQLAlchemy `session.add()` plus `flush()`/`commit()`.
-- `get_project_or_create_one()` becomes a `SELECT` by `project_id`, then insert if missing.
-- `get_project_by_project_id()` becomes a `SELECT` by `project_id`.
-- `get_all_projects()` becomes `SELECT`, `COUNT`, `OFFSET`, and `LIMIT`.
-- `get_project_object_id()` should become `get_project_db_id()` and return UUID.
+Required `ProjectRepository` methods:
 
-### `AssetModel`
+- [ ] P4-T012 `create_project(project_id: str)` inserts a `ProjectORM`.
+- [ ] P4-T013 `get_project_or_create(project_id: str)` selects by public `project_id`, inserts if missing, and returns the project.
+- [ ] P4-T014 `get_project_by_project_id(project_id: str)` selects by public `project_id`.
+- [ ] P4-T015 `get_all_projects(page: int, page_size: int)` uses `COUNT`, `OFFSET`, and `LIMIT`.
+- [ ] P4-T016 `get_project_uuid(project_id: str)` returns internal `projects.id` UUID.
 
-- `create_asset()` inserts an `AssetORM`.
-- `get_all_project_assets()` selects `id` and `asset_name` by `project_id`.
-- `get_project_asset_by_name()` selects `id` and `asset_name` by `project_id`, `asset_name`, and optional `asset_type`.
+Required `AssetRepository` methods:
 
-### `ChunkModel`
+- [ ] P4-T017 `create_asset(...)` inserts an `AssetORM`.
+- [ ] P4-T018 `get_all_project_assets(project_uuid, asset_type=None)` returns `{asset_uuid: asset_name}`.
+- [ ] P4-T019 `get_project_asset_by_name(project_uuid, asset_name, asset_type=None)` returns `{asset_uuid: asset_name}`.
 
-- `create_chunk()` inserts a single chunk row.
-- `insert_many_chunks()` uses `session.add_all()` or bulk insert.
-- `delete_chunks_by_project_id()` uses SQLAlchemy `delete()`.
-- `get_chunk()` selects by UUID.
-- `get_project_chunks()` selects by project UUID with pagination.
+Required `ChunkRepository` methods:
+
+- [ ] P4-T020 `create_chunk(...)` inserts a single `DataChunkORM`.
+- [ ] P4-T021 `insert_many_chunks(chunks, batch_size=100)` inserts chunks in batches.
+- [ ] P4-T022 `delete_chunks_by_project_uuid(project_uuid)` deletes chunks for a project UUID.
+- [ ] P4-T023 `get_chunk(chunk_uuid)` selects one chunk by UUID.
+- [ ] P4-T024 `get_project_chunks(project_uuid, page_no=1, page_size=50)` selects project chunks with pagination.
+
+Compatibility rules for this phase:
+
+- [ ] P4-T025 Keep public API payloads stable where possible.
+- [ ] P4-T026 Keep vector DB payload shape stable unless Phase 8 proves Mongo IDs are embedded there.
+- [ ] P4-T027 Do not delete old Mongo model files until routes no longer use them and tests/manual flows pass.
 
 ## Phase 5: Remove Mongo `ObjectId` from App Data Flow
 
 The current app passes Mongo `ObjectId` values between projects, assets, and chunks. PostgreSQL should use UUIDs.
 
-Update:
+Task list:
 
-- `src/models/db_schemes/project.py`
-- `src/models/db_schemes/asset.py`
-- `src/models/db_schemes/data_chunk.py`
-- route/controller code that imports or creates `bson.ObjectId`
-
-Replace:
-
-- `ObjectId` with `uuid.UUID`
-- Mongo `_id` alias assumptions with explicit `id`
-- `asset_project_id` with `project_id` or a clear compatibility alias
-- `chunk_project_id` with `project_id`
-- `chunk_asset_id` with `asset_id`
-
-Compatibility option:
-
-- During the first migration, keep old Pydantic field names if that avoids a large route rewrite.
-- Internally convert them to ORM column names.
-- Once tests pass, rename the app fields to match SQL terminology.
+- [ ] P5-T001 Update `src/models/db_schemes/project.py` to use `uuid.UUID` instead of `bson.ObjectId`.
+- [ ] P5-T002 Update `src/models/db_schemes/asset.py` to use `uuid.UUID` instead of `bson.ObjectId`.
+- [ ] P5-T003 Update `src/models/db_schemes/data_chunk.py` to use `uuid.UUID` instead of `bson.ObjectId`.
+- [ ] P5-T004 Keep `RetrievedDocument` unchanged because it is a vector-search response schema, not a PostgreSQL table schema.
+- [ ] P5-T005 Replace Mongo `_id` alias assumptions with explicit `id` fields.
+- [ ] P5-T006 Rename app data fields where route/controller changes allow it:
+  - `asset_project_id` -> `project_uuid`
+  - `chunk_project_id` -> `project_uuid`
+  - `chunk_asset_id` -> `asset_uuid`
+- [ ] P5-T007 Remove all imports of `bson`, `bson.objectid`, and `pymongo` from active app code.
+- [ ] P5-T008 Update logging text that says "MongoDB object id" to "project UUID" or "database UUID".
+- [ ] P5-T009 Run `rg -n "ObjectId|bson|pymongo|_id|MongoDB object id" src` and resolve active references.
+- [ ] P5-T010 Keep compatibility conversion only inside repositories if a route still passes an old field name during transition.
 
 ## Phase 6: Update FastAPI Wiring
 
 Current code creates model instances from `request.app.db_client`. Replace this with database sessions.
 
-Recommended dependency:
+Task list:
+
+- [ ] P6-T001 Add a FastAPI DB dependency, recommended location `src/database/dependencies.py`.
+- [ ] P6-T002 Implement `get_db_session(request: Request) -> AsyncIterator[AsyncSession]`.
+- [ ] P6-T003 Ensure the dependency opens one `AsyncSession` per request.
+- [ ] P6-T004 Add rollback handling for exceptions inside the dependency.
+- [ ] P6-T005 Update data routes to inject `AsyncSession` with `Depends(get_db_session)`.
+- [ ] P6-T006 Update NLP routes to inject `AsyncSession` with `Depends(get_db_session)`.
+- [ ] P6-T007 Instantiate repositories with the injected session.
+- [ ] P6-T008 Commit only after successful business operations.
+- [ ] P6-T009 Roll back on failed upload/process/index operations that changed PostgreSQL state.
+- [ ] P6-T010 Keep FastAPI startup free of `Base.metadata.create_all()` or any direct table creation.
+
+Recommended dependency shape:
 
 ```python
 async def get_db_session(request: Request) -> AsyncIterator[AsyncSession]:
     async with request.app.db_session_factory() as session:
-        yield session
+        try:
+            yield session
+        except Exception:
+            await session.rollback()
+            raise
 ```
-
-Then route code can either:
-
-- inject the session with `Depends(get_db_session)`, or
-- keep using `request.app.db_session_factory()` directly for a smaller first change.
-
-Recommended long-term approach:
-
-- Use FastAPI dependencies.
-- Keep transaction boundaries explicit.
-- Commit only after successful business operations.
-- Roll back on exceptions.
 
 ## Phase 7: Update Local Development Environment
 
-Replace MongoDB service with PostgreSQL in Docker:
+PostgreSQL is now the local metadata database.
 
-- Update `docker/docker-compose.yml`.
-- Update `docker/.env.example`.
-- Update `src/.env.example`.
+Task list:
 
-Example environment:
+- [ ] P7-T001 Verify `docker/docker-compose.yml` runs PostgreSQL and does not require MongoDB for app metadata.
+- [ ] P7-T002 Verify `docker/.env.example` contains PostgreSQL variables only for metadata DB setup.
+- [ ] P7-T003 Verify `src/.env.example` contains `DATABASE_URL` or `POSTGRES_*` variables.
+- [ ] P7-T004 Remove active MongoDB environment examples from app docs.
+- [ ] P7-T005 Keep Qdrant/vector DB settings separate from PostgreSQL settings.
+- [ ] P7-T006 Add a local setup command sequence:
+  - start PostgreSQL
+  - install dependencies
+  - run Alembic migrations
+  - start FastAPI
+- [ ] P7-T007 Document how to reset local metadata DB safely using Alembic downgrade/upgrade or container volume reset.
+
+Example app environment:
 
 ```env
 DATABASE_URL=postgresql+asyncpg://mini_rag:mini_rag@localhost:5432/mini_rag
@@ -303,109 +331,90 @@ POSTGRES_USER=mini_rag
 POSTGRES_PASSWORD=mini_rag
 ```
 
-Remove or deprecate:
-
-- `MONGODB_URL`
-- `MONGODB_DATABASE`
-- `MONGODB_USERNAME`
-- `MONGODB_PASSWORD`
-- `MONGODB_HOST`
-- `MONGODB_PORT`
-- `MONGODB_AUTH_SOURCE`
-
 ## Phase 8: Data Migration
 
 If existing MongoDB data must be preserved, write a one-time migration script.
 
-Recommended location:
+Task list:
 
-- `scripts/migrate_mongodb_to_postgres.py`
-
-Migration flow:
-
-1. Connect to MongoDB.
-2. Connect to PostgreSQL through SQLAlchemy.
-3. Read all `projects`.
-4. Insert projects into PostgreSQL and store mapping:
-   - old Mongo `_id` to new PostgreSQL UUID
-5. Read all `assets`.
-6. Convert `asset_project_id` using the project ID mapping.
-7. Insert assets and store mapping:
-   - old Mongo `_id` to new PostgreSQL UUID
-8. Read all `chunks`.
-9. Convert `chunk_project_id` and `chunk_asset_id` using mappings.
-10. Insert chunks in batches.
-11. Validate counts:
-   - Mongo project count equals PostgreSQL project count.
-   - Mongo asset count equals PostgreSQL asset count.
-   - Mongo chunk count equals PostgreSQL chunk count.
-12. Run a sample API flow against migrated data.
-
-Important:
-
-- Do not regenerate embeddings during this migration.
-- If vector DB payloads store Mongo chunk IDs, update the vector payloads or maintain an ID mapping table.
-- Confirm whether Qdrant payloads currently reference Mongo `_id` values before deleting MongoDB.
+- [ ] P8-T001 Decide whether existing MongoDB data must be preserved.
+- [ ] P8-T002 If no data preservation is needed, document that this phase is skipped.
+- [ ] P8-T003 If data preservation is needed, create `scripts/migrate_mongodb_to_postgres.py`.
+- [ ] P8-T004 Connect to MongoDB read-only.
+- [ ] P8-T005 Connect to PostgreSQL through SQLAlchemy async session or a controlled sync migration session.
+- [ ] P8-T006 Read all Mongo `projects`.
+- [ ] P8-T007 Insert PostgreSQL `projects` and store old Mongo `_id` -> new PostgreSQL UUID mapping.
+- [ ] P8-T008 Read all Mongo `assets`.
+- [ ] P8-T009 Convert `asset_project_id` using the project mapping.
+- [ ] P8-T010 Insert PostgreSQL `assets` and store old Mongo `_id` -> new PostgreSQL UUID mapping.
+- [ ] P8-T011 Read all Mongo `chunks`.
+- [ ] P8-T012 Convert `chunk_project_id` and `chunk_asset_id` using mappings.
+- [ ] P8-T013 Insert PostgreSQL `chunks` in batches.
+- [ ] P8-T014 Validate Mongo and PostgreSQL counts for projects, assets, and chunks.
+- [ ] P8-T015 Inspect Qdrant payloads to see whether Mongo `_id` values are stored.
+- [ ] P8-T016 If Qdrant stores Mongo IDs, update vector payloads or keep an ID mapping strategy.
+- [ ] P8-T017 Run one sample upload/process/index/query flow after migration.
+- [ ] P8-T018 Do not regenerate embeddings unless vector payload migration proves impossible.
 
 ## Phase 9: Tests and Verification
 
-Add or update tests for:
+Task list:
 
-- Creating a project.
-- Fetching an existing project.
-- Uploading an asset.
-- Enforcing unique asset names per project.
-- Processing files into chunks.
-- Deleting old chunks before reprocessing.
-- Fetching paginated chunks.
-- Running the RAG query flow after metadata is stored in PostgreSQL.
-
-Manual verification flow:
-
-1. Start PostgreSQL.
-2. Run `alembic upgrade head`.
-3. Start FastAPI.
-4. Create or access a project.
-5. Upload a file.
-6. Process the file into chunks.
-7. Verify rows exist in PostgreSQL.
-8. Build/update the vector index.
-9. Run a query against the project.
+- [ ] P9-T001 Add repository tests for `ProjectRepository`.
+- [ ] P9-T002 Add repository tests for `AssetRepository`.
+- [ ] P9-T003 Add repository tests for `ChunkRepository`.
+- [ ] P9-T004 Test project creation and fetching an existing project.
+- [ ] P9-T005 Test asset creation and unique asset name enforcement per project UUID.
+- [ ] P9-T006 Test chunk batch insertion.
+- [ ] P9-T007 Test chunk deletion by `project_uuid`.
+- [ ] P9-T008 Test paginated chunk fetching.
+- [ ] P9-T009 Test upload endpoint creates project and asset rows in PostgreSQL.
+- [ ] P9-T010 Test process endpoint creates chunk rows in PostgreSQL.
+- [ ] P9-T011 Test index endpoint reads chunks from PostgreSQL and writes to vector DB.
+- [ ] P9-T012 Test RAG/search endpoint still returns `RetrievedDocument` payloads.
+- [ ] P9-T013 Run Alembic verification:
+  - `alembic upgrade head`
+  - `alembic downgrade -1`
+  - `alembic upgrade head`
+- [ ] P9-T014 Run manual API flow:
+  - start PostgreSQL
+  - run migrations
+  - start FastAPI
+  - upload file
+  - process file
+  - verify rows
+  - index vectors
+  - query project
 
 ## Phase 10: Documentation Cleanup
 
-Update:
+Task list:
 
-- `README.md`
-- `docker/.env.example`
-- `src/.env.example`
-- any architecture docs that mention MongoDB
-
-Remove or revise:
-
-- "MongoDB Collections" section.
-- MongoDB setup instructions.
-- MongoDB environment variable examples.
-- MongoDB Docker service documentation.
-
-Add:
-
-- PostgreSQL setup instructions.
-- Alembic migration commands.
-- Database reset instructions for local development.
-- Notes explaining that PostgreSQL stores metadata and Qdrant stores vectors.
+- [ ] P10-T001 Update root `README.md` app overview from MongoDB metadata to PostgreSQL metadata.
+- [ ] P10-T002 Replace "MongoDB Collections" with "PostgreSQL Tables".
+- [ ] P10-T003 Document `projects`, `assets`, and `chunks` columns.
+- [ ] P10-T004 Document that `project_id` is the public string identifier and `id`/`*_uuid` fields are internal UUIDs.
+- [ ] P10-T005 Add Alembic command examples from `src/models/db_schemes/minirag/README.md`.
+- [ ] P10-T006 Remove MongoDB setup instructions from active local development docs.
+- [ ] P10-T007 Remove MongoDB environment variable examples.
+- [ ] P10-T008 Add PostgreSQL setup and reset instructions.
+- [ ] P10-T009 Document that PostgreSQL stores metadata and Qdrant stores vectors.
+- [ ] P10-T010 Update architecture docs/notebooks if they mention MongoDB as the app metadata store.
+- [ ] P10-T011 Update troubleshooting notes for common PostgreSQL/Alembic failures.
+- [ ] P10-T012 Run `rg -n "MongoDB|Mongo|MONGODB|ObjectId|pymongo|motor" README.md docs src docker` and revise stale docs or active code references.
 
 ## Cutover Strategy
 
 Recommended cutover for this app:
 
-1. Add PostgreSQL support behind the existing data-access method names.
-2. Add Alembic schema.
-3. Update local Docker and env files.
-4. Run all API flows locally against PostgreSQL.
-5. If needed, run one-time Mongo-to-Postgres data migration.
-6. Remove Mongo imports and dependencies.
-7. Update docs.
+1. Keep Phase 1-3 foundation in place: PostgreSQL connection, ORM schemas, and Alembic migrations.
+2. Add new PostgreSQL repository classes under `src/repositories/minirag/`.
+3. Update routes/controllers to use repositories and injected `AsyncSession`.
+4. Remove active Mongo `ObjectId` usage from app data flow.
+5. Run all API flows locally against PostgreSQL.
+6. If needed, run one-time Mongo-to-Postgres data migration.
+7. Remove old Mongo imports, dependencies, env vars, and inactive model classes after verification.
+8. Update docs and examples.
 
 Avoid running MongoDB and PostgreSQL writes in parallel unless there is a production need for zero downtime. Dual-write logic adds complexity and is not necessary for a local learning app unless existing data must remain available during a staged rollout.
 
