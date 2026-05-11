@@ -135,7 +135,6 @@ Current tree:
         └── vectordb
             ├── __init__.py
             ├── VectorDBEnums.py
-            ├── VectorDBInterface.py
             ├── VectorDBProviderFactory.py
             ├── VectorStoreFactory.py
             ├── VectorStoreInterface.py

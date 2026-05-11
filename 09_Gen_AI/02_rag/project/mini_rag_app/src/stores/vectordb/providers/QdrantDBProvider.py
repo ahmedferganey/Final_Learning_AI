@@ -1,5 +1,4 @@
 from qdrant_client import models, QdrantClient
-from ..VectorDBInterface import VectorDBInterface
 import logging
 from ..VectorDBEnums import VectorDBEnums, DistanceMethodEnums
 from typing import List
@@ -8,7 +7,7 @@ import uuid
 from models.db_schemes import RetrievedDocument
 
 
-class QdrantDBProvider(VectorDBInterface):
+class QdrantDBProvider:
     
     def __init__(self, db_path: str, distance_method: str):
         self.client = None
