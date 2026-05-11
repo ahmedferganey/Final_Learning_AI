@@ -213,45 +213,45 @@ Recommended class names:
 
 Task list:
 
-- [ ] P4-T001 Create `src/repositories/` package and `src/repositories/minirag/` package.
-- [ ] P4-T002 Implement `ProjectRepository` using `AsyncSession` and `ProjectORM`.
-- [ ] P4-T003 Implement `AssetRepository` using `AsyncSession` and `AssetORM`.
-- [ ] P4-T004 Implement `ChunkRepository` using `AsyncSession` and `DataChunkORM`.
-- [ ] P4-T005 Add repository exports in `src/repositories/minirag/__init__.py`.
-- [ ] P4-T006 Keep transaction control outside repositories unless a method needs an atomic local operation.
-- [ ] P4-T007 Return Pydantic app schemas or plain DTOs from repositories, not raw ORM objects, where route/controller code expects serializable objects.
-- [ ] P4-T008 Update `src/routes/data.py` to use repositories instead of `ProjectModel`, `AssetModel`, and `ChunkModel`.
-- [ ] P4-T009 Update `src/routes/nlp.py` to use repositories instead of `ProjectModel` and `ChunkModel`.
-- [ ] P4-T010 Remove route usage of `request.app.db_client`.
-- [ ] P4-T011 Verify no active route imports `src/models/ProjectModel.py`, `src/models/AssetModel.py`, or `src/models/ChunkModel.py`.
+- [x] P4-T001 Create `src/repositories/` package and `src/repositories/minirag/` package.
+- [x] P4-T002 Implement `ProjectRepository` using `AsyncSession` and `ProjectORM`.
+- [x] P4-T003 Implement `AssetRepository` using `AsyncSession` and `AssetORM`.
+- [x] P4-T004 Implement `ChunkRepository` using `AsyncSession` and `DataChunkORM`.
+- [x] P4-T005 Add repository exports in `src/repositories/minirag/__init__.py`.
+- [x] P4-T006 Keep transaction control outside repositories unless a method needs an atomic local operation.
+- [x] P4-T007 Return Pydantic app schemas or plain DTOs from repositories, not raw ORM objects, where route/controller code expects serializable objects.
+- [x] P4-T008 Update `src/routes/data.py` to use repositories instead of `ProjectModel`, `AssetModel`, and `ChunkModel`.
+- [x] P4-T009 Update `src/routes/nlp.py` to use repositories instead of `ProjectModel` and `ChunkModel`.
+- [x] P4-T010 Remove route usage of `request.app.db_client`.
+- [x] P4-T011 Verify no active route imports `src/models/ProjectModel.py`, `src/models/AssetModel.py`, or `src/models/ChunkModel.py`.
 
 Required `ProjectRepository` methods:
 
-- [ ] P4-T012 `create_project(project_id: str)` inserts a `ProjectORM`.
-- [ ] P4-T013 `get_project_or_create(project_id: str)` selects by public `project_id`, inserts if missing, and returns the project.
-- [ ] P4-T014 `get_project_by_project_id(project_id: str)` selects by public `project_id`.
-- [ ] P4-T015 `get_all_projects(page: int, page_size: int)` uses `COUNT`, `OFFSET`, and `LIMIT`.
-- [ ] P4-T016 `get_project_uuid(project_id: str)` returns internal `projects.id` UUID.
+- [x] P4-T012 `create_project(project_id: str)` inserts a `ProjectORM`.
+- [x] P4-T013 `get_project_or_create(project_id: str)` selects by public `project_id`, inserts if missing, and returns the project.
+- [x] P4-T014 `get_project_by_project_id(project_id: str)` selects by public `project_id`.
+- [x] P4-T015 `get_all_projects(page: int, page_size: int)` uses `COUNT`, `OFFSET`, and `LIMIT`.
+- [x] P4-T016 `get_project_uuid(project_id: str)` returns internal `projects.id` UUID.
 
 Required `AssetRepository` methods:
 
-- [ ] P4-T017 `create_asset(...)` inserts an `AssetORM`.
-- [ ] P4-T018 `get_all_project_assets(project_uuid, asset_type=None)` returns `{asset_uuid: asset_name}`.
-- [ ] P4-T019 `get_project_asset_by_name(project_uuid, asset_name, asset_type=None)` returns `{asset_uuid: asset_name}`.
+- [x] P4-T017 `create_asset(...)` inserts an `AssetORM`.
+- [x] P4-T018 `get_all_project_assets(project_uuid, asset_type=None)` returns `{asset_uuid: asset_name}`.
+- [x] P4-T019 `get_project_asset_by_name(project_uuid, asset_name, asset_type=None)` returns `{asset_uuid: asset_name}`.
 
 Required `ChunkRepository` methods:
 
-- [ ] P4-T020 `create_chunk(...)` inserts a single `DataChunkORM`.
-- [ ] P4-T021 `insert_many_chunks(chunks, batch_size=100)` inserts chunks in batches.
-- [ ] P4-T022 `delete_chunks_by_project_uuid(project_uuid)` deletes chunks for a project UUID.
-- [ ] P4-T023 `get_chunk(chunk_uuid)` selects one chunk by UUID.
-- [ ] P4-T024 `get_project_chunks(project_uuid, page_no=1, page_size=50)` selects project chunks with pagination.
+- [x] P4-T020 `create_chunk(...)` inserts a single `DataChunkORM`.
+- [x] P4-T021 `insert_many_chunks(chunks, batch_size=100)` inserts chunks in batches.
+- [x] P4-T022 `delete_chunks_by_project_uuid(project_uuid)` deletes chunks for a project UUID.
+- [x] P4-T023 `get_chunk(chunk_uuid)` selects one chunk by UUID.
+- [x] P4-T024 `get_project_chunks(project_uuid, page_no=1, page_size=50)` selects project chunks with pagination.
 
 Compatibility rules for this phase:
 
-- [ ] P4-T025 Keep public API payloads stable where possible.
-- [ ] P4-T026 Keep vector DB payload shape stable unless Phase 8 proves Mongo IDs are embedded there.
-- [ ] P4-T027 Do not delete old Mongo model files until routes no longer use them and tests/manual flows pass.
+- [x] P4-T025 Keep public API payloads stable where possible.
+- [x] P4-T026 Keep vector DB payload shape stable unless Phase 8 proves Mongo IDs are embedded there.
+- [x] P4-T027 Do not delete old Mongo model files until routes no longer use them and tests/manual flows pass.
 
 ## Phase 5: Remove Mongo `ObjectId` from App Data Flow
 
@@ -259,19 +259,19 @@ The current app passes Mongo `ObjectId` values between projects, assets, and chu
 
 Task list:
 
-- [ ] P5-T001 Update `src/models/db_schemes/project.py` to use `uuid.UUID` instead of `bson.ObjectId`.
-- [ ] P5-T002 Update `src/models/db_schemes/asset.py` to use `uuid.UUID` instead of `bson.ObjectId`.
-- [ ] P5-T003 Update `src/models/db_schemes/data_chunk.py` to use `uuid.UUID` instead of `bson.ObjectId`.
-- [ ] P5-T004 Keep `RetrievedDocument` unchanged because it is a vector-search response schema, not a PostgreSQL table schema.
-- [ ] P5-T005 Replace Mongo `_id` alias assumptions with explicit `id` fields.
-- [ ] P5-T006 Rename app data fields where route/controller changes allow it:
+- [x] P5-T001 Update `src/models/db_schemes/project.py` to use `uuid.UUID` instead of `bson.ObjectId`.
+- [x] P5-T002 Update `src/models/db_schemes/asset.py` to use `uuid.UUID` instead of `bson.ObjectId`.
+- [x] P5-T003 Update `src/models/db_schemes/data_chunk.py` to use `uuid.UUID` instead of `bson.ObjectId`.
+- [x] P5-T004 Keep `RetrievedDocument` unchanged because it is a vector-search response schema, not a PostgreSQL table schema.
+- [x] P5-T005 Replace Mongo `_id` alias assumptions with explicit `id` fields.
+- [x] P5-T006 Rename app data fields where route/controller changes allow it:
   - `asset_project_id` -> `project_uuid`
   - `chunk_project_id` -> `project_uuid`
   - `chunk_asset_id` -> `asset_uuid`
-- [ ] P5-T007 Remove all imports of `bson`, `bson.objectid`, and `pymongo` from active app code.
-- [ ] P5-T008 Update logging text that says "MongoDB object id" to "project UUID" or "database UUID".
-- [ ] P5-T009 Run `rg -n "ObjectId|bson|pymongo|_id|MongoDB object id" src` and resolve active references.
-- [ ] P5-T010 Keep compatibility conversion only inside repositories if a route still passes an old field name during transition.
+- [x] P5-T007 Remove all imports of `bson`, `bson.objectid`, and `pymongo` from active app code.
+- [x] P5-T008 Update logging text that says "MongoDB object id" to "project UUID" or "database UUID".
+- [x] P5-T009 Run `rg -n "ObjectId|bson|pymongo|_id|MongoDB object id" src` and resolve active references.
+- [x] P5-T010 Keep compatibility conversion only inside repositories if a route still passes an old field name during transition.
 
 ## Phase 6: Update FastAPI Wiring
 

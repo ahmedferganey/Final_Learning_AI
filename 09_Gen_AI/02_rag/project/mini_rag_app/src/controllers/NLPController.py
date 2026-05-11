@@ -171,7 +171,7 @@ class NLPController(BaseController):
         return answer, docs, collection_name
 
     def create_record_id(self, project: Project, chunk: DataChunk) -> str:
-        seed = f"{project.project_id}:{chunk.id}:{chunk.chunk_asset_id}:{chunk.chunk_order}"
+        seed = f"{project.project_id}:{chunk.id}:{chunk.asset_uuid}:{chunk.chunk_order}"
         return str(uuid.uuid5(uuid.NAMESPACE_URL, seed))
     
     def index_into_vector_db(self, project: Project, chunks: List[DataChunk], do_reset: Optional[int] = 0):

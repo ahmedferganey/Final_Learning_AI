@@ -1,11 +1,11 @@
 from pydantic import BaseModel, Field, field_validator
 from typing import Optional
-from bson.objectid import ObjectId
 from datetime import datetime
+from uuid import UUID
 
 class Asset(BaseModel):
-    id: Optional[ObjectId] = Field(None, alias="_id")
-    asset_project_id: ObjectId = Field(...)
+    id: Optional[UUID] = Field(default=None)
+    project_uuid: UUID = Field(...)
     asset_name: str = Field(..., min_length=1)
     asset_type: str = Field(..., min_length=1)
     asset_size: Optional[int] = Field(default=None, gt=0)
@@ -25,5 +25,5 @@ class Asset(BaseModel):
     @classmethod
     def get_indexes(cls):
         return [
-            {"key": [("asset_project_id", 1), ("asset_name", 1)], "name": "project_name_index_1", "unique": True}
+            {"key": [("project_uuid", 1), ("asset_name", 1)], "name": "project_name_index_1", "unique": True}
         ]
