@@ -39,7 +39,7 @@ async def index_project(
         )
 
     nlp_controller = NLPController(
-        vectordb_client=request.app.vectordb_client,
+        vector_store=request.app.vector_store,
         generation_client=request.app.generation_client,
         embedding_client=request.app.embedding_client,
         template_parser=getattr(request.app, "template_parser", None),
@@ -105,7 +105,7 @@ async def get_project_index_info(
         )
 
     nlp_controller = NLPController(
-        vectordb_client=request.app.vectordb_client,
+        vector_store=request.app.vector_store,
         generation_client=request.app.generation_client,
         embedding_client=request.app.embedding_client,
         template_parser=getattr(request.app, "template_parser", None),
@@ -154,7 +154,7 @@ async def search_index(
         )
 
     nlp_controller = NLPController(
-        vectordb_client=request.app.vectordb_client,
+        vector_store=request.app.vector_store,
         generation_client=request.app.generation_client,
         embedding_client=request.app.embedding_client,
         template_parser=getattr(request.app, "template_parser", None),
@@ -216,7 +216,7 @@ async def rag_answer(
         )
 
     nlp_controller = NLPController(
-        vectordb_client=request.app.vectordb_client,
+        vector_store=request.app.vector_store,
         generation_client=request.app.generation_client,
         embedding_client=request.app.embedding_client,
         template_parser=getattr(request.app, "template_parser", None),

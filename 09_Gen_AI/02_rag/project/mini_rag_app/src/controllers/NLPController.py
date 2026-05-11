@@ -3,6 +3,7 @@ from models.db_schemes import Project, DataChunk, RetrievedDocument
 from typing import Any, Dict, List, Optional, Tuple
 from stores.llm.LlmEnums import DocumentTypeEnum
 from stores.llm.templates import TemplateParser
+from stores.vectordb.VectorStoreInterface import VectorStoreInterface
 from string import Template
 import logging
 import uuid
@@ -10,9 +11,15 @@ import uuid
 logger = logging.getLogger(__name__)
 
 class NLPController(BaseController):
-    def __init__(self, vectordb_client, generation_client, embedding_client, template_parser: Optional[TemplateParser] = None):
+    def __init__(
+        self,
+        vector_store: VectorStoreInterface,
+        generation_client,
+        embedding_client,
+        template_parser: Optional[TemplateParser] = None,
+    ):
         super().__init__()
-        self.vectordb_client = vectordb_client
+        self.vector_store = vector_store
         self.generation_client = generation_client
         self.embedding_client = embedding_client
         self.template_parser = template_parser
@@ -24,19 +31,19 @@ class NLPController(BaseController):
     
     def reset_vector_db_collection(self, project: Project):
         collection_name = self.create_collection_name(project.project_id)
-        if self.vectordb_client.collection_exists(collection_name):
-            return self.vectordb_client.delete_collection(collection_name)
+        if self.vector_store.index_exists(collection_name):
+            return self.vector_store.delete(collection_name)
     
     def get_vector_db_collection_info(self, project: Project):
         collection_name = self.create_collection_name(project.project_id)
-        if self.vectordb_client.collection_exists(collection_name):
-            return self.vectordb_client.get_collection_info(collection_name)
+        if self.vector_store.index_exists(collection_name):
+            return self.vector_store.get_index_info(collection_name)
         return None
 
     def search_vector_db_collection(self, project: Project, query_text: str, top_k: int = 5, limit: int = 5):
         collection_name = self.create_collection_name(project.project_id)
 
-        if not self.vectordb_client.collection_exists(collection_name):
+        if not self.vector_store.index_exists(collection_name):
             return None, collection_name
 
         query_vector = self.embedding_client.embed_text(
@@ -47,8 +54,8 @@ class NLPController(BaseController):
         if query_vector is None:
             return None, collection_name
 
-        hits = self.vectordb_client.search_by_vector(
-            collection_name=collection_name,
+        hits = self.vector_store.similarity_search(
+            index_name=collection_name,
             query_vector=query_vector,
             top_k=top_k,
             limit=limit,
@@ -202,15 +209,15 @@ class NLPController(BaseController):
                 logger.error("Embedding generation failed for project '%s'", project.project_id)
                 return False
 
-            if not self.vectordb_client.collection_exists(collection_name):
-                self.vectordb_client.create_collection(
-                    collection_name=collection_name,
+            if not self.vector_store.index_exists(collection_name):
+                self.vector_store.ensure_index(
+                    index_name=collection_name,
                     do_reset=do_reset,
                     embedding_size=self.embedding_client.embedding_size,
                 )
 
-            return self.vectordb_client.insert_many(
-                collection_name=collection_name,
+            return self.vector_store.add_documents(
+                index_name=collection_name,
                 texts=texts,
                 vectors=vectors,
                 metadata=metadata,

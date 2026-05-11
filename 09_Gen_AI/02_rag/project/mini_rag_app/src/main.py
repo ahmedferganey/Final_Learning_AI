@@ -4,6 +4,7 @@ from helpers.config import get_settings
 import logging
 from stores.llm.LLMProviderFactory import LLMProviderFactory
 from stores.vectordb.VectorDBProviderFactory import   VectorDBProviderFactory
+from stores.vectordb.QdrantVectorStore import QdrantVectorStore
 from stores.llm.templates import TemplateParser
 from database.session import create_engine_and_session_factory, check_database_connection
 
@@ -39,6 +40,9 @@ async def startup_span():
     #vector db client
     app.vectordb_client = vectordb_provider_factory.create(settings.VECTOR_DB_BACKEND)
     app.vectordb_client.connect()                                                           
+    # Provider-neutral interface for the rest of the app (Step 1/2).
+    # PGVector will be added later without changing callers.
+    app.vector_store = QdrantVectorStore(app.vectordb_client)
 
     # Shared template loader (language fallback + potential future caching).
     app.template_parser = TemplateParser(default_language=settings.DEFAULT_LANGUAGE)
