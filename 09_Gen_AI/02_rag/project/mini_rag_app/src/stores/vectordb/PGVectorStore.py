@@ -112,6 +112,7 @@ class PGVectorStore(VectorStoreInterface):
                     resolved_ids.append(uuid.uuid5(uuid.NAMESPACE_URL, str(rid)))
 
         async with self._session_factory() as session:
+            table = VectorDocumentORM.__table__
             for i in range(0, len(texts), batch_size):
                 end = i + batch_size
                 rows = [
@@ -125,9 +126,11 @@ class PGVectorStore(VectorStoreInterface):
                     for j in range(i, min(end, len(texts)))
                 ]
 
-                stmt = pg_insert(VectorDocumentORM).values(rows)
+                # Use table insert (not ORM insert) to avoid reserved-name collisions
+                # with SQLAlchemy's declarative `metadata` attribute.
+                stmt = pg_insert(table).values(rows)
                 stmt = stmt.on_conflict_do_update(
-                    index_elements=[VectorDocumentORM.id],
+                    index_elements=[table.c.id],
                     set_={
                         "index_name": stmt.excluded.index_name,
                         "text": stmt.excluded.text,
