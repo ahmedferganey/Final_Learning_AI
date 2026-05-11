@@ -7,6 +7,8 @@ from controllers import NLPController
 from models import ResponseSignal
 from repositories.minirag import ProjectRepository, ChunkRepository
 from database.dependencies import get_db_session
+from stores.vectordb.VectorStoreInterface import VectorStoreInterface
+from stores.vectordb.dependencies import get_vector_store
 from sqlalchemy.ext.asyncio import AsyncSession
 
 logger = logging.getLogger('uvicorn.error')
@@ -22,6 +24,7 @@ async def index_project(
     project_id: str,
     push_request: PushRequest,
     db_session: AsyncSession = Depends(get_db_session),
+    vector_store: VectorStoreInterface = Depends(get_vector_store),
 ):
     project_repository = ProjectRepository(db_session)
     chunk_repository = ChunkRepository(db_session)
@@ -39,7 +42,7 @@ async def index_project(
         )
 
     nlp_controller = NLPController(
-        vector_store=request.app.vector_store,
+        vector_store=vector_store,
         generation_client=request.app.generation_client,
         embedding_client=request.app.embedding_client,
         template_parser=getattr(request.app, "template_parser", None),
@@ -93,6 +96,7 @@ async def get_project_index_info(
     request: Request,
     project_id: str,
     db_session: AsyncSession = Depends(get_db_session),
+    vector_store: VectorStoreInterface = Depends(get_vector_store),
 ):
     project_repository = ProjectRepository(db_session)
     project = await project_repository.get_project_by_project_id(project_id)
@@ -107,7 +111,7 @@ async def get_project_index_info(
         )
 
     nlp_controller = NLPController(
-        vector_store=request.app.vector_store,
+        vector_store=vector_store,
         generation_client=request.app.generation_client,
         embedding_client=request.app.embedding_client,
         template_parser=getattr(request.app, "template_parser", None),
@@ -142,6 +146,7 @@ async def search_index(
     project_id: str,
     search_request: SearchRequest,
     db_session: AsyncSession = Depends(get_db_session),
+    vector_store: VectorStoreInterface = Depends(get_vector_store),
 ):
     project_repository = ProjectRepository(db_session)
     project = await project_repository.get_project_by_project_id(project_id)
@@ -156,7 +161,7 @@ async def search_index(
         )
 
     nlp_controller = NLPController(
-        vector_store=request.app.vector_store,
+        vector_store=vector_store,
         generation_client=request.app.generation_client,
         embedding_client=request.app.embedding_client,
         template_parser=getattr(request.app, "template_parser", None),
@@ -204,6 +209,7 @@ async def rag_answer(
     project_id: str,
     rag_request: RagAnswerRequest,
     db_session: AsyncSession = Depends(get_db_session),
+    vector_store: VectorStoreInterface = Depends(get_vector_store),
 ):
     project_repository = ProjectRepository(db_session)
     project = await project_repository.get_project_by_project_id(project_id)
@@ -218,7 +224,7 @@ async def rag_answer(
         )
 
     nlp_controller = NLPController(
-        vector_store=request.app.vector_store,
+        vector_store=vector_store,
         generation_client=request.app.generation_client,
         embedding_client=request.app.embedding_client,
         template_parser=getattr(request.app, "template_parser", None),

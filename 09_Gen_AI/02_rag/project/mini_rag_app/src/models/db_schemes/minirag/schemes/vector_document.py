@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 
 from pgvector.sqlalchemy import Vector
-from sqlalchemy import DateTime, Index, String, Text, func, text
+from sqlalchemy import DateTime, Index, String, Text, func, text as sa_text
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -24,11 +24,13 @@ class VectorDocumentORM(Base):
     )
     index_name: Mapped[str] = mapped_column(String(500), nullable=False)
     text: Mapped[str] = mapped_column(Text, nullable=False)
-    metadata: Mapped[dict] = mapped_column(
+    # SQLAlchemy reserves the attribute name `metadata`, so we map it to `metadata_`.
+    metadata_: Mapped[dict] = mapped_column(
+        "metadata",
         JSONB,
         nullable=False,
         default=dict,
-        server_default=text("'{}'::jsonb"),
+        server_default=sa_text("'{}'::jsonb"),
     )
     # Keep the initial dimension aligned with current embedding model size (384).
     # Changing embedding models requires a migration.
@@ -45,4 +47,3 @@ class VectorDocumentORM(Base):
         onupdate=func.now(),
         nullable=True,
     )
-

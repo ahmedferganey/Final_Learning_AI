@@ -151,7 +151,7 @@ class PGVectorStore(VectorStoreInterface):
         # Cosine distance; smaller is better.
         distance = VectorDocumentORM.embedding.cosine_distance(query_vector).label("distance")
         stmt = (
-            select(VectorDocumentORM.id, VectorDocumentORM.text, VectorDocumentORM.metadata, distance)
+            select(VectorDocumentORM.id, VectorDocumentORM.text, VectorDocumentORM.metadata_, distance)
             .where(VectorDocumentORM.index_name == index_name)
             .order_by(distance.asc())
             .limit(limit or top_k)
@@ -182,4 +182,3 @@ class PGVectorStore(VectorStoreInterface):
             )
 
         return docs
-

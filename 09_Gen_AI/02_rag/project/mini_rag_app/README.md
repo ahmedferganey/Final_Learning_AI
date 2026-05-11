@@ -6,7 +6,7 @@ Minimal FastAPI service for:
 - registering uploaded files as PostgreSQL assets
 - processing one file or all project files into text chunks
 - storing project, asset, and chunk metadata in PostgreSQL
-- indexing chunks into a local Qdrant vector store
+- indexing chunks into a vector store (Qdrant by default; PGVector optional)
 - searching the vector index and answering questions via RAG (en/ar prompt templates)
 
 ## Current Architecture
@@ -30,6 +30,7 @@ The runtime flow is:
 5. Processing is best-effort: one bad file does not stop the others.
 6. `POST /api/v1/nlp/index/push/{project_id}` indexes project chunks into Qdrant.
 7. `POST /api/v1/nlp/rag/answer/{project_id}` retrieves top-k chunks and generates a grounded answer.
+   - Vector store provider is selected at runtime via `VECTOR_DB_BACKEND` (`QDRANT` or `PGVECTOR`).
 
 ## Project Structure
 
@@ -136,6 +137,11 @@ Current tree:
             ├── VectorDBEnums.py
             ├── VectorDBInterface.py
             ├── VectorDBProviderFactory.py
+            ├── VectorStoreFactory.py
+            ├── VectorStoreInterface.py
+            ├── QdrantVectorStore.py
+            ├── PGVectorStore.py
+            └── dependencies.py
             └── providers
                 ├── __init__.py
                 └── QdrantDBProvider.py
@@ -211,7 +217,7 @@ Note: `__pycache__/` folders are omitted for brevity.
   - LangChain chunk generation
 
 - `src/controllers/NLPController.py`
-  - vector DB collection naming and indexing
+  - vector store index naming and indexing
   - vector search and RAG prompt construction
   - stores last LLM payload for debug (`last_llm_payload`)
 
@@ -248,6 +254,9 @@ Note: `__pycache__/` folders are omitted for brevity.
 - `src/models/db_schemes/minirag/schemes/chunk.py`
   - SQLAlchemy ORM table mapping for `chunks`
 
+- `src/models/db_schemes/minirag/schemes/vector_document.py`
+  - SQLAlchemy ORM table mapping for `vector_documents` (PGVector backend)
+
 - `src/models/db_schemes/minirag/migrations/`
   - Alembic migration scripts for PostgreSQL schema changes
 
@@ -273,7 +282,22 @@ Note: `__pycache__/` folders are omitted for brevity.
   - Arabic RAG system/user/document/footer templates
 
 - `src/stores/vectordb/`
-  - vector DB provider abstraction and implementations
+  - vector store interface, provider adapters, and runtime selection factory
+
+- `src/stores/vectordb/VectorStoreInterface.py`
+  - async provider-neutral contract used by the app
+
+- `src/stores/vectordb/VectorStoreFactory.py`
+  - selects Qdrant or PGVector implementation based on `VECTOR_DB_BACKEND`
+
+- `src/stores/vectordb/QdrantVectorStore.py`
+  - adapter over `QdrantDBProvider` that implements `VectorStoreInterface`
+
+- `src/stores/vectordb/PGVectorStore.py`
+  - PGVector-backed `VectorStoreInterface` implementation (uses `vector_documents`)
+
+- `src/stores/vectordb/dependencies.py`
+  - FastAPI dependency for injecting the selected vector store
 
 - `src/stores/vectordb/providers/QdrantDBProvider.py`
   - Qdrant local vector store implementation (insert/search)
@@ -411,6 +435,11 @@ From repo root:
 cd src/models/db_schemes/minirag
 ../../../../../.venv/bin/python -m alembic -c alembic.ini upgrade head
 ```
+
+This applies:
+
+- metadata tables: `projects`, `assets`, `chunks`
+- optional vector store table for PGVector backend: `vector_documents` (pgvector extension + table)
 
 ### 6. Start FastAPI
 
@@ -694,7 +723,10 @@ Current processing support:
 - `project_id` must be alphanumeric.
 - `project_id` is the public string identifier used in API routes; internal table relationships use UUID primary keys.
 - Uploaded files are stored under `src/assets/files/<project_id>/`.
-- Asset/chunk/project metadata is stored in PostgreSQL; Qdrant stores only vector index data for retrieval.
+- Asset/chunk/project metadata is stored in PostgreSQL.
+- Vector store is pluggable:
+  - `VECTOR_DB_BACKEND="QDRANT"` stores vectors in local Qdrant.
+  - `VECTOR_DB_BACKEND="PGVECTOR"` stores vectors in PostgreSQL (`vector_documents`).
 - The provided Postman collection is still minimal and may need manual extension for the current upload/process flow.
 - RAG prompt templates live under `src/stores/llm/templates/locales/<lang>/rag.py` (currently `en` and `ar`).
 
@@ -707,3 +739,7 @@ Current processing support:
   - run through project venv Python: `.venv/bin/python -m alembic -c src/models/db_schemes/minirag/alembic.ini current`.
 - app fails on startup with DB connection errors:
   - run migrations before starting app, then restart `uvicorn`.
+- app fails on startup with `PGVectorStore is configured but vector_documents is missing`:
+  - you set `VECTOR_DB_BACKEND="PGVECTOR"` but did not run Alembic migrations yet.
+  - run: `cd src/models/db_schemes/minirag && ../../../../../.venv/bin/python -m alembic -c alembic.ini upgrade head`
+  - then restart `uvicorn`.
