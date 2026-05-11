@@ -3,9 +3,9 @@
 Minimal FastAPI service for:
 
 - uploading `.txt` and `.pdf` files into project-scoped storage
-- registering uploaded files as MongoDB assets
+- registering uploaded files as PostgreSQL assets
 - processing one file or all project files into text chunks
-- storing project, asset, and chunk metadata in MongoDB
+- storing project, asset, and chunk metadata in PostgreSQL
 - indexing chunks into a local Qdrant vector store
 - searching the vector index and answering questions via RAG (en/ar prompt templates)
 
@@ -15,18 +15,18 @@ The application is organized as a small layered backend:
 
 - `routes/`: HTTP layer, request/response handling, orchestration of controllers and models
 - `controllers/`: file-system and content-processing logic
-- `models/`: MongoDB access layer plus Pydantic database schemas and enums
+- `models/`: SQLAlchemy ORM models, Alembic migrations, and Pydantic schemas
 - `helpers/`: configuration and environment loading
 - `stores/`: pluggable backends (LLM providers, vector DB providers, prompt templates)
 - `assets/files/`: uploaded file storage on disk
-- `docker/`: local MongoDB runtime
+- `docker/`: local PostgreSQL runtime
 
 The runtime flow is:
 
-1. FastAPI starts and builds a MongoDB client.
-2. `POST /api/v1/data/upload/{project_id}` saves the file to disk and registers it in the `assets` collection.
-3. `POST /api/v1/data/process/{project_id}` resolves the target files from MongoDB assets.
-4. Each file is loaded from disk, split into chunks with LangChain, and inserted into the `chunks` collection.
+1. FastAPI starts and builds a PostgreSQL async engine and session factory.
+2. `POST /api/v1/data/upload/{project_id}` saves the file to disk and registers it in the `assets` table.
+3. `POST /api/v1/data/process/{project_id}` resolves the target files from PostgreSQL assets.
+4. Each file is loaded from disk, split into chunks with LangChain, and inserted into the `chunks` table.
 5. Processing is best-effort: one bad file does not stop the others.
 6. `POST /api/v1/nlp/index/push/{project_id}` indexes project chunks into Qdrant.
 7. `POST /api/v1/nlp/rag/answer/{project_id}` retrieves top-k chunks and generates a grounded answer.
@@ -192,23 +192,15 @@ Note: `__pycache__/` folders are omitted for brevity.
 
 ### Persistence Layer
 
-- `src/models/BaseDataModel.py`
-  - common DB model base and shared settings access
+- `src/repositories/minirag/project_repository.py`
+  - repository for project metadata operations
+  - public `project_id` lookup and internal UUID resolution
 
-- `src/models/ProjectModel.py`
-  - CRUD-like access for project records
-  - project collection index setup
-  - project ObjectId resolution
+- `src/repositories/minirag/asset_repository.py`
+  - repository for asset persistence and project asset lookup
 
-- `src/models/AssetModel.py`
-  - asset collection index setup
-  - uploaded asset persistence
-  - project asset lookup by id/name mapping
-
-- `src/models/ChunkModel.py`
-  - chunk collection index setup
-  - bulk chunk insertion
-  - project chunk cleanup
+- `src/repositories/minirag/chunk_repository.py`
+  - repository for chunk insert, query, and project chunk cleanup
 
 ### Database Schemas
 
@@ -253,7 +245,7 @@ Note: `__pycache__/` folders are omitted for brevity.
 ### Enums
 
 - `src/models/enums/DataBaseEnum.py`
-  - Mongo collection names
+  - logical database entity names used by the app
 
 - `src/models/enums/ProcessingEnum.py`
   - supported file extensions for processing
@@ -262,7 +254,7 @@ Note: `__pycache__/` folders are omitted for brevity.
   - API response signals
 
 - `src/models/enums/AssetTypeEnum.py`
-  - asset type values stored in MongoDB
+  - asset type values stored in PostgreSQL
 
 ### Data and Tooling
 
@@ -276,7 +268,7 @@ Note: `__pycache__/` folders are omitted for brevity.
   - starter Postman collection
 
 - `docker/docker-compose.yml`
-  - local MongoDB service definition with authentication
+  - local PostgreSQL (pgvector) service definition
 
 - `docker/.env.example`
   - example Docker PostgreSQL credentials
@@ -443,7 +435,7 @@ Example response:
 
 ### `POST /api/v1/data/upload/{project_id}`
 
-Uploads a file to disk and creates an asset record in MongoDB.
+Uploads a file to disk and creates an asset record in PostgreSQL.
 
 Request:
 
@@ -468,7 +460,7 @@ Success response:
 }
 ```
 
-`file_id` is the stored disk filename and is also the asset name in MongoDB.
+`file_id` is the stored disk filename and is also the asset name in PostgreSQL.
 
 ### `POST /api/v1/data/process/{project_id}`
 
@@ -489,7 +481,7 @@ Fields:
 
 - `file_id`
   - optional
-  - if provided, the API first looks up that file in MongoDB assets for the project
+  - if provided, the API first looks up that file in PostgreSQL assets for the project
   - if omitted, the API loads all file assets for the project
 - `chunk_size`
   - chunk length used by `RecursiveCharacterTextSplitter`
@@ -563,7 +555,7 @@ All-failed response shape:
 
 ### `POST /api/v1/nlp/index/push/{project_id}`
 
-Indexes all project chunks from MongoDB into the vector DB collection for this project.
+Indexes all project chunks from PostgreSQL into the vector DB collection for this project.
 
 Request body:
 
@@ -621,31 +613,37 @@ Response:
 - `hits`: retrieved documents (`id`, `score`, `text`, `metadata`)
 - if `debug=true`, returns a `debug` object that includes the exact messages/prompts sent to the LLM.
 
-## MongoDB Collections
+## PostgreSQL Tables
 
 ### `projects`
 
-- `_id`
+- `id` (UUID, primary key)
 - `project_id`
+- `created_at`
+- `updated_at`
 
 ### `assets`
 
-- `_id`
-- `asset_project_id`
+- `id` (UUID, primary key)
+- `project_id` (UUID, FK -> `projects.id`)
 - `asset_name`
 - `asset_type`
 - `asset_size`
 - `asset_pushed_at`
 - `asset_config`
+- `created_at`
+- `updated_at`
 
 ### `chunks`
 
-- `_id`
+- `id` (UUID, primary key)
 - `chunk_text`
 - `chunk_metadata`
 - `chunk_order`
-- `chunk_project_id`
-- `chunk_asset_id`
+- `project_id` (UUID, FK -> `projects.id`)
+- `asset_id` (UUID, FK -> `assets.id`)
+- `created_at`
+- `updated_at`
 
 ## Supported File Types
 
@@ -657,7 +655,18 @@ Current processing support:
 ## Important Notes
 
 - `project_id` must be alphanumeric.
+- `project_id` is the public string identifier used in API routes; internal table relationships use UUID primary keys.
 - Uploaded files are stored under `src/assets/files/<project_id>/`.
-- Asset metadata is stored in MongoDB and is used by the process endpoint.
+- Asset/chunk/project metadata is stored in PostgreSQL; Qdrant stores only vector index data for retrieval.
 - The provided Postman collection is still minimal and may need manual extension for the current upload/process flow.
 - RAG prompt templates live under `src/stores/llm/templates/locales/<lang>/rag.py` (currently `en` and `ar`).
+
+## Troubleshooting
+
+- `alembic upgrade head` fails with connection/auth errors:
+  - verify `DATABASE_URL` or `POSTGRES_*` values in `src/.env`.
+  - ensure PostgreSQL is running: `docker compose --env-file docker/.env -f docker/docker-compose.yml ps`.
+- `alembic` command not found:
+  - run through project venv Python: `.venv/bin/python -m alembic -c src/models/db_schemes/minirag/alembic.ini current`.
+- app fails on startup with DB connection errors:
+  - run migrations before starting app, then restart `uvicorn`.

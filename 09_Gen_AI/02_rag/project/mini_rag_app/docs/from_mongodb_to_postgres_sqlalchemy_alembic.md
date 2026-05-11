@@ -368,15 +368,15 @@ Task list:
 - [ ] P9-T006 Test chunk batch insertion.
 - [ ] P9-T007 Test chunk deletion by `project_uuid`.
 - [ ] P9-T008 Test paginated chunk fetching.
-- [ ] P9-T009 Test upload endpoint creates project and asset rows in PostgreSQL.
-- [ ] P9-T010 Test process endpoint creates chunk rows in PostgreSQL.
-- [ ] P9-T011 Test index endpoint reads chunks from PostgreSQL and writes to vector DB.
-- [ ] P9-T012 Test RAG/search endpoint still returns `RetrievedDocument` payloads.
-- [ ] P9-T013 Run Alembic verification:
+- [x] P9-T009 Test upload endpoint creates project and asset rows in PostgreSQL.
+- [x] P9-T010 Test process endpoint creates chunk rows in PostgreSQL.
+- [x] P9-T011 Test index endpoint reads chunks from PostgreSQL and writes to vector DB.
+- [x] P9-T012 Test RAG/search endpoint still returns `RetrievedDocument` payloads.
+- [x] P9-T013 Run Alembic verification:
   - `alembic upgrade head`
   - `alembic downgrade -1`
   - `alembic upgrade head`
-- [ ] P9-T014 Run manual API flow:
+- [x] P9-T014 Run manual API flow:
   - start PostgreSQL
   - run migrations
   - start FastAPI
@@ -390,18 +390,18 @@ Task list:
 
 Task list:
 
-- [ ] P10-T001 Update root `README.md` app overview from MongoDB metadata to PostgreSQL metadata.
-- [ ] P10-T002 Replace "MongoDB Collections" with "PostgreSQL Tables".
-- [ ] P10-T003 Document `projects`, `assets`, and `chunks` columns.
-- [ ] P10-T004 Document that `project_id` is the public string identifier and `id`/`*_uuid` fields are internal UUIDs.
-- [ ] P10-T005 Add Alembic command examples from `src/models/db_schemes/minirag/README.md`.
-- [ ] P10-T006 Remove MongoDB setup instructions from active local development docs.
-- [ ] P10-T007 Remove MongoDB environment variable examples.
-- [ ] P10-T008 Add PostgreSQL setup and reset instructions.
-- [ ] P10-T009 Document that PostgreSQL stores metadata and Qdrant stores vectors.
-- [ ] P10-T010 Update architecture docs/notebooks if they mention MongoDB as the app metadata store.
-- [ ] P10-T011 Update troubleshooting notes for common PostgreSQL/Alembic failures.
-- [ ] P10-T012 Run `rg -n "MongoDB|Mongo|MONGODB|ObjectId|pymongo|motor" README.md docs src docker` and revise stale docs or active code references.
+- [x] P10-T001 Update root `README.md` app overview from MongoDB metadata to PostgreSQL metadata.
+- [x] P10-T002 Replace "MongoDB Collections" with "PostgreSQL Tables".
+- [x] P10-T003 Document `projects`, `assets`, and `chunks` columns.
+- [x] P10-T004 Document that `project_id` is the public string identifier and `id`/`*_uuid` fields are internal UUIDs.
+- [x] P10-T005 Add Alembic command examples from `src/models/db_schemes/minirag/README.md`.
+- [x] P10-T006 Remove MongoDB setup instructions from active local development docs.
+- [x] P10-T007 Remove MongoDB environment variable examples.
+- [x] P10-T008 Add PostgreSQL setup and reset instructions.
+- [x] P10-T009 Document that PostgreSQL stores metadata and Qdrant stores vectors.
+- [x] P10-T010 Update architecture docs/notebooks if they mention MongoDB as the app metadata store.
+- [x] P10-T011 Update troubleshooting notes for common PostgreSQL/Alembic failures.
+- [x] P10-T012 Run `rg -n "MongoDB|Mongo|MONGODB|ObjectId|pymongo|motor" README.md docs src docker` and revise stale docs or active code references.
 
 ## Cutover Strategy
 
