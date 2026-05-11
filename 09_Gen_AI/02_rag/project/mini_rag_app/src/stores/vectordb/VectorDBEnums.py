@@ -1,8 +1,6 @@
 from enum import Enum
 
 class VectorDBEnums(Enum):
-    PINECONE = "PINECONE"
-    VERTEX_AI = "VERTEX_AI"
     QDRANT = "QDRANT"
     PGVECTOR = "PGVECTOR"
 
