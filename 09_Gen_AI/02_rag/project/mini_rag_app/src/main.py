@@ -1,11 +1,11 @@
 from fastapi import FastAPI
 from routes import base, data, nlp
-from motor.motor_asyncio import AsyncIOMotorClient
 from helpers.config import get_settings
 import logging
 from stores.llm.LLMProviderFactory import LLMProviderFactory
 from stores.vectordb.VectorDBProviderFactory import   VectorDBProviderFactory
 from stores.llm.templates import TemplateParser
+from database.session import create_engine_and_session_factory, check_database_connection
 
 
 logger = logging.getLogger("uvicorn.error")
@@ -18,13 +18,14 @@ async def startup_span():
     # Keep settings accessible at runtime (routes/controllers can read defaults like DEFAULT_LANGUAGE).
     app.settings = settings
 
-    mongo_url = settings.get_mongodb_url()
-    app.mongo_conn = AsyncIOMotorClient(mongo_url)
-    await app.mongo_conn.admin.command("ping")
-    app.db_client = app.mongo_conn[settings.MONGODB_DATABASE]
-    logger.info("MongoDB connection established for database '%s'", settings.MONGODB_DATABASE)
-    llm_factory = LLMProviderFactory(config=settings.dict())
-    vectordb_provider_factory = VectorDBProviderFactory(config=settings.dict())
+    database_url = settings.get_database_url()
+    app.db_engine, app.db_session_factory = create_engine_and_session_factory(database_url)
+    await check_database_connection(app.db_engine)
+    logger.info("PostgreSQL connection established")
+
+    settings_payload = settings.model_dump()
+    llm_factory = LLMProviderFactory(config=settings_payload)
+    vectordb_provider_factory = VectorDBProviderFactory(config=settings_payload)
 
 
     # generation client
@@ -45,8 +46,11 @@ async def startup_span():
     
 @app.on_event("shutdown")
 async def shutdown_span():
-    app.mongo_conn.close()
-    app.vectordb_client.disconnect()
+    if hasattr(app, "db_engine"):
+        await app.db_engine.dispose()
+
+    if hasattr(app, "vectordb_client"):
+        app.vectordb_client.disconnect()
 
 app.include_router(base.base_router)
 app.include_router(data.data_router)
