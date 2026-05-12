@@ -9,3 +9,15 @@ class DistanceMethodEnums(Enum):
     EUCLIDEAN = "euclidean"
     MANHATTAN = "manhattan"
     Dot = "dot"
+
+
+class PGVectorIndexTypeEnums(Enum):
+    HNSW = "hnsw"
+    IVFFLAT = "ivfflat"
+    NONE = "none"
+
+
+class PGVectorDistanceMethodEnums(Enum):
+    COSINE = "cosine"
+    L2 = "l2"
+    IP = "ip"

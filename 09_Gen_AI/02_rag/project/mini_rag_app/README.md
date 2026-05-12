@@ -135,7 +135,6 @@ Current tree:
         └── vectordb
             ├── __init__.py
             ├── VectorDBEnums.py
-            ├── VectorDBProviderFactory.py
             ├── VectorStoreFactory.py
             ├── VectorStoreInterface.py
             ├── QdrantVectorStore.py
@@ -144,6 +143,7 @@ Current tree:
             └── providers
                 ├── __init__.py
                 └── QdrantDBProvider.py
+                └── PGVectorDBProvider.py
 ```
 
 Note: `__pycache__/` folders are omitted for brevity.
@@ -415,6 +415,10 @@ EMBEDDING_MODEL_SIZE=384
 VECTOR_DB_BACKEND="QDRANT"
 VECTOR_DB_PATH="qdrant_db"
 VECTOR_DB_DISTANCE_METHOD="cosine"
+
+# PGVector-only settings (used when VECTOR_DB_BACKEND="PGVECTOR")
+PGVECTOR_INDEX_TYPE="hnsw"
+PGVECTOR_DISTANCE_METHOD="cosine"
 
 DEFAULT_LANGUAGE="en"
 ```
