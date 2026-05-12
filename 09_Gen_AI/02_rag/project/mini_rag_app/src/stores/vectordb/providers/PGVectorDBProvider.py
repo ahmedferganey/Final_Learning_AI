@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import uuid
 from dataclasses import dataclass
+import logging
 from typing import List, Optional
 from uuid import UUID
 
@@ -34,20 +35,32 @@ class PGVectorDBProvider:
     def __init__(self, session_factory: async_sessionmaker, config: PGVectorDBProviderConfig):
         self._session_factory = session_factory
         self._config = config
+        self._logger = logging.getLogger("minirag.vectordb.pgvector")
 
     async def connect(self) -> None:
-        # Fail fast if migrations weren't applied.
+        self._logger.info(
+            "Connecting to PGVector (embedding_dim=%s, distance_method=%s, index_type=%s)",
+            self._config.embedding_dim,
+            self._config.distance_method,
+            self._config.index_type,
+        )
         async with self._session_factory() as session:
             try:
+                # Ensure extension exists (idempotent). This avoids a hard failure when running
+                # in a fresh database where migrations were applied but extension is missing.
+                await session.execute(sql_text("CREATE EXTENSION IF NOT EXISTS vector"))
                 await session.execute(sql_text("SELECT 1 FROM vector_documents LIMIT 1"))
             except Exception as exc:  # pragma: no cover
+                self._logger.exception("PGVector connect failed: %s", exc)
                 raise RuntimeError(
                     "PGVectorDBProvider is configured but `vector_documents` is missing. "
                     "Run Alembic migrations for src/models/db_schemes/minirag."
                 ) from exc
+        self._logger.info("Connected to PGVector")
 
     async def disconnect(self) -> None:
         # Connection lifecycle is owned by SQLAlchemy engine/session factory.
+        self._logger.info("Disconnected from PGVector")
         return None
 
     async def index_exists(self, index_name: str, project_uuid: Optional[UUID] = None) -> bool:
@@ -57,7 +70,14 @@ class PGVectorDBProvider:
                 stmt = stmt.where(VectorDocumentORM.project_uuid == project_uuid)
             else:
                 stmt = stmt.where(VectorDocumentORM.index_name == index_name)
-            return (await session.scalar(stmt)) is not None
+            exists = (await session.scalar(stmt)) is not None
+            self._logger.debug(
+                "Index exists check (index_name=%s, project_uuid=%s, exists=%s)",
+                index_name,
+                project_uuid,
+                exists,
+            )
+            return exists
 
     async def get_index_info(self, index_name: str, project_uuid: Optional[UUID] = None) -> dict:
         async with self._session_factory() as session:
@@ -77,6 +97,7 @@ class PGVectorDBProvider:
         }
 
     async def delete(self, index_name: str, project_uuid: Optional[UUID] = None) -> bool:
+        self._logger.info("Deleting vectors (index_name=%s, project_uuid=%s)", index_name, project_uuid)
         async with self._session_factory() as session:
             stmt = delete(VectorDocumentORM)
             if project_uuid is not None:
@@ -166,6 +187,12 @@ class PGVectorDBProvider:
                 await session.execute(stmt)
             await session.commit()
 
+        self._logger.info(
+            "Inserted vectors (index_name=%s, project_uuid=%s, count=%s)",
+            index_name,
+            project_uuid,
+            len(texts),
+        )
         return True
 
     async def similarity_search(
@@ -227,4 +254,3 @@ class PGVectorDBProvider:
             )
 
         return docs
-
