@@ -6,11 +6,16 @@ from stores.llm.LLMProviderFactory import LLMProviderFactory
 from stores.vectordb.VectorStoreFactory import VectorStoreFactory
 from stores.llm.templates import TemplateParser
 from database.session import create_engine_and_session_factory, check_database_connection
-
+from utils.metrics import setup_metrics 
 
 logger = logging.getLogger("uvicorn.error")
 
 app = FastAPI()
+
+# setup promethues
+setup_metrics(app=app)
+
+
 
 @app.on_event("startup")
 async def startup_span():

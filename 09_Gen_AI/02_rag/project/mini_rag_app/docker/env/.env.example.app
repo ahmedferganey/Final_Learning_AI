@@ -10,11 +10,11 @@ FILE_DEFAULT_CHUNK_SIZE=512000
 
 # Database Initialization
 POSTGRES_USERNAME="postgres"
-POSTGRES_PASSWORD="minirag112233"
+POSTGRES_PASSWORD="postgres_password"
 
 # Connection helper for your app/DBeaver
 POSTGRES_PORT=5432
-POSTGRES_HOST="localhost"
+POSTGRES_HOST="pgvector"
 
 # perhabs we will have other databases not the main only
 POSTGRES_MAIN_DATABASE="minirag"
