@@ -1,748 +1,218 @@
 # Mini RAG App
 
-Minimal FastAPI service for:
+A small **FastAPI** backend for learning and demos: upload project-scoped documents, chunk them with **LangChain**, persist metadata in **PostgreSQL**, index embeddings in **Qdrant** or **PGVector**, and answer questions with **RAG** using **OpenAI** or **Cohere** (with **English / Arabic** prompt templates). The app also exposes **Prometheus-friendly HTTP metrics** (custom path) and can be run locally or via the **Docker Compose** stack under `docker/`.
 
-- uploading `.txt` and `.pdf` files into project-scoped storage
-- registering uploaded files as PostgreSQL assets
-- processing one file or all project files into text chunks
-- storing project, asset, and chunk metadata in PostgreSQL
-- indexing chunks into a vector store (Qdrant by default; PGVector optional)
-- searching the vector index and answering questions via RAG (en/ar prompt templates)
+## What it does
 
-## Current Architecture
+- Accept **`.txt`** and **`.pdf`** uploads per `project_id`
+- Register files as **assets** and split them into **chunks** in PostgreSQL (best-effort per file)
+- **Push** chunks into a vector backend (`VECTOR_DB_BACKEND`: `QDRANT` or `PGVECTOR`)
+- **Search** the index and call **RAG** (`/api/v1/nlp/rag/answer/{project_id}`) with optional debug payload and optional normalized `chat_history`
 
-The application is organized as a small layered backend:
+## Architecture (code)
 
-- `routes/`: HTTP layer, request/response handling, orchestration of controllers and models
-- `controllers/`: file-system and content-processing logic
-- `models/`: SQLAlchemy ORM models, Alembic migrations, and Pydantic schemas
-- `helpers/`: configuration and environment loading
-- `stores/`: pluggable backends (LLM providers, vector DB providers, prompt templates)
-- `assets/files/`: uploaded file storage on disk
-- `docker/`: local PostgreSQL runtime
+Layers and responsibilities:
 
-The runtime flow is:
+- **`routes/`** — HTTP routers (`base`, `data`, `nlp`) and Pydantic request bodies under `routes/schemes/`
+- **`controllers/`** — validation, paths, LangChain loading/splitting, NLP orchestration (`NLPController`)
+- **`repositories/minirag/`** — async SQLAlchemy access for projects, assets, chunks
+- **`database/`** — async engine, sessions, FastAPI `get_db_session`
+- **`models/`** — ORM tables under `models/db_schemes/minirag/schemes/`, shared enums, Alembic under `models/db_schemes/minirag/migrations/`
+- **`stores/llm/`** — `LLMProviderFactory` (OpenAI / Cohere), locale templates
+- **`stores/vectordb/`** — `VectorStoreFactory`, Qdrant and PGVector adapters
+- **`helpers/config.py`** — `pydantic-settings` from `src/.env`
+- **`utils/metrics.py`** — Prometheus counters/histograms and a non-schema metrics route
 
-1. FastAPI starts and builds a PostgreSQL async engine and session factory.
-2. `POST /api/v1/data/upload/{project_id}` saves the file to disk and registers it in the `assets` table.
-3. `POST /api/v1/data/process/{project_id}` resolves the target files from PostgreSQL assets.
-4. Each file is loaded from disk, split into chunks with LangChain, and inserted into the `chunks` table.
-5. Processing is best-effort: one bad file does not stop the others.
-6. `POST /api/v1/nlp/index/push/{project_id}` indexes project chunks into Qdrant.
-7. `POST /api/v1/nlp/rag/answer/{project_id}` retrieves top-k chunks and generates a grounded answer.
-   - Vector store provider is selected at runtime via `VECTOR_DB_BACKEND` (`QDRANT` or `PGVECTOR`).
+Runtime startup (`main.py`): load settings, connect PostgreSQL, build generation and embedding clients from config, create the configured vector store and `TemplateParser`, and register routers.
 
-## Project Structure
-
-Current tree:
+## Project layout (source)
 
 ```text
-.
-├── LICENSE
+mini_rag_app/
 ├── README.md
-├── docker
-│   ├── .env
-│   ├── .env.example
-│   ├── .gitignore
-│   └── docker-compose.yml
-├── docs
-│   ├── Arch.ipynb
-│   └── Pdfs
-└── src
-    ├── .env
-    ├── .env.example
-    ├── .gitignore
-    ├── assets
-    │   ├── .gitignore
-    │   ├── .gitkeep
-    │   ├── database
-    │   │   └── qdrant_db/
-    │   ├── files
-    │   │   └── <project_id>/
-    │   └── mini-rag-app.postman_collection.json
-    ├── controllers
-    │   ├── BaseController.py
-    │   ├── DataController.py
-    │   ├── NLPController.py
-    │   ├── ProcessController.py
-    │   ├── ProjectController.py
-    │   └── __init__.py
-    ├── helpers
-    │   ├── __init__.py
-    │   └── config.py
-    ├── database
-    │   ├── __init__.py
-    │   ├── base.py
-    │   ├── dependencies.py
-    │   └── session.py
+├── .github/workflows/deploy-main.yml
+├── docker/                    # full stack: app, nginx, pgvector, qdrant, monitoring
+│   ├── README.md
+│   ├── docker-compose.yml
+│   ├── env/                   # per-service env files (see docker/README.md)
+│   ├── minirag/Dockerfile
+│   ├── minirag/entrypoint.sh  # runs Alembic then uvicorn
+│   ├── nginx/default.conf
+│   └── prometheus/prometheus.yml
+└── src/
     ├── main.py
-    ├── models
-    │   ├── __init__.py
-    │   ├── db_schemes
-    │   │   ├── __init__.py
-    │   │   ├── asset.py
-    │   │   ├── data_chunk.py
-    │   │   ├── minirag
-    │   │   │   ├── README.md
-    │   │   │   ├── alembic.ini.example
-    │   │   │   ├── migrations/
-    │   │   │   └── schemes/
-    │   │   └── project.py
-    │   └── enums
-    │       ├── AssetTypeEnum.py
-    │       ├── DataBaseEnum.py
-    │       ├── ProcessingEnum.py
-    │       ├── ResponseEnums.py
-    │       └── __init__.py
     ├── requirements.txt
-    ├── repositories
-    │   ├── __init__.py
-    │   └── minirag
-    │       ├── __init__.py
-    │       ├── asset_repository.py
-    │       ├── chunk_repository.py
-    │       └── project_repository.py
-    └── routes
-        ├── __init__.py
-        ├── base.py
-        ├── data.py
-        ├── nlp.py
-        └── schemes
-            ├── __init__.py
-            ├── data.py
-            └── nlp.py
-    └── stores
-        ├── llm
-        │   ├── __init__.py
-        │   ├── LlmEnums.py
-        │   ├── LlmInterface.py
-        │   ├── LLMProviderFactory.py
-        │   ├── providers
-        │   │   ├── __init__.py
-        │   │   ├── CoHereProvider.py
-        │   │   └── OpenAIProvider.py
-        │   └── templates
-        │       ├── __init__.py
-        │       ├── template_parser.py
-        │       └── locales
-        │           ├── __init__.py
-        │           ├── en
-        │           │   ├── __init__.py
-        │           │   └── rag.py
-        │           └── ar
-        │               ├── __init__.py
-        │               └── rag.py
-        └── vectordb
-            ├── __init__.py
-            ├── VectorDBEnums.py
-            ├── VectorStoreFactory.py
-            ├── VectorStoreInterface.py
-            ├── QdrantVectorStore.py
-            ├── PGVectorStore.py
-            └── dependencies.py
-            └── providers
-                ├── __init__.py
-                └── QdrantDBProvider.py
-                └── PGVectorDBProvider.py
+    ├── .env.example
+    ├── utils/metrics.py
+    ├── helpers/config.py
+    ├── database/
+    ├── routes/  (+ routes/schemes/)
+    ├── controllers/
+    ├── repositories/minirag/
+    ├── models/
+    └── stores/
+        ├── llm/
+        └── vectordb/
 ```
 
-Note: `__pycache__/` folders are omitted for brevity.
-
-## File Responsibilities
-
-### Runtime Entry
-
-- `src/main.py`
-  - FastAPI app creation
-  - PostgreSQL connection startup and shutdown
-  - router registration
-
-### Configuration
-
-- `src/helpers/config.py`
-  - loads settings from `.env`
-  - supports either a full `DATABASE_URL` or `POSTGRES_*` credential parts
-  - builds PostgreSQL connection URL when needed
-  - includes template localization default via `DEFAULT_LANGUAGE` (e.g. `en`, `ar`)
-
-### Database Runtime
-
-- `src/database/base.py`
-  - SQLAlchemy declarative `Base`
-
-- `src/database/session.py`
-  - async engine/session-factory creation
-  - lightweight DB connectivity check helper
-
-- `src/database/dependencies.py`
-  - FastAPI dependency that yields per-request `AsyncSession`
-
-### API Layer
-
-- `src/routes/base.py`
-  - base health/info route under `/api/v1/`
-
-- `src/routes/data.py`
-  - upload endpoint
-  - process endpoint
-  - project lookup, asset lookup, best-effort processing orchestration
-
-- `src/routes/nlp.py`
-  - vector index endpoints (index push/info/search)
-  - RAG answer endpoint (`/api/v1/nlp/rag/answer/{project_id}`)
-
-- `src/routes/schemes/data.py`
-  - request schema for processing payload
-
-- `src/routes/schemes/nlp.py`
-  - request schemas for NLP endpoints (`SearchRequest`, `RagAnswerRequest`, etc.)
-
-### Controllers
-
-- `src/controllers/BaseController.py`
-  - common path setup and helper utilities
-
-- `src/controllers/ProjectController.py`
-  - resolves and creates project directory paths on disk
-
-- `src/controllers/DataController.py`
-  - file validation
-  - filename sanitization
-  - unique file path generation
-
-- `src/controllers/ProcessController.py`
-  - file loader selection by extension
-  - disk existence checks
-  - LangChain chunk generation
-
-- `src/controllers/NLPController.py`
-  - vector store index naming and indexing
-  - vector search and RAG prompt construction
-  - stores last LLM payload for debug (`last_llm_payload`)
-
-### Persistence Layer
-
-- `src/repositories/minirag/project_repository.py`
-  - repository for project metadata operations
-  - public `project_id` lookup and internal UUID resolution
-
-- `src/repositories/minirag/asset_repository.py`
-  - repository for asset persistence and project asset lookup
-
-- `src/repositories/minirag/chunk_repository.py`
-  - repository for chunk insert, query, and project chunk cleanup
-
-### Database Schemas
-
-- `src/models/db_schemes/project.py`
-  - public API/data-transfer schema for `projects`
-
-- `src/models/db_schemes/asset.py`
-  - public API/data-transfer schema for `assets`
-
-- `src/models/db_schemes/data_chunk.py`
-  - public API/data-transfer schema for `chunks`
-  - RAG schema: `RetrievedDocument` (vector search hit normalized to `id`, `score`, `text`, `metadata`)
-
-- `src/models/db_schemes/minirag/schemes/project.py`
-  - SQLAlchemy ORM table mapping for `projects`
-
-- `src/models/db_schemes/minirag/schemes/asset.py`
-  - SQLAlchemy ORM table mapping for `assets`
-
-- `src/models/db_schemes/minirag/schemes/chunk.py`
-  - SQLAlchemy ORM table mapping for `chunks`
-
-- `src/models/db_schemes/minirag/schemes/vector_document.py`
-  - SQLAlchemy ORM table mapping for `vector_documents` (PGVector backend)
-
-- `src/models/db_schemes/minirag/migrations/`
-  - Alembic migration scripts for PostgreSQL schema changes
-
-### Stores (Backends)
-
-- `src/stores/llm/`
-  - LLM provider abstraction and implementations
-
-- `src/stores/llm/providers/OpenAIProvider.py`
-  - OpenAI chat + embeddings client
-  - validates `OPENAI_API_URL` (must include `http(s)://` if set)
-
-- `src/stores/llm/providers/CoHereProvider.py`
-  - Cohere embeddings client
-
-- `src/stores/llm/templates/template_parser.py`
-  - loads locale templates from `src/stores/llm/templates/locales/<lang>/`
-
-- `src/stores/llm/templates/locales/en/rag.py`
-  - English RAG system/user/document/footer templates
-
-- `src/stores/llm/templates/locales/ar/rag.py`
-  - Arabic RAG system/user/document/footer templates
-
-- `src/stores/vectordb/`
-  - vector store interface, provider adapters, and runtime selection factory
-
-- `src/stores/vectordb/VectorStoreInterface.py`
-  - async provider-neutral contract used by the app
-
-- `src/stores/vectordb/VectorStoreFactory.py`
-  - selects Qdrant or PGVector implementation based on `VECTOR_DB_BACKEND`
-
-- `src/stores/vectordb/QdrantVectorStore.py`
-  - adapter over `QdrantDBProvider` that implements `VectorStoreInterface`
-
-- `src/stores/vectordb/PGVectorStore.py`
-  - PGVector-backed `VectorStoreInterface` implementation (uses `vector_documents`)
-
-- `src/stores/vectordb/dependencies.py`
-  - FastAPI dependency for injecting the selected vector store
-
-- `src/stores/vectordb/providers/QdrantDBProvider.py`
-  - Qdrant local vector store implementation (insert/search)
-  - returns normalized `RetrievedDocument` objects on search
-
-### Enums
-
-- `src/models/enums/DataBaseEnum.py`
-  - logical database entity names used by the app
-
-- `src/models/enums/ProcessingEnum.py`
-  - supported file extensions for processing
-
-- `src/models/enums/ResponseEnums.py`
-  - API response signals
-
-- `src/models/enums/AssetTypeEnum.py`
-  - asset type values stored in PostgreSQL
-
-### Data and Tooling
-
-- `src/assets/files/`
-  - physical uploaded file storage
-
-- `src/assets/database/`
-  - local on-disk databases used by the app (currently Qdrant `VECTOR_DB_PATH`)
-
-- `src/assets/mini-rag-app.postman_collection.json`
-  - starter Postman collection
-
-- `docker/docker-compose.yml`
-  - local PostgreSQL (pgvector) service definition
-
-- `docker/.env.example`
-  - example Docker PostgreSQL credentials
+More detail on Alembic for the `minirag` schema lives in `src/models/db_schemes/minirag/README.md`.
 
 ## Requirements
 
-- Python `3.10+`
-- Docker and Docker Compose
-- Linux packages for Python builds:
+- **Python 3.10+** (Docker image uses 3.10)
+- **Docker** and **Docker Compose** (for the bundled stack or for PostgreSQL only)
+- On Debian/Ubuntu-style hosts, typical build deps for `asyncpg` / `psycopg2`:
 
 ```bash
 sudo apt update
 sudo apt install -y gcc python3-dev libpq-dev
 ```
 
-## Setup
+## Configuration (`src/.env`)
 
-### 1. Start PostgreSQL (pgvector image)
-
-Create the Docker env file:
-
-```bash
-cp docker/.env.example docker/.env
-```
-
-Then update credentials in `docker/.env` if needed.
-
-Start PostgreSQL from the repo root:
-
-```bash
-docker compose --env-file docker/.env -f docker/docker-compose.yml up -d
-```
-
-PostgreSQL is exposed on `localhost:5432`.
-
-### 2. Create and activate a virtual environment
-
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-```
-
-### 3. Install dependencies
-
-```bash
-pip install -r src/requirements.txt
-```
-
-### 4. Configure the FastAPI app
-
-Create the app env file:
+Copy the example and adjust:
 
 ```bash
 cp src/.env.example src/.env
 ```
 
-Recommended PostgreSQL metadata configuration:
+`helpers.config.Settings` loads **`src/.env`** (run the app with working directory `src/` so relative paths resolve). You can set either:
 
-```env
-APP_NAME="mini-RAG"
-APP_VERSION="0.1"
-OPENAI_API_KEY=""
-OPENAI_API_URL=
+- **`DATABASE_URL`** (async SQLAlchemy URL, e.g. `postgresql+asyncpg://...`), or  
+- **`POSTGRES_*`** pieces: `POSTGRES_USERNAME` or `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_HOST`, `POSTGRES_PORT`, and `POSTGRES_MAIN_DATABASE` or `POSTGRES_DB`
 
-FILE_ALLOWED_TYPES=["text/plain", "application/pdf"]
-FILE_MAX_SIZE=10
-FILE_DEFAULT_CHUNK_SIZE=512000
+Important keys (non-exhaustive; see `src/.env.example`):
 
-DATABASE_URL="postgresql+asyncpg://mini_rag:mini_rag@localhost:5432/mini_rag"
-POSTGRES_HOST="localhost"
-POSTGRES_PORT=5432
-POSTGRES_DB="mini_rag"
-POSTGRES_USER="mini_rag"
-POSTGRES_PASSWORD="mini_rag"
+| Area | Variables |
+|------|-----------|
+| App | `APP_NAME`, `APP_VERSION` |
+| Uploads | `FILE_ALLOWED_TYPES`, `FILE_MAX_SIZE` (MB), `FILE_DEFAULT_CHUNK_SIZE` (stream write size, bytes) |
+| LLM | `GENERATION_BACKEND` / `EMBEDDING_BACKEND` (`OPENAI` or `COHERE`), API keys, `GENERATION_MODEL_ID`, `EMBEDDING_MODEL_ID`, `EMBEDDING_MODEL_SIZE`, defaults such as `INPUT_DAFAULT_MAX_CHARACTERS`, `GENERATION_DAFAULT_MAX_TOKENS`, `GENERATION_DAFAULT_TEMPERATURE` |
+| Vector DB | `VECTOR_DB_BACKEND` (`QDRANT` or `PGVECTOR`), `VECTOR_DB_PATH`, `VECTOR_DB_DISTANCE_METHOD`, optional `PGVECTOR_*` |
+| Templates | `DEFAULT_LANGUAGE` (e.g. `en`, `ar`) |
 
-# ============ LLM / Vector DB / Templates ===========
-GENERATION_BACKEND="OPENAI"
-EMBEDDING_BACKEND="COHERE"
+Leave **`OPENAI_API_URL`** empty unless you use a custom base URL; if set, it must include `http://` or `https://` (validated in the OpenAI provider).
 
-GENERATION_MODEL_ID="gpt-4o-mini"
-EMBEDDING_MODEL_ID="embed-multilingual-light-v3.0"
-EMBEDDING_MODEL_SIZE=384
+## Database migrations (Alembic)
 
-VECTOR_DB_BACKEND="QDRANT"
-VECTOR_DB_PATH="qdrant_db"
-VECTOR_DB_DISTANCE_METHOD="cosine"
-
-# PGVector-only settings (used when VECTOR_DB_BACKEND="PGVECTOR")
-PGVECTOR_INDEX_TYPE="hnsw"
-PGVECTOR_DISTANCE_METHOD="cosine"
-
-DEFAULT_LANGUAGE="en"
-```
-
-Notes:
-
-- `FILE_MAX_SIZE` is in MB.
-- `FILE_DEFAULT_CHUNK_SIZE` is the streamed upload write size in bytes.
-- The server reads `.env` from `src/`, so run commands from inside `src/`.
-- Leave `OPENAI_API_URL` empty unless you are using a custom gateway/proxy. If set, it must include `http://` or `https://`.
-
-### 5. Run Alembic migrations (metadata schema)
-
-From repo root:
+From the repo root (venv recommended):
 
 ```bash
-cd src/models/db_schemes/minirag
-../../../../../.venv/bin/python -m alembic -c alembic.ini upgrade head
+.venv/bin/python -m alembic -c src/models/db_schemes/minirag/alembic.ini upgrade head
 ```
 
-This applies:
+This creates/updates metadata tables (`projects`, `assets`, `chunks`) and, when migrations require it, **PGVector** support including `vector_documents`. Run migrations **before** starting the app if the database is empty.
 
-- metadata tables: `projects`, `assets`, `chunks`
-- optional vector store table for PGVector backend: `vector_documents` (pgvector extension + table)
+**Docker:** the image entrypoint runs `alembic upgrade head` automatically before Uvicorn.
 
-### 6. Start FastAPI
-
-From `src/`:
+## Run the API locally
 
 ```bash
 cd src
-source ../.venv/bin/activate
+source ../.venv/bin/activate   # if using a venv
+pip install -r requirements.txt
 uvicorn main:app --reload --host 0.0.0.0 --port 5000
 ```
 
-### Local DB reset (development)
-
-Reset metadata schema with Alembic:
-
-```bash
-cd src/models/db_schemes/minirag
-../../../../../.venv/bin/python -m alembic -c alembic.ini downgrade base
-../../../../../.venv/bin/python -m alembic -c alembic.ini upgrade head
-```
-
-Or reset full PostgreSQL container volume:
-
-```bash
-docker compose --env-file docker/.env -f docker/docker-compose.yml down -v
-docker compose --env-file docker/.env -f docker/docker-compose.yml up -d
-```
-
-## Run the API
-
-From `src/`:
-
-```bash
-cd src
-source ../.venv/bin/activate
-uvicorn main:app --reload --host 0.0.0.0 --port 5000
-```
-
-Base URL:
+Base URL for versioned routes:
 
 ```text
 http://127.0.0.1:5000/api/v1
 ```
 
-## API Endpoints
+Interactive docs: `http://127.0.0.1:5000/docs`
+
+### Prometheus metrics (local)
+
+The app registers a **hidden** metrics route (not listed in OpenAPI) used by the bundled Prometheus scrape config:
+
+```text
+GET http://127.0.0.1:5000/TrhBVe_m5gg2002_E5VVqS
+```
+
+Nginx in `docker/` proxies the same path to the app.
+
+## Run with Docker (full stack)
+
+See **`docker/README.md`** for services (FastAPI, Nginx, PostgreSQL/pgvector, Qdrant, Prometheus, Grafana, exporters), env files under **`docker/env/`**, and compose commands.
+
+**PostgreSQL only** for local dev (from the `docker/` directory, after `docker/env/.env.postgres` exists):
+
+```bash
+docker compose up -d pgvector
+```
+
+Point `src/.env` at `localhost:5432` with matching DB name and credentials.
+
+## CI / deploy
+
+On push to **`main`**, `.github/workflows/deploy-main.yml` SSHs to the configured host, runs `git pull` under the server app path, and **`sudo systemctl restart minirag.service`**. The sample `docker/minirag.service` unit runs `docker compose up --build -d` from a server working directory that contains the compose file (adjust paths and secrets for your environment).
+
+## API overview
 
 ### `GET /api/v1/`
 
-Returns application metadata.
-
-Example response:
+Returns app name, version, and server UTC timestamp:
 
 ```json
 {
   "app_name": "mini-RAG",
-  "app_version": "0.1"
+  "app_version": "0.1",
+  "date": "2026-05-13T12:00:00.000000"
 }
 ```
 
 ### `POST /api/v1/data/upload/{project_id}`
 
-Uploads a file to disk and creates an asset record in PostgreSQL.
-
-Request:
-
-- path param: `project_id`
-- body type: `form-data`
-- file field name: `file`
-
-Example:
-
-```bash
-curl -X POST "http://127.0.0.1:5000/api/v1/data/upload/demo123" \
-  -F "file=@/absolute/path/minirag.txt"
-```
-
-Success response:
-
-```json
-{
-  "signal": "file_upload_success",
-  "file_id": "abc123_minirag.txt",
-  "project_id": "demo123"
-}
-```
-
-`file_id` is the stored disk filename and is also the asset name in PostgreSQL.
+Multipart upload (`file` field). Persists the file under `src/assets/files/<project_id>/` and creates an **asset** row. Response includes `signal`, `file_id`, `project_id`.
 
 ### `POST /api/v1/data/process/{project_id}`
 
-Processes uploaded project files into chunks.
-
-Request body:
-
-```json
-{
-  "file_id": "abc123_minirag.txt",
-  "chunk_size": 100,
-  "overlap_size": 20,
-  "do_reset": 0
-}
-```
-
-Fields:
-
-- `file_id`
-  - optional
-  - if provided, the API first looks up that file in PostgreSQL assets for the project
-  - if omitted, the API loads all file assets for the project
-- `chunk_size`
-  - chunk length used by `RecursiveCharacterTextSplitter`
-- `overlap_size`
-  - overlap between chunks
-- `do_reset`
-  - if `1`, all existing chunks for the project are deleted before inserting new ones
-
-Best-effort behavior:
-
-- if one file fails, the API continues with the remaining files
-- the final response includes both `processed_files` and `failed_files`
-- if all files fail, the endpoint returns `processing_failed`
-
-Example with a single file:
-
-```bash
-curl -X POST "http://127.0.0.1:5000/api/v1/data/process/demo123" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "file_id": "abc123_minirag.txt",
-    "chunk_size": 100,
-    "overlap_size": 20,
-    "do_reset": 1
-  }'
-```
-
-Example without `file_id`:
-
-```bash
-curl -X POST "http://127.0.0.1:5000/api/v1/data/process/demo123" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "chunk_size": 100,
-    "overlap_size": 20,
-    "do_reset": 1
-  }'
-```
-
-Success response:
-
-```json
-{
-  "signal": "processing_success",
-  "inserted_chunks": 42,
-  "processed_files": [
-    "abc123_minirag.txt"
-  ],
-  "failed_files": [],
-  "no_files": 1
-}
-```
-
-All-failed response shape:
-
-```json
-{
-  "signal": "processing_failed",
-  "project_id": "demo123",
-  "inserted_chunks": 0,
-  "processed_files": [],
-  "failed_files": [
-    {
-      "file_id": "missing.txt",
-      "signal": "file_not_found"
-    }
-  ],
-  "no_files": 0
-}
-```
+JSON body (`ProcessRequest`): optional `file_id`, `chunk_size`, `overlap_size`, `do_reset` (`1` clears existing chunks for the project first). Best-effort: failures per file appear in `failed_files`. Possible HTTP statuses include **404** when the file id is unknown or no file assets exist.
 
 ### `POST /api/v1/nlp/index/push/{project_id}`
 
-Indexes all project chunks from PostgreSQL into the vector DB collection for this project.
-
-Request body:
-
-```json
-{ "do_reset": 1 }
-```
-
-Success response:
-
-```json
-{
-  "signal": "insert_into_vectordb_sucess",
-  "inserted_items_count": 123
-}
-```
+Body: `{ "do_reset": 0|1 }`. Pages project chunks from the DB and indexes them into the active vector backend; `do_reset` applies to the first batch only.
 
 ### `GET /api/v1/nlp/index/info/{project_id}`
 
-Returns vector DB collection info for the project (if exists).
+Returns collection metadata when the index exists.
 
 ### `POST /api/v1/nlp/index/search/{project_id}`
 
-Searches the project vector DB index by a query string.
-
-Request body:
-
-```json
-{ "query_text": "your query", "top_k": 5, "limit": 5 }
-```
-
-Success response includes `hits` (retrieved documents with `text` + `metadata` + `score`).
+Body: `query_text`, optional `top_k` / `limit`. Returns `hits` as serialized retrieved documents.
 
 ### `POST /api/v1/nlp/rag/answer/{project_id}`
 
-Retrieves relevant chunks from the vector DB and generates an answer grounded in the retrieved context.
+Body (`RagAnswerRequest`): `question`; optional `language`, `top_k`, `limit`, `temperature`, `max_output_tokens`, `system_message`, `debug`, `include_chat_history`.
 
-Request body:
+Successful JSON shape:
 
-```json
-{
-  "question": "What is this project about?",
-  "language": "en",
-  "top_k": 5,
-  "limit": 5,
-  "temperature": 0.1,
-  "max_output_tokens": 300,
-  "system_message": null,
-  "debug": false
-}
-```
+- **`signal`**, **`answer`**
+- **`fullpayload`**: object with (at least) `project_id`, `collection_name`, `hits`; plus **`chat_history`** when `include_chat_history` is true, and **`debug`** when `debug` is true (LLM payload from the controller).
 
-Response:
+Errors return appropriate status codes with `signal` and partial fields (see route handlers in `src/routes/nlp.py`).
 
-- `answer`: generated text
-- `hits`: retrieved documents (`id`, `score`, `text`, `metadata`)
-- if `debug=true`, returns a `debug` object that includes the exact messages/prompts sent to the LLM.
+## PostgreSQL tables (summary)
 
-## PostgreSQL Tables
+- **`projects`** — public `project_id` and UUID primary key  
+- **`assets`** — files linked to a project  
+- **`chunks`** — text and metadata per asset  
+- **`vector_documents`** — used when **`VECTOR_DB_BACKEND=PGVECTOR`**
 
-### `projects`
+## Supported file types
 
-- `id` (UUID, primary key)
-- `project_id`
-- `created_at`
-- `updated_at`
+- **`.txt`** — text loader  
+- **`.pdf`** — PyMuPDF loader  
 
-### `assets`
+## Conventions and notes
 
-- `id` (UUID, primary key)
-- `project_id` (UUID, FK -> `projects.id`)
-- `asset_name`
-- `asset_type`
-- `asset_size`
-- `asset_pushed_at`
-- `asset_config`
-- `created_at`
-- `updated_at`
-
-### `chunks`
-
-- `id` (UUID, primary key)
-- `chunk_text`
-- `chunk_metadata`
-- `chunk_order`
-- `project_id` (UUID, FK -> `projects.id`)
-- `asset_id` (UUID, FK -> `assets.id`)
-- `created_at`
-- `updated_at`
-
-## Supported File Types
-
-Current processing support:
-
-- `.txt` via `TextLoader`
-- `.pdf` via `PyMuPDFLoader`
-
-## Important Notes
-
-- `project_id` must be alphanumeric.
-- `project_id` is the public string identifier used in API routes; internal table relationships use UUID primary keys.
-- Uploaded files are stored under `src/assets/files/<project_id>/`.
-- Asset/chunk/project metadata is stored in PostgreSQL.
-- Vector store is pluggable:
-  - `VECTOR_DB_BACKEND="QDRANT"` stores vectors in local Qdrant.
-  - `VECTOR_DB_BACKEND="PGVECTOR"` stores vectors in PostgreSQL (`vector_documents`).
-- The provided Postman collection is still minimal and may need manual extension for the current upload/process flow.
-- RAG prompt templates live under `src/stores/llm/templates/locales/<lang>/rag.py` (currently `en` and `ar`).
+- **`project_id`** in URLs is the public string identifier; foreign keys use UUIDs internally.
+- **Vector backend:** Qdrant can use on-disk storage under `src/assets/database/` (path from config); PGVector stores vectors in PostgreSQL.
+- **Postman:** `src/assets/mini-rag-app.postman_collection.json` is a starter; extend it as APIs evolve.
 
 ## Troubleshooting
 
-- `alembic upgrade head` fails with connection/auth errors:
-  - verify `DATABASE_URL` or `POSTGRES_*` values in `src/.env`.
-  - ensure PostgreSQL is running: `docker compose --env-file docker/.env -f docker/docker-compose.yml ps`.
-- `alembic` command not found:
-  - run through project venv Python: `.venv/bin/python -m alembic -c src/models/db_schemes/minirag/alembic.ini current`.
-- app fails on startup with DB connection errors:
-  - run migrations before starting app, then restart `uvicorn`.
-- app fails on startup with `PGVectorStore is configured but vector_documents is missing`:
-  - you set `VECTOR_DB_BACKEND="PGVECTOR"` but did not run Alembic migrations yet.
-  - run: `cd src/models/db_schemes/minirag && ../../../../../.venv/bin/python -m alembic -c alembic.ini upgrade head`
-  - then restart `uvicorn`.
+- **Alembic / DB URL:** ensure `DATABASE_URL` or all required `POSTGRES_*` variables are set for both the app and Alembic (`migrations/env.py` loads `src/.env` then project root `.env`).
+- **PGVector errors at startup:** run migrations so `vector_documents` (and extensions) exist when using `PGVECTOR`.
+- **Docker:** credential mismatches between `docker/env/.env.app` and `docker/env/.env.postgres` cause connection failures; see `docker/README.md`.

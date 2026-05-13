@@ -1,183 +1,126 @@
-# Docker Setup for MiniRAG Application
+# Docker setup (Mini RAG App)
 
-This directory contains the Docker setup for the MiniRAG application, including all necessary services for development and monitoring.
+This directory defines a **multi-service** stack for running the Mini RAG API together with databases and observability. Compose file: **`docker-compose.yml`** (run commands from **`docker/`** so relative paths resolve).
 
 ## Services
 
-- **FastAPI Application**: Main application running on Uvicorn
-- **Nginx**: Web server for serving the FastAPI application
-- **PostgreSQL (pgvector)**: Vector-enabled database for storing embeddings
-- **Postgres-Exporter**: Exports PostgreSQL metrics for Prometheus
-- **Qdrant**: Vector database for similarity search
-- **Prometheus**: Metrics collection
-- **Grafana**: Visualization dashboard for metrics
-- **Node-Exporter**: System metrics collection
+| Service | Role |
+|--------|------|
+| **fastapi** | App image (`minirag/Dockerfile`): Alembic migrations on start, then **Uvicorn** on port **8000** (4 workers; no bind-mount of source, so **no hot reload** in this stack) |
+| **nginx** | Reverse proxy on host **80** → `fastapi:8000` |
+| **pgvector** | PostgreSQL **17** with **pgvector** (`pgvector/pgvector:0.8.0-pg17`), port **5432** |
+| **qdrant** | Optional vector DB when the app is configured with `VECTOR_DB_BACKEND=QDRANT` (host **6333** / **6334**) |
+| **prometheus** | Scrapes FastAPI metrics, Qdrant, node-exporter, self, Postgres exporter |
+| **grafana** | Dashboards on host **3000** |
+| **node-exporter** | Host metrics on **9100** |
+| **postgres_exporter** | Postgres metrics on **9187** (Compose service name uses an **underscore**) |
 
-## Setup Instructions
+Application data written under `/app/assets` in the container is stored in the **`fastapi_data`** volume.
 
-### 1. Set up environment files
+## Environment files
 
-Create your environment files from the examples:
+Compose reads per-service files under **`docker/env/`**:
+
+- **`.env.app`** — application settings (mirrors `src/.env.example` style: DB host `pgvector`, LLM keys, `VECTOR_DB_BACKEND`, etc.)
+- **`.env.postgres`** — `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB` for the database container
+- **`.env.grafana`** — Grafana admin credentials
+- **`.env.postgres-exporter`** — `DATA_SOURCE_NAME` for postgres_exporter
+
+Templates:
 
 ```bash
-# Create all required .env files from examples
 cd docker/env
 cp .env.example.app .env.app
-cp .env.example.postgres .env.postgres
 cp .env.example.grafana .env.grafana
 cp .env.example.postgres-exporter .env.postgres-exporter
+```
 
-# Setup the Alembic configuration for the FastAPI application
-cd ..
-cd docker/minirag
-cp alembic.example.ini alembic.ini
+Create **`.env.postgres`** with valid credentials and the same database name/user expectations as **`.env.app`** (the app must be able to connect to the DB the stack starts).
 
-### 2. Start the services
+> **Note:** If you only see a misnamed template like `.env .example.postgres` (space in the filename), create **`docker/env/.env.postgres`** manually using the same variables as a standard Postgres image (`POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`).
+
+## Alembic inside the image
+
+The runtime image copies **`docker/minirag/alembic.ini`** into `/app/models/db_schemes/minirag/alembic.ini`. To customize locally before build:
 
 ```bash
-cd docker
+cd docker/minirag
+cp alembic.ini.example alembic.ini
+# edit if needed, then rebuild
+```
+
+## Start the stack
+
+From **`docker/`**:
+
+```bash
 docker compose up --build -d
 ```
 
-To start only specific services:
+Start a subset (example: databases + app + edge):
 
 ```bash
-docker compose up -d fastapi nginx pgvector qdrant
+docker compose up -d pgvector qdrant fastapi nginx
 ```
 
-If you encounter connection issues, you may want to start the database services first and let them initialize before starting the application:
+If the API starts before Postgres is ready, rely on **`depends_on`** with **`condition: service_healthy`** on `pgvector`, or restart FastAPI after databases are up:
 
 ```bash
-# Start databases first
-docker compose up -d pgvector qdrant postgres-exporter
-# Wait for databases to be healthy
-sleep 30
-# Start the application services
-docker compose up fastapi nginx prometheus grafana node-exporter --build -d
+docker compose restart fastapi
 ```
 
-In case deleting all containers and volumes is necessary, you can run:
+Tear down including volumes:
 
 ```bash
 docker compose down -v --remove-orphans
 ```
 
-### 3. Access the services
+## URLs (default ports)
 
-- FastAPI Application: http://localhost:8000
-- FastAPI Documentation: http://localhost:8000/docs
-- Nginx (serving FastAPI): http://localhost
-- Prometheus: http://localhost:9090
-- Grafana: http://localhost:3000
-- Qdrant UI: http://localhost:6333/dashboard
+| Service | URL |
+|--------|-----|
+| API (direct) | http://localhost:8000 |
+| API docs | http://localhost:8000/docs |
+| Through Nginx | http://localhost/ |
+| Prometheus | http://localhost:9090 |
+| Grafana | http://localhost:3000 |
+| Qdrant dashboard | http://localhost:6333/dashboard |
 
-## Volume Management
+## Metrics
 
-### Managing Docker Volumes
+FastAPI exposes Prometheus text on a **fixed, non-documented path** (see `src/utils/metrics.py`):
 
-Docker volumes are used to persist data generated by and used by Docker containers. Here are some commands to manage your volumes:
+```text
+http://localhost:8000/TrhBVe_m5gg2002_E5VVqS
+```
 
-1. **List all volumes**:
-   ```bash
-   docker volume ls
-   ```
-2. **Inspect a volume**:
-   ```bash
-   docker volume inspect <volume_name>
-   ```
+Nginx proxies **`/TrhBVe_m5gg2002_E5VVqS`** to the same backend path (`nginx/default.conf`). **`prometheus/prometheus.yml`** sets `metrics_path` for the `fastapi` job to that path.
 
-   - list files in a volume:
-   ```bash
-   docker run --rm -v <volume_name>:/data busybox ls -l /data
-   ```
+If the **postgres** scrape job fails, confirm the scrape **hostname** matches the Compose **service** name. This project names the service **`postgres_exporter`**; Prometheus must target a resolvable DNS name on the Compose network (adjust `prometheus.yml` if your target name differs).
 
-3. **Remove a volume**:
-   ```bash
-   docker volume rm <volume_name>
-   ```
-4. **Prune unused volumes**:
-   ```bash
-    docker volume prune
-    ```
+## Volume tips
 
-5. **Backup volume for migration**:
-   ```bash
-    docker run --rm -v <volume_name>:/volume -v $(pwd):/backup alpine tar cvf /backup/backup.tar /volume
-    ```
+Common maintenance commands:
 
-6. **Restore volume from backup**:
-   ```bash
-    docker run --rm -v <volume_name>:/volume -v $(pwd):/backup alpine sh -c "cd /volume && tar xvf /backup/backup.tar --strip 1"
-    ```
+```bash
+docker volume ls
+docker volume inspect <volume_name>
+docker compose logs --tail=100 fastapi
+docker compose logs --tail=100 pgvector
+```
 
-7. **Remove all volumes**:
-    ```bash
-    docker volume rm $(docker volume ls -q)
-    ```
+For production backups, prefer **`pg_dump`** / **`pg_restore`** over only archiving Docker volumes.
 
-**NOTE**: For PostgreSQL specifically, you might want to consider using PostgreSQL's built-in tools like `pg_dump` and `pg_restore` for more reliable backups, especially for live databases.
+## Grafana
 
-## Monitoring
+1. Sign in (credentials from **`docker/env/.env.grafana`**; example template uses `admin` / `admin_password`).
+2. Add Prometheus data source URL **`http://prometheus:9090`** (from inside the Grafana container network).
+3. Optionally import community dashboards, for example:
+   - [FastAPI observability](https://grafana.com/grafana/dashboards/18739-fastapi-observability/)
+   - [Node exporter full](https://grafana.com/grafana/dashboards/1860-node-exporter-full/)
+   - [Qdrant](https://grafana.com/grafana/dashboards/23033-qdrant/)
+   - [PostgreSQL exporter](https://grafana.com/grafana/dashboards/12485-postgresql-exporter/)
 
-### FastAPI Metrics
+## systemd (server)
 
-FastAPI is configured to expose Prometheus metrics at the `/metrics` endpoint. These metrics include:
-
-- Request counts
-- Request latencies
-- Status codes
-
-Prometheus is configured to scrape these metrics automatically.
-
-### Visualizing Metrics in Grafana
-
-1. Log into Grafana at http://localhost:3000 (default credentials: admin/admin_password)
-2. Add Prometheus as a data source (URL: http://prometheus:9090)
-3. Import dashboards for FastAPI, PostgreSQL, and Qdrant
-
-#### Dashboards URLs
-
-https://grafana.com/grafana/dashboards/18739-fastapi-observability/
-
-https://grafana.com/grafana/dashboards/1860-node-exporter-full/
-
-https://grafana.com/grafana/dashboards/23033-qdrant/
-
-https://grafana.com/grafana/dashboards/12485-postgresql-exporter/
-
-
-## Development Workflow
-
-The FastAPI application is configured with hot-reloading. Any changes to the code in the `src/` directory will automatically reload the application.
-
-## Troubleshooting
-
-### Connection Errors
-
-If you see connection errors when starting the services:
-
-1. **Database Connection Refused**: This often happens when the FastAPI app tries to connect to databases before they're ready.
-   ```
-   Connection refused: [Errno 111] Connection refused
-   ```
-   
-   Solutions:
-   - Start database services first, wait, then start the application
-   - Check database logs: `docker compose logs pgvector`
-   - Ensure your database credentials in `.env.app` match those in `.env.postgres`
-
-2. **Restart the FastAPI service** after databases are running:
-   ```bash
-   docker compose restart fastapi
-   ```
-
-3. **Check service status**:
-   ```bash
-   docker compose ps
-   ```
-
-4. **View logs** for more details:
-   ```bash
-   docker compose logs --tail=100 fastapi
-   docker compose logs --tail=100 pgvector
-   ```
+**`minirag.service`** is an example unit that runs **`docker compose up --build -d`** from a fixed **`WorkingDirectory`** on the server. Edit **`WorkingDirectory`**, **`User`**, and **`Group`** for your host. GitHub Actions in the repo reference restarting this service after deploy.

@@ -1,91 +1,80 @@
-# Minirag Schema Migrations (Alembic)
+# Minirag schema migrations (Alembic)
 
-This directory owns PostgreSQL schema migrations for the Minirag ORM models:
+This package owns **PostgreSQL** schema migrations for the Minirag ORM models under `schemes/`:
 
-- `schemes/project.py`
-- `schemes/asset.py`
-- `schemes/chunk.py`
+- `schemes/project.py` — `projects`
+- `schemes/asset.py` — `assets`
+- `schemes/chunk.py` — `chunks`
+- `schemes/vector_document.py` — `vector_documents` (PGVector-backed embeddings)
 
-Alembic is the only supported mechanism to create or alter these tables.
+**Alembic** is the supported way to create or alter these tables. `migrations/env.py` imports `Base` and the ORM models so autogenerate and upgrades stay aligned with SQLAlchemy metadata.
 
-## Directory Layout
+## Layout
 
-- `alembic.ini`: Alembic config for this module
-- `migrations/env.py`: async Alembic environment wired to `Base.metadata`
-- `migrations/versions/`: revision scripts
+- **`alembic.ini`** — Alembic config for this module (also copied into the Docker image from `docker/minirag/alembic.ini`)
+- **`migrations/env.py`** — async Alembic environment; resolves DB URL and loads env files
+- **`migrations/versions/`** — revision scripts
 
-## Database URL Resolution
+## Database URL resolution (`migrations/env.py`)
 
-`migrations/env.py` resolves DB URL in this order:
+1. **`DATABASE_URL`** if set (non-empty)  
+2. Otherwise built from **`POSTGRES_USERNAME`** or **`POSTGRES_USER`**, **`POSTGRES_PASSWORD`**, **`POSTGRES_HOST`**, **`POSTGRES_PORT`** (default `5432`), and **`POSTGRES_MAIN_DATABASE`** or **`POSTGRES_DB`**
 
-1. `DATABASE_URL` (if set)
-2. Build from `POSTGRES_*` vars:
-   - `POSTGRES_USERNAME` or `POSTGRES_USER`
-   - `POSTGRES_PASSWORD`
-   - `POSTGRES_HOST`
-   - `POSTGRES_PORT` (default `5432`)
-   - `POSTGRES_MAIN_DATABASE` or `POSTGRES_DB`
+Environment files loaded (in order, without overriding already-set values from the first load):
 
-It loads env files from:
+- **`src/.env`**
+- **Project root `.env`**
 
-- `src/.env` (preferred for this app)
-- project root `.env` (fallback)
+## Revision history (this repo)
 
-## Run Commands
+| Revision | Purpose |
+|----------|---------|
+| `abc25a35ca49` | Initial schema: `projects`, `assets`, `chunks` |
+| `7b7f0b2e9c2f` | Enable `vector` extension; create `vector_documents` for PGVector |
+| `9c2f2a52d8a1` | Add `project_uuid` to `vector_documents` with FK to `projects` |
 
-Run from:
+## Commands
+
+Working directory for relative `-c alembic.ini`:
 
 ```bash
 cd src/models/db_schemes/minirag
 ```
 
-Use the project venv Python (recommended):
+With a venv at repo root:
 
 ```bash
 ../../../../../.venv/bin/python -m alembic -c alembic.ini current
 ```
 
-Alternative from repo root:
+From repo root:
 
 ```bash
-.venv/bin/python -m alembic -c src/models/db_schemes/minirag/alembic.ini current
+.venv/bin/python -m alembic -c src/models/db_schemes/minirag/alembic.ini upgrade head
 ```
 
-## Common Operations
-
-Create a new migration from model changes:
+### Common operations
 
 ```bash
-../../../../../.venv/bin/python -m alembic -c alembic.ini revision --autogenerate -m "your message"
-```
+# New migration after model edits
+../../../../../.venv/bin/python -m alembic -c alembic.ini revision --autogenerate -m "describe change"
 
-Apply latest migrations:
-
-```bash
+# Apply all pending
 ../../../../../.venv/bin/python -m alembic -c alembic.ini upgrade head
-```
 
-Rollback one migration:
-
-```bash
+# Roll back one revision
 ../../../../../.venv/bin/python -m alembic -c alembic.ini downgrade -1
-```
 
-Show migration history:
-
-```bash
+# History
 ../../../../../.venv/bin/python -m alembic -c alembic.ini history
 ```
 
-## Verification Flow
+## Quick verification
 
-For a migration sanity check:
+1. `upgrade head`  
+2. `downgrade -1`  
+3. `upgrade head`  
 
-1. `upgrade head`
-2. `downgrade -1`
-3. `upgrade head`
+## Docker
 
-## Current Baseline Revision
-
-- `abc25a35ca49_create_initial_minirag_schema.py`
-- Creates `projects`, `assets`, `chunks` with indexes and constraints.
+The container **entrypoint** runs **`alembic upgrade head`** automatically before starting Uvicorn, using the same `alembic.ini` path under `/app`.
