@@ -14,6 +14,9 @@ This directory defines a **multi-service** stack for running the Mini RAG API to
 | **grafana** | Dashboards on host **3000** |
 | **node-exporter** | Host metrics on **9100** |
 | **postgres_exporter** | Postgres metrics on **9187** (Compose service name uses an **underscore**) |
+| **rabbitmq** | Celery **AMQP broker**; **5672** (AMQP), **15672** (management UI when enabled). Env: **`docker/env/.env.rabbitmq`**. |
+| **redis** | Celery **result backend** (and optional broker in other setups); **6379**. Password from **`docker/env/.env.redis`** (`REDIS_PASSWORD`; compose default **`minirag_redis_2222`**). |
+| **celery-worker** | Same **`minirag`** image as **fastapi**; runs **`celery -A celery_app worker`**. Needs **`CELERY_*`** (see **`docker/env/.env.example.celery`**, merged via Compose **`env_file`**). |
 
 Application data written under `/app/assets` in the container is stored in the **`fastapi_data`** volume.
 
@@ -21,18 +24,23 @@ Application data written under `/app/assets` in the container is stored in the *
 
 Compose reads per-service files under **`docker/env/`**:
 
-- **`.env.app`** — application settings (mirrors `src/.env.example` style: DB host `pgvector`, LLM keys, `VECTOR_DB_BACKEND`, etc.)
+- **`.env.app`** — application settings (mirrors `src/.env.example` style: DB host `pgvector`, LLM keys, `VECTOR_DB_BACKEND`, etc.). For Celery inside Compose, append or merge variables from **`.env.example.celery`** (broker/backend URLs must use service hostnames **`rabbitmq`** and **`redis`**).
 - **`.env.postgres`** — `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB` for the database container
 - **`.env.grafana`** — Grafana admin credentials
 - **`.env.postgres-exporter`** — `DATA_SOURCE_NAME` for postgres_exporter
+- **`.env.rabbitmq`** — `RABBITMQ_DEFAULT_USER`, `RABBITMQ_DEFAULT_PASS`, `RABBITMQ_DEFAULT_VHOST` for the broker container
+- **`.env.redis`** — `REDIS_PASSWORD` and tuning keys for the Redis container
+- **`.env.example.celery`** — template **`CELERY_*`** URLs and tuning (copy values into **`.env.app`** or a dedicated worker env file)
 
 Templates:
 
 ```bash
 cd docker/env
-cp .env.example.app .env.app
-cp .env.example.grafana .env.grafana
-cp .env.example.postgres-exporter .env.postgres-exporter
+# If your repo ships these templates, copy them; otherwise create .env.* from docs or from the examples above.
+cp .env.example.app .env.app 2>/dev/null || true
+cp .env.example.grafana .env.grafana 2>/dev/null || true
+cp .env.example.postgres-exporter .env.postgres-exporter 2>/dev/null || true
+# Celery: merge CELERY_* lines from .env.example.celery into .env.app (or maintain a separate env file for workers).
 ```
 
 Create **`.env.postgres`** with valid credentials and the same database name/user expectations as **`.env.app`** (the app must be able to connect to the DB the stack starts).
@@ -63,6 +71,13 @@ Start a subset (example: databases + app + edge):
 docker compose up -d pgvector qdrant fastapi nginx
 ```
 
+Start **broker + Redis** only (Phase 0 smoke / Celery prep):
+
+```bash
+docker compose up -d rabbitmq redis
+docker compose ps rabbitmq redis
+```
+
 If the API starts before Postgres is ready, rely on **`depends_on`** with **`condition: service_healthy`** on `pgvector`, or restart FastAPI after databases are up:
 
 ```bash
@@ -85,6 +100,79 @@ docker compose down -v --remove-orphans
 | Prometheus | http://localhost:9090 |
 | Grafana | http://localhost:3000 |
 | Qdrant dashboard | http://localhost:6333/dashboard |
+| RabbitMQ management | http://localhost:15672 (management UI; login matches **`RABBITMQ_DEFAULT_*`** in **`docker/env/.env.rabbitmq`**) |
+
+## RabbitMQ, Redis, and Celery
+
+### Ports
+
+| Service | Host port | Notes |
+|--------|-----------|--------|
+| **rabbitmq** | **5672** | AMQP for Celery broker |
+| **rabbitmq** | **15672** | Management plugin UI |
+| **redis** | **6379** | Result backend; requires **`AUTH`** (see **`REDIS_PASSWORD`** in **`docker/env/.env.redis`**) |
+
+### Smoke check (recorded)
+
+From **`docker/`**, with **`.env.rabbitmq`** and **`.env.redis`** present (as in this repo):
+
+```bash
+docker compose up -d rabbitmq redis
+docker compose ps rabbitmq redis
+```
+
+Expect **State** `running` (or healthy) for both. Then:
+
+```bash
+# RabbitMQ (inside container; matches compose healthcheck)
+docker compose exec rabbitmq rabbitmq-diagnostics ping
+
+# Redis (password must match REDIS_PASSWORD in docker/env/.env.redis; default in compose is minirag_redis_2222)
+docker compose exec redis redis-cli -a "${REDIS_PASSWORD:-minirag_redis_2222}" ping
+```
+
+Expect **`Ping succeeded`** (RabbitMQ diagnostics) and **`PONG`** (Redis).
+
+### Celery URLs
+
+- **Inside Docker network** (worker or app container): use **`CELERY_BROKER_URL`** / **`CELERY_RESULT_BACKEND`** from **`docker/env/.env.example.celery`** (hosts **`rabbitmq`**, **`redis`**).
+- **On the host** (e.g. `celery -A celery_app worker` from `src/` with published ports): use **`localhost`** in those URLs and the same user/password/vhost and Redis password as in **`docker/env/.env.rabbitmq`** and **`docker/env/.env.redis`**.
+
+### Celery worker (`celery-worker` service)
+
+From **`docker/`** (after **`pgvector`**, **`rabbitmq`**, and **`redis`** are healthy):
+
+```bash
+docker compose up -d celery-worker
+docker compose logs -f --tail=50 celery-worker
+```
+
+**Phase 1.7 — broker + result smoke** (synchronous `call`, no Redis polling required):
+
+```bash
+chmod +x ./celery-ping-smoke.sh   # once
+./celery-ping-smoke.sh
+```
+
+Expect JSON like `{"ok": true, "task": "tasks.maintenance.ping"}`.
+
+### Phase 2 manual check (async index + job status)
+
+With **fastapi** and **celery-worker** up, enqueue index push (replace `PROJECT_ID`):
+
+```bash
+curl -sS -X POST "http://localhost:8000/api/v1/nlp/index/push/PROJECT_ID/async" \
+  -H "Content-Type: application/json" \
+  -d '{"do_reset":0}'
+```
+
+Copy **`task_id`** from the response, then poll:
+
+```bash
+curl -sS "http://localhost:8000/api/v1/jobs/TASK_ID"
+```
+
+When **`state`** is **`SUCCESS`**, **`result`** should include **`signal`** and **`inserted_items_count`** (same shape as the synchronous index push body). Compare counts with **`POST /api/v1/nlp/index/push/{project_id}`** on a small fixture project if you need parity proof.
 
 ## Metrics
 
