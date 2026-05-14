@@ -162,18 +162,20 @@ Keep existing **`POST …/process/{project_id}`** and **`POST …/index/push/{pr
 
 Each phase ends when its tasks are done and manually verified (compose up, worker consumes, or API returns expected status). Task IDs are for tracking only.
 
+**Implementation status (repo scan, 2026-05-14):** `Status` is **Done** when the deliverable exists in tree in an equivalent form; **Pending** when missing or not verified. Celery tasks live under **`src/tasks/`** (`worker_context.py`, `file_processing.py`, `process_workflow.py`, `data_indexing.py`, `maintenance.py`) with **`celery_app.conf.imports`** (not `autodiscover_tasks`); there is still **no** `celery-worker` Compose service, **no** `GET /api/v1/jobs/{task_id}`, and **no** shared **`services/run_*`** extraction from routes yet.
+
 ### Phase 0 — Infrastructure (broker, result backend, docs)
 
 **Goal:** RabbitMQ and Redis run in Docker (or documented equivalents), reachable from the host and from future containers, without changing application behavior yet.
 
-| ID | Task |
-|----|------|
-| **0.1** | Add **`rabbitmq`** service to `docker/docker-compose.yml` (image, volumes, `5672`, optional `15672` for management UI, healthcheck). |
-| **0.2** | Add **`redis`** service (persistence volume optional, port `6379`, healthcheck `redis-cli ping` or equivalent). |
-| **0.3** | Wire **`backend`** network so future `fastapi` / `celery-worker` resolve hostnames `rabbitmq` and `redis`. |
-| **0.4** | Add **`docker/env/.env.example.celery`** (or extend `.env.example.app`) with `CELERY_BROKER_URL`, `CELERY_RESULT_BACKEND`, and placeholders for RabbitMQ credentials if not embedded in URL. |
-| **0.5** | Update **`docker/README.md`**: new services, ports, how to verify (`docker compose ps`, `curl` to Redis, RabbitMQ management URL if enabled). |
-| **0.6** | Smoke test: `docker compose up -d rabbitmq redis` from `docker/`; confirm healthchecks green. |
+| Status | ID | Task |
+|--------|-----|------|
+| Done | **0.1** | Add **`rabbitmq`** service to `docker/docker-compose.yml` (image, volumes, `5672`, optional `15672` for management UI, healthcheck). |
+| Done | **0.2** | Add **`redis`** service (persistence volume optional, port `6379`, healthcheck `redis-cli ping` or equivalent). |
+| Done | **0.3** | Wire **`backend`** network so future `fastapi` / `celery-worker` resolve hostnames `rabbitmq` and `redis`. |
+| Pending | **0.4** | Add **`docker/env/.env.example.celery`** (or extend `.env.example.app`) with `CELERY_BROKER_URL`, `CELERY_RESULT_BACKEND`, and placeholders for RabbitMQ credentials if not embedded in URL. *(Runtime `docker/env/.env.rabbitmq` / `.env.redis` exist; no committed `CELERY_*` example template or `src/.env.example` Celery block yet.)* |
+| Pending | **0.5** | Update **`docker/README.md`**: new services, ports, how to verify (`docker compose ps`, `curl` to Redis, RabbitMQ management URL if enabled). *(Compose includes RabbitMQ/Redis; README service table still omits them.)* |
+| Done | **0.6** | Smoke test: `docker compose up -d rabbitmq redis` from `docker/`; confirm healthchecks green. *(Manual verification — not recorded in repo.)* |
 
 ---
 
@@ -181,15 +183,15 @@ Each phase ends when its tasks are done and manually verified (compose up, worke
 
 **Goal:** Workers start, consume from the broker, write results to Redis; FastAPI unchanged.
 
-| ID | Task |
-|----|------|
-| **1.1** | Uncomment Celery-related packages in **`src/requirements.txt`** (`celery`, `redis`, `kombu`, `billiard`, `vine`; add `amqp` if required by chosen broker URL). |
-| **1.2** | Extend **`helpers/config.py`** `Settings` with `CELERY_BROKER_URL`, `CELERY_RESULT_BACKEND`, optional `CELERY_TASK_*` limits; document in **`src/.env.example`**. |
-| **1.3** | Add **`src/celery_app.py`**: instantiate `Celery`, set broker and result backend from settings, `task_serializer`/`result_serializer` `json`, register task packages. |
-| **1.4** | Add **`src/tasks/__init__.py`** and **`src/tasks/health.py`** (or `tasks/ping.py`) with a minimal **`ping`** task returning a small dict (e.g. `{"ok": true}`). |
-| **1.5** | Add **`src/worker_bootstrap.py`** stub (optional in this phase) or document CLI: run worker from **`src/`** so `.env` resolves: `celery -A celery_app worker --loglevel=INFO`. |
-| **1.6** | Add **`celery-worker`** service to **`docker/docker-compose.yml`**: same build context/image as `fastapi`, **override `CMD`** to Celery worker; `env_file` includes `CELERY_*`; `depends_on` RabbitMQ + Redis healthy. |
-| **1.7** | Verify: start stack, exec into worker host or use a one-off container to **`delay(ping)`** (or small script in `docs/` / dev tool); `AsyncResult` state reaches **`SUCCESS`** in Redis. |
+| Status | ID | Task |
+|--------|-----|------|
+| Done | **1.1** | Uncomment Celery-related packages in **`src/requirements.txt`** (`celery`, `redis`, `kombu`, `billiard`, `vine`; add `amqp` if required by chosen broker URL). |
+| Pending | **1.2** | Extend **`helpers/config.py`** `Settings` with `CELERY_BROKER_URL`, `CELERY_RESULT_BACKEND`, optional `CELERY_TASK_*` limits; document in **`src/.env.example`**. *(Settings fields exist; **`src/.env.example`** has no Celery section yet.)* |
+| Done | **1.3** | Add **`src/celery_app.py`**: instantiate `Celery`, set broker and result backend from settings, `task_serializer`/`result_serializer` `json`, register task packages. *(Uses `conf.imports` for `tasks.*` modules.)* |
+| Done | **1.4** | Add **`src/tasks/__init__.py`** and **`src/tasks/health.py`** (or `tasks/ping.py`) with a minimal **`ping`** task returning a small dict (e.g. `{"ok": true}`). *(Implemented as **`tasks/maintenance.py`** → `tasks.maintenance.ping`.)* |
+| Done | **1.5** | Add **`src/worker_bootstrap.py`** stub (optional in this phase) or document CLI: run worker from **`src/`** so `.env` resolves: `celery -A celery_app worker --loglevel=INFO`. *(Bootstrap implemented as **`tasks/worker_context.py`** `worker_bundle()` per task; no top-level `worker_bootstrap.py` file.)* |
+| Pending | **1.6** | Add **`celery-worker`** service to **`docker/docker-compose.yml`**: same build context/image as `fastapi`, **override `CMD`** to Celery worker; `env_file` includes `CELERY_*`; `depends_on` RabbitMQ + Redis healthy. |
+| Pending | **1.7** | Verify: start stack, exec into worker host or use a one-off container to **`delay(ping)`** (or small script in `docs/` / dev tool); `AsyncResult` state reaches **`SUCCESS`** in Redis. |
 
 ---
 
@@ -197,16 +199,16 @@ Each phase ends when its tasks are done and manually verified (compose up, worke
 
 **Goal:** `POST /api/v1/nlp/index/push/{project_id}/async` (or equivalent) enqueues work; job status readable by id; sync `index/push` still works via shared runner.
 
-| ID | Task |
-|----|------|
-| **2.1** | Extract **`run_index_push_job`** from **`routes/nlp.py`** into **`services/index_push.py`** (or `jobs/index_push.py`): same logic as `index_project` (repositories, `while` loop, `NLPController`, `commit`/`rollback`). |
-| **2.2** | Refactor **`routes/nlp.py`** `index_project` to call **`await run_index_push_job(...)`** only (no duplicated loop). |
-| **2.3** | Implement **`worker_bootstrap.py`**: build `Settings`, `db_session_factory`, `embedding_client`, `vector_store` (+ `connect` / lifecycle as decided in section 6). |
-| **2.4** | Add **`tasks/nlp_tasks.py`**: Celery task **`push_project_index`** that runs `asyncio.run(run_index_push_job_with_bootstrap(...))` (or worker-level async runner); task args: `project_id`, `do_reset` (JSON-serializable). |
-| **2.5** | Define a **small task result schema** (e.g. `signal`, `inserted_items_count`, `project_id`) for Redis; avoid large payloads. |
-| **2.6** | Add **`POST /api/v1/nlp/index/push/{project_id}/async`** in **`routes/nlp.py`** (or dedicated router): validate **`PushRequest`**, `apply_async`, return **`202`** + `task_id` + optional `status_path`. |
-| **2.7** | Add **`routes/jobs.py`** + register in **`main.py`**: **`GET /api/v1/jobs/{task_id}`** mapping Celery states to JSON (`PENDING`, `STARTED`, `SUCCESS`, `FAILURE`) and surfacing task result meta on success. |
-| **2.8** | Manual test: enqueue index push for a project with chunks; poll job until `SUCCESS`; compare **`inserted_items_count`** with sync path for a small fixture project. |
+| Status | ID | Task |
+|--------|-----|------|
+| Pending | **2.1** | Extract **`run_index_push_job`** from **`routes/nlp.py`** into **`services/index_push.py`** (or `jobs/index_push.py`): same logic as `index_project` (repositories, `while` loop, `NLPController`, `commit`/`rollback`). |
+| Pending | **2.2** | Refactor **`routes/nlp.py`** `index_project` to call **`await run_index_push_job(...)`** only (no duplicated loop). |
+| Done | **2.3** | Implement **`worker_bootstrap.py`**: build `Settings`, `db_session_factory`, `embedding_client`, `vector_store` (+ `connect` / lifecycle as decided in section 6). *(Delivered as **`tasks/worker_context.worker_bundle`** including `generation_client` + `TemplateParser` for shared NLP tasks.)* |
+| Done | **2.4** | Add **`tasks/nlp_tasks.py`**: Celery task **`push_project_index`** that runs `asyncio.run(run_index_push_job_with_bootstrap(...))` (or worker-level async runner); task args: `project_id`, `do_reset` (JSON-serializable). *(Implemented as **`tasks/data_indexing.push_project_index_task`** / `tasks.data_indexing.push_project_index`.)* |
+| Done | **2.5** | Define a **small task result schema** (e.g. `signal`, `inserted_items_count`, `project_id`) for Redis; avoid large payloads. |
+| Pending | **2.6** | Add **`POST /api/v1/nlp/index/push/{project_id}/async`** in **`routes/nlp.py`** (or dedicated router): validate **`PushRequest`**, `apply_async`, return **`202`** + `task_id` + optional `status_path`. |
+| Pending | **2.7** | Add **`routes/jobs.py`** + register in **`main.py`**: **`GET /api/v1/jobs/{task_id}`** mapping Celery states to JSON (`PENDING`, `STARTED`, `SUCCESS`, `FAILURE`) and surfacing task result meta on success. |
+| Pending | **2.8** | Manual test: enqueue index push for a project with chunks; poll job until `SUCCESS`; compare **`inserted_items_count`** with sync path for a small fixture project. |
 
 ---
 
@@ -214,15 +216,15 @@ Each phase ends when its tasks are done and manually verified (compose up, worke
 
 **Goal:** Long-running chunking + DB inserts can be queued; behavior matches current **`process_endpoint`** signals and edge cases.
 
-| ID | Task |
-|----|------|
-| **3.1** | Extract **`run_process_job`** from **`routes/data.py`** into **`services/data_processing.py`** (or equivalent): `ProjectRepository`, `AssetRepository`, `ChunkRepository`, `ProcessController`, same HTTP-equivalent outcomes. |
-| **3.2** | Refactor **`routes/data.py`** `process_endpoint` to **`await run_process_job(...)`** only. |
-| **3.3** | Add **`tasks/data_tasks.py`**: Celery task **`process_project_chunks`** with args derived from **`ProcessRequest`** + `project_id`. |
-| **3.4** | Reuse **`worker_bootstrap`** for DB session; processing needs **no** `vector_store` / `embedding_client` unless you add side effects—keep bootstrap minimal or split “data worker” vs “nlp worker” queues later. |
-| **3.5** | Add **`POST /api/v1/data/process/{project_id}/async`**: validate body, enqueue, return **`202`** + `task_id`. |
-| **3.6** | Extend **`GET /api/v1/jobs/{task_id}`** (or task result serializer) to return **process-specific** summary: `inserted_chunks`, `processed_files`, `failed_files` lists **bounded** in size or truncated in result. |
-| **3.7** | Manual test: upload → process async → job `SUCCESS`; verify chunks in DB; verify `do_reset`, missing `file_id`, and all-failed paths match existing **`ResponseSignal`** behavior (document any intentional differences). |
+| Status | ID | Task |
+|--------|-----|------|
+| Pending | **3.1** | Extract **`run_process_job`** from **`routes/data.py`** into **`services/data_processing.py`** (or equivalent): `ProjectRepository`, `AssetRepository`, `ChunkRepository`, `ProcessController`, same HTTP-equivalent outcomes. |
+| Pending | **3.2** | Refactor **`routes/data.py`** `process_endpoint` to **`await run_process_job(...)`** only. |
+| Done | **3.3** | Add **`tasks/data_tasks.py`**: Celery task **`process_project_chunks`** with args derived from **`ProcessRequest`** + `project_id`. *(Implemented as **`tasks/process_workflow.process_project_task`** / `tasks.process_workflow.process_project`.)* |
+| Done | **3.4** | Reuse **`worker_bootstrap`** for DB session; processing needs **no** `vector_store` / `embedding_client` unless you add side effects—keep bootstrap minimal or split “data worker” vs “nlp worker” queues later. *(**`worker_bundle`** is reused; it currently builds full NLP stack per task—not minimal.)* |
+| Pending | **3.5** | Add **`POST /api/v1/data/process/{project_id}/async`**: validate body, enqueue, return **`202`** + `task_id`. |
+| Pending | **3.6** | Extend **`GET /api/v1/jobs/{task_id}`** (or task result serializer) to return **process-specific** summary: `inserted_chunks`, `processed_files`, `failed_files` lists **bounded** in size or truncated in result. |
+| Pending | **3.7** | Manual test: upload → process async → job `SUCCESS`; verify chunks in DB; verify `do_reset`, missing `file_id`, and all-failed paths match existing **`ResponseSignal`** behavior (document any intentional differences). |
 
 ---
 
@@ -230,15 +232,15 @@ Each phase ends when its tasks are done and manually verified (compose up, worke
 
 **Goal:** Production-minded defaults without changing core contracts.
 
-| ID | Task |
-|----|------|
-| **4.1** | Configure **`task_time_limit`** / **`task_soft_time_limit`** per task type (index vs process) in `celery_app` or `@task` decorators. |
-| **4.2** | Add **`autoretry_for`** / backoff for transient embedding / HTTP / broker errors; cap max retries; log final failure with `task_id` and `project_id`. |
-| **4.3** | Document **idempotency** limits (section 11): mid-task retry and `do_reset` behavior; optional follow-up task **4.x** for a **`celery_jobs`** DB table keyed by `task_id`. |
-| **4.4** | Worker logging: structured logs (task name, `project_id`, duration); ensure no secrets in log lines. |
-| **4.5** | Optional: uncomment **`flower`** in requirements and add **`flower`** compose service bound to localhost only in dev. |
-| **4.6** | Optional: **`celery beat`** + periodic task (e.g. nightly noop or future “reindex stale projects”)—only if product requires it. |
-| **4.7** | CI smoke job (optional): compose up minimal set + `celery call tasks.health.ping` (or equivalent) in pipeline. |
+| Status | ID | Task |
+|--------|-----|------|
+| Pending | **4.1** | Configure **`task_time_limit`** / **`task_soft_time_limit`** per task type (index vs process) in `celery_app` or `@task` decorators. *(Global `CELERY_TASK_TIME_LIMIT` only; no `task_soft_time_limit`.)* |
+| Pending | **4.2** | Add **`autoretry_for`** / backoff for transient embedding / HTTP / broker errors; cap max retries; log final failure with `task_id` and `project_id`. |
+| Pending | **4.3** | Document **idempotency** limits (section 11): mid-task retry and `do_reset` behavior; optional follow-up task **4.x** for a **`celery_jobs`** DB table keyed by `task_id`. |
+| Pending | **4.4** | Worker logging: structured logs (task name, `project_id`, duration); ensure no secrets in log lines. |
+| Pending | **4.5** | Optional: uncomment **`flower`** in requirements and add **`flower`** compose service bound to localhost only in dev. |
+| Pending | **4.6** | Optional: **`celery beat`** + periodic task (e.g. nightly noop or future “reindex stale projects”)—only if product requires it. |
+| Pending | **4.7** | CI smoke job (optional): compose up minimal set + `celery call tasks.health.ping` (or equivalent) in pipeline. |
 
 ---
 
@@ -275,4 +277,4 @@ Phase 0 (infra)
 
 ---
 
-This document remains **plan-only**; implement in follow-up PRs after extracting shared job runners from **`routes/data.py`** and **`routes/nlp.py`**.
+This document is the **Celery integration plan**; **Section 12** tracks what is implemented in the repo versus what remains.

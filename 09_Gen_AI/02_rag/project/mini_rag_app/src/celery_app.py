@@ -11,12 +11,6 @@ celery_app = Celery(
     "minirag",
     broker=settings.CELERY_BROKER_URL,
     backend=settings.CELERY_RESULT_BACKEND,
-    include=[
-        "tasks.file_processing",
-        "tasks.data_indexing",
-        "tasks.process_workflow",
-        "tasks.maintenance",
-    ]
 )
 
 
@@ -36,8 +30,16 @@ celery_app.conf.update(
     task_time_limit=settings.CELERY_TASK_TIME_LIMIT,
 
     # Result backend - Store results for status tracking
-    task_ignore_resul=False,
+    task_ignore_result=False,
     result_expires=3600,
+
+    # Register task modules (run worker from `src/`: celery -A celery_app worker)
+    imports=[
+        "tasks.file_processing",
+        "tasks.process_workflow",
+        "tasks.data_indexing",
+        "tasks.maintenance",
+    ],
 
     # Worker settings
     worker_concurrency=settings.CELERY_WORKER_CONCURRENCY,
