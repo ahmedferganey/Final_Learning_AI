@@ -1,9 +1,8 @@
 from enum import Enum
 
 class VectorDBEnums(Enum):
-    PINECONE = "PINECONE"
-    VERTEX_AI = "VERTEX_AI"
     QDRANT = "QDRANT"
+    PGVECTOR = "PGVECTOR"
 
 class DistanceMethodEnums(Enum):
     COSINE = "cosine"
@@ -11,3 +10,14 @@ class DistanceMethodEnums(Enum):
     MANHATTAN = "manhattan"
     Dot = "dot"
 
+
+class PGVectorIndexTypeEnums(Enum):
+    HNSW = "hnsw"
+    IVFFLAT = "ivfflat"
+    NONE = "none"
+
+
+class PGVectorDistanceMethodEnums(Enum):
+    COSINE = "cosine"
+    L2 = "l2"
+    IP = "ip"

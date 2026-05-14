@@ -1,5 +1,4 @@
 from qdrant_client import models, QdrantClient
-from ..VectorDBInterface import VectorDBInterface
 import logging
 from ..VectorDBEnums import VectorDBEnums, DistanceMethodEnums
 from typing import List
@@ -8,7 +7,7 @@ import uuid
 from models.db_schemes import RetrievedDocument
 
 
-class QdrantDBProvider(VectorDBInterface):
+class QdrantDBProvider:
     
     def __init__(self, db_path: str, distance_method: str):
         self.client = None
@@ -24,7 +23,7 @@ class QdrantDBProvider(VectorDBInterface):
         elif distance_method == DistanceMethodEnums.Dot.value:        
             self.distance_method = models.Distance.DOT
 
-        self.logger = logging.getLogger(__name__)
+        self.logger = logging.getLogger("minirag.vectordb.qdrant")
 
     def normalize_record_id(self, record_id):
         if record_id is None:
@@ -42,36 +41,41 @@ class QdrantDBProvider(VectorDBInterface):
             return str(uuid.uuid5(uuid.NAMESPACE_URL, str(record_id)))
 
     def connect(self):
+        self.logger.info("Connecting to Qdrant (path=%s)", self.db_path)
         self.client = QdrantClient(path=self.db_path)
+        self.logger.info("Connected to Qdrant")
 
     def disconnect(self):
         if self.client:
+            self.logger.info("Disconnecting from Qdrant")
             self.client.close()
             self.client = None
+            self.logger.info("Disconnected from Qdrant")
     
     def collection_exists(self, collection_name: str) -> bool:
         try:
             return self.client.collection_exists(collection_name)
         except Exception as e:
-            self.logger.error(f"Error checking collection existence: {e}")
+            self.logger.exception("Error checking collection existence (collection=%s): %s", collection_name, e)
             return False
         
     def list_all_collections(self) -> list:
         try:
             return self.client.get_collections().collections
         except Exception as e:
-            self.logger.error(f"Error listing collections: {e}")
+            self.logger.exception("Error listing collections: %s", e)
             return []
     
     def get_collection_info(self, collection_name: str) -> dict:
         try:
             return self.client.get_collection(collection_name).dict()
         except Exception as e:
-            self.logger.error(f"Error getting collection info: {e}")
+            self.logger.exception("Error getting collection info (collection=%s): %s", collection_name, e)
             return {}
     
     def delete_collection(self, collection_name):
         if self.collection_exists(collection_name):
+            self.logger.info("Deleting collection (collection=%s)", collection_name)
             return self.client.delete_collection(collection_name)
         else:
             self.logger.warning(f"Collection {collection_name} does not exist.")
@@ -86,13 +90,19 @@ class QdrantDBProvider(VectorDBInterface):
                 return False
 
         try:
+            self.logger.info(
+                "Creating collection (collection=%s, embedding_size=%s, distance=%s)",
+                collection_name,
+                embedding_size,
+                getattr(self.distance_method, "name", self.distance_method),
+            )
             self.client.create_collection(
                 collection_name=collection_name,
                 vectors_config=models.VectorParams(size=embedding_size, distance=self.distance_method)
             )
             return True
         except Exception as e:
-            self.logger.error(f"Error creating collection: {e}")
+            self.logger.exception("Error creating collection (collection=%s): %s", collection_name, e)
             return False
         
     def insert_one(self, collection_name: str, text: str, vector: List[float], metadata: dict = None, record_id: str = None):
@@ -101,6 +111,7 @@ class QdrantDBProvider(VectorDBInterface):
             return False
         try:
             normalized_record_id = self.normalize_record_id(record_id)
+            self.logger.debug("Inserting one record (collection=%s, id=%s)", collection_name, normalized_record_id)
             self.client.upload_records(
                 collection_name=collection_name,
                 records=[
@@ -109,7 +120,7 @@ class QdrantDBProvider(VectorDBInterface):
             )
             return True
         except Exception as e:
-            self.logger.error(f"Error inserting point: {e}")
+            self.logger.exception("Error inserting record (collection=%s): %s", collection_name, e)
             return False
     
     def insert_many(self, collection_name: str, texts: List[str], 
@@ -145,12 +156,19 @@ class QdrantDBProvider(VectorDBInterface):
             ]
 
             try:
+                self.logger.debug(
+                    "Uploading batch (collection=%s, start=%s, end=%s, batch_size=%s)",
+                    collection_name,
+                    i,
+                    batch_end,
+                    batch_size,
+                )
                 _ = self.client.upload_records(
                     collection_name=collection_name,
                     records=batch_records,
                 )
             except Exception as e:
-                self.logger.error(f"Error while inserting batch: {e}")
+                self.logger.exception("Error uploading batch (collection=%s): %s", collection_name, e)
                 return False
 
         return True
@@ -160,6 +178,12 @@ class QdrantDBProvider(VectorDBInterface):
             self.logger.warning(f"Collection {collection_name} does not exist.")
             return []
         try:
+            self.logger.debug(
+                "Searching (collection=%s, limit=%s, top_k=%s)",
+                collection_name,
+                (limit or top_k),
+                top_k,
+            )
             search_result = self.client.search(
                 collection_name=collection_name,
                 query_vector=query_vector,
@@ -194,5 +218,5 @@ class QdrantDBProvider(VectorDBInterface):
 
             return docs
         except Exception as e:
-            self.logger.error(f"Error searching points: {e}")
+            self.logger.exception("Error searching (collection=%s): %s", collection_name, e)
             return []

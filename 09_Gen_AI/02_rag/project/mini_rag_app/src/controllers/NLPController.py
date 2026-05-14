@@ -3,6 +3,7 @@ from models.db_schemes import Project, DataChunk, RetrievedDocument
 from typing import Any, Dict, List, Optional, Tuple
 from stores.llm.LlmEnums import DocumentTypeEnum
 from stores.llm.templates import TemplateParser
+from stores.vectordb.VectorStoreInterface import VectorStoreInterface
 from string import Template
 import logging
 import uuid
@@ -10,9 +11,15 @@ import uuid
 logger = logging.getLogger(__name__)
 
 class NLPController(BaseController):
-    def __init__(self, vectordb_client, generation_client, embedding_client, template_parser: Optional[TemplateParser] = None):
+    def __init__(
+        self,
+        vector_store: VectorStoreInterface,
+        generation_client,
+        embedding_client,
+        template_parser: Optional[TemplateParser] = None,
+    ):
         super().__init__()
-        self.vectordb_client = vectordb_client
+        self.vector_store = vector_store
         self.generation_client = generation_client
         self.embedding_client = embedding_client
         self.template_parser = template_parser
@@ -22,21 +29,21 @@ class NLPController(BaseController):
     def create_collection_name(self, project_id: str):
         return f"project_{project_id}_collection".strip()
     
-    def reset_vector_db_collection(self, project: Project):
+    async def reset_vector_db_collection(self, project: Project):
         collection_name = self.create_collection_name(project.project_id)
-        if self.vectordb_client.collection_exists(collection_name):
-            return self.vectordb_client.delete_collection(collection_name)
+        if await self.vector_store.index_exists(collection_name, project_uuid=project.id):
+            return await self.vector_store.delete(collection_name, project_uuid=project.id)
     
-    def get_vector_db_collection_info(self, project: Project):
+    async def get_vector_db_collection_info(self, project: Project):
         collection_name = self.create_collection_name(project.project_id)
-        if self.vectordb_client.collection_exists(collection_name):
-            return self.vectordb_client.get_collection_info(collection_name)
+        if await self.vector_store.index_exists(collection_name, project_uuid=project.id):
+            return await self.vector_store.get_index_info(collection_name, project_uuid=project.id)
         return None
 
-    def search_vector_db_collection(self, project: Project, query_text: str, top_k: int = 5, limit: int = 5):
+    async def search_vector_db_collection(self, project: Project, query_text: str, top_k: int = 5, limit: int = 5):
         collection_name = self.create_collection_name(project.project_id)
 
-        if not self.vectordb_client.collection_exists(collection_name):
+        if not await self.vector_store.index_exists(collection_name, project_uuid=project.id):
             return None, collection_name
 
         query_vector = self.embedding_client.embed_text(
@@ -47,8 +54,9 @@ class NLPController(BaseController):
         if query_vector is None:
             return None, collection_name
 
-        hits = self.vectordb_client.search_by_vector(
-            collection_name=collection_name,
+        hits = await self.vector_store.similarity_search(
+            index_name=collection_name,
+            project_uuid=project.id,
             query_vector=query_vector,
             top_k=top_k,
             limit=limit,
@@ -56,7 +64,7 @@ class NLPController(BaseController):
 
         return hits, collection_name
 
-    def answer_rag_question(
+    async def answer_rag_question(
         self,
         project: Project,
         question: str,
@@ -72,7 +80,7 @@ class NLPController(BaseController):
         messages we send to the LLM, then generate the answer.
         Returns: (answer_text, retrieved_docs, collection_name)
         """
-        docs, collection_name = self.search_vector_db_collection(
+        docs, collection_name = await self.search_vector_db_collection(
             project=project,
             query_text=question,
             top_k=top_k,
@@ -171,14 +179,14 @@ class NLPController(BaseController):
         return answer, docs, collection_name
 
     def create_record_id(self, project: Project, chunk: DataChunk) -> str:
-        seed = f"{project.project_id}:{chunk.id}:{chunk.chunk_asset_id}:{chunk.chunk_order}"
+        seed = f"{project.project_id}:{chunk.id}:{chunk.asset_uuid}:{chunk.chunk_order}"
         return str(uuid.uuid5(uuid.NAMESPACE_URL, seed))
     
-    def index_into_vector_db(self, project: Project, chunks: List[DataChunk], do_reset: Optional[int] = 0):
+    async def index_into_vector_db(self, project: Project, chunks: List[DataChunk], do_reset: Optional[int] = 0):
         try:
             collection_name = self.create_collection_name(project.project_id)
             if do_reset:
-                self.reset_vector_db_collection(project)
+                await self.reset_vector_db_collection(project)
 
             texts = [chunk.chunk_text for chunk in chunks]
             metadata = [chunk.chunk_metadata for chunk in chunks]
@@ -202,15 +210,17 @@ class NLPController(BaseController):
                 logger.error("Embedding generation failed for project '%s'", project.project_id)
                 return False
 
-            if not self.vectordb_client.collection_exists(collection_name):
-                self.vectordb_client.create_collection(
-                    collection_name=collection_name,
+            if not await self.vector_store.index_exists(collection_name, project_uuid=project.id):
+                await self.vector_store.ensure_index(
+                    index_name=collection_name,
                     do_reset=do_reset,
                     embedding_size=self.embedding_client.embedding_size,
+                    project_uuid=project.id,
                 )
 
-            return self.vectordb_client.insert_many(
-                collection_name=collection_name,
+            return await self.vector_store.add_documents(
+                index_name=collection_name,
+                project_uuid=project.id,
                 texts=texts,
                 vectors=vectors,
                 metadata=metadata,

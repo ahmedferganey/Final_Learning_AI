@@ -1,14 +1,14 @@
 from pydantic import BaseModel, Field
 from typing import Any, Dict, Optional, Union
-from bson.objectid import ObjectId
+from uuid import UUID
 
 class DataChunk(BaseModel):
-    id: Optional[ObjectId] = Field(None, alias="_id")
+    id: Optional[UUID] = Field(default=None)
     chunk_text: str = Field(..., min_length=1)
     chunk_metadata: dict
     chunk_order: int = Field(..., gt=0)
-    chunk_project_id: ObjectId
-    chunk_asset_id: ObjectId
+    project_uuid: UUID
+    asset_uuid: UUID
 
     class Config:
         arbitrary_types_allowed = True
@@ -16,7 +16,7 @@ class DataChunk(BaseModel):
     @classmethod
     def get_indexes(cls):
         return [
-            {"key": [("chunk_project_id", 1)], "name": "chunk_project_id_index_1", "unique": False},
+            {"key": [("project_uuid", 1)], "name": "project_uuid_index_1", "unique": False},
         ]
 
 

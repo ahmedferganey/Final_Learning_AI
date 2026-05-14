@@ -1,15 +1,15 @@
-from fastapi import FastAPI, APIRouter, status, Request
+from fastapi import APIRouter, status, Request, Depends
 from fastapi.responses import JSONResponse
 import logging
 
 from routes.schemes.nlp import PushRequest, SearchRequest, RagAnswerRequest
-from models.ProjectModel import ProjectModel
-from models.ChunkModel import ChunkModel
-
-
 from controllers import NLPController 
 from models import ResponseSignal
-from stores.llm.LlmEnums import DocumentTypeEnum
+from repositories.minirag import ProjectRepository, ChunkRepository
+from database.dependencies import get_db_session
+from stores.vectordb.VectorStoreInterface import VectorStoreInterface
+from stores.vectordb.dependencies import get_vector_store
+from sqlalchemy.ext.asyncio import AsyncSession
 
 logger = logging.getLogger('uvicorn.error')
 
@@ -19,20 +19,22 @@ nlp_router = APIRouter(
 )
 
 @nlp_router.post("/index/push/{project_id}")
-async def index_project(request: Request, project_id: str, push_request: PushRequest):
-    project_model = await ProjectModel.create_instance(
-        db_client=request.app.db_client,
-        )
+async def index_project(
+    request: Request,
+    project_id: str,
+    push_request: PushRequest,
+    db_session: AsyncSession = Depends(get_db_session),
+    vector_store: VectorStoreInterface = Depends(get_vector_store),
+):
+    project_repository = ProjectRepository(db_session)
+    chunk_repository = ChunkRepository(db_session)
 
-    chunk_model = await ChunkModel.create_instance(
-        db_client=request.app.db_client,
-    )
-
-    project = await project_model.get_project_or_create_one(project_id)
+    project = await project_repository.get_project_or_create(project_id=project_id)
 
     if not project:
+        await db_session.rollback()
         return JSONResponse(
-            status_code=status.HTTP_404_NOT_FOUND, 
+            status_code=status.HTTP_404_NOT_FOUND,
             content={
                 "signal": ResponseSignal.PROJECT_CREATION_FAILED.value,
                 "message": f"Project with id {project_id} not found and failed to create one."
@@ -40,7 +42,7 @@ async def index_project(request: Request, project_id: str, push_request: PushReq
         )
 
     nlp_controller = NLPController(
-        vectordb_client=request.app.vectordb_client,
+        vector_store=vector_store,
         generation_client=request.app.generation_client,
         embedding_client=request.app.embedding_client,
         template_parser=getattr(request.app, "template_parser", None),
@@ -48,49 +50,56 @@ async def index_project(request: Request, project_id: str, push_request: PushReq
 
     has_records = True
     page_no = 1
-    inserted_items_count=0
+    inserted_items_count = 0
+    do_reset = push_request.do_reset
 
     while has_records:
-        page_chunks = await chunk_model.get_project_chunks(
-            project_id=project.id,
+        page_chunks = await chunk_repository.get_project_chunks(
+            project_uuid=project.id,
             page_no=page_no,
         )
         if len(page_chunks):
-            page_no+=1
-        
+            page_no += 1
+
         if not page_chunks or len(page_chunks) == 0:
             has_records = False
             break
 
-
-        is_inserted = nlp_controller.index_into_vector_db(
-            project= project,
-            chunks= page_chunks,
-            do_reset= push_request.do_reset,
+        is_inserted = await nlp_controller.index_into_vector_db(
+            project=project,
+            chunks=page_chunks,
+            do_reset=do_reset,
         )
+        do_reset = 0
 
         if not is_inserted:
+            await db_session.rollback()
             return JSONResponse(
-                status_code=status.HTTP_400_BAD_REQUEST, 
+                status_code=status.HTTP_400_BAD_REQUEST,
                 content={
                     "signal": ResponseSignal.INSERT_INTO_VECTORDB_ERROR.value,
                 }
             )
         inserted_items_count += len(page_chunks)
 
+    await db_session.commit()
+    
     return JSONResponse(
         content={
-            "signal" : ResponseSignal.INSERT_INTO_VECTORDB_SUCESS.value,
-            "inserted_items_count" : inserted_items_count
+            "signal": ResponseSignal.INSERT_INTO_VECTORDB_SUCESS.value,
+            "inserted_items_count": inserted_items_count
         }
     )
 
 @nlp_router.get("/index/info/{project_id}")
-async def get_project_index_info(request: Request, project_id: str):
-    project_model = await ProjectModel.create_instance(
-        db_client=request.app.db_client,
-    )
-    project = await project_model.get_project_by_project_id(project_id)
+async def get_project_index_info(
+    request: Request,
+    project_id: str,
+    db_session: AsyncSession = Depends(get_db_session),
+    vector_store: VectorStoreInterface = Depends(get_vector_store),
+):
+    project_repository = ProjectRepository(db_session)
+    project = await project_repository.get_project_by_project_id(project_id)
 
     if not project:
         return JSONResponse(
@@ -102,14 +111,14 @@ async def get_project_index_info(request: Request, project_id: str):
         )
 
     nlp_controller = NLPController(
-        vectordb_client=request.app.vectordb_client,
+        vector_store=vector_store,
         generation_client=request.app.generation_client,
         embedding_client=request.app.embedding_client,
         template_parser=getattr(request.app, "template_parser", None),
     )
 
     collection_name = nlp_controller.create_collection_name(project.project_id)
-    collection_info = nlp_controller.get_vector_db_collection_info(project)
+    collection_info = await nlp_controller.get_vector_db_collection_info(project)
 
     if not collection_info:
         return JSONResponse(
@@ -132,11 +141,15 @@ async def get_project_index_info(request: Request, project_id: str):
 
 
 @nlp_router.post("/index/search/{project_id}")
-async def search_index(request: Request, project_id: str, search_request: SearchRequest):
-    project_model = await ProjectModel.create_instance(
-        db_client=request.app.db_client,
-    )
-    project = await project_model.get_project_by_project_id(project_id)
+async def search_index(
+    request: Request,
+    project_id: str,
+    search_request: SearchRequest,
+    db_session: AsyncSession = Depends(get_db_session),
+    vector_store: VectorStoreInterface = Depends(get_vector_store),
+):
+    project_repository = ProjectRepository(db_session)
+    project = await project_repository.get_project_by_project_id(project_id)
 
     if not project:
         return JSONResponse(
@@ -148,13 +161,13 @@ async def search_index(request: Request, project_id: str, search_request: Search
         )
 
     nlp_controller = NLPController(
-        vectordb_client=request.app.vectordb_client,
+        vector_store=vector_store,
         generation_client=request.app.generation_client,
         embedding_client=request.app.embedding_client,
         template_parser=getattr(request.app, "template_parser", None),
     )
 
-    search_result, collection_name = nlp_controller.search_vector_db_collection(
+    search_result, collection_name = await nlp_controller.search_vector_db_collection(
         project=project,
         query_text=search_request.query_text,
         top_k=search_request.top_k,
@@ -191,11 +204,15 @@ async def search_index(request: Request, project_id: str, search_request: Search
 
 
 @nlp_router.post("/rag/answer/{project_id}")
-async def rag_answer(request: Request, project_id: str, rag_request: RagAnswerRequest):
-    project_model = await ProjectModel.create_instance(
-        db_client=request.app.db_client,
-    )
-    project = await project_model.get_project_by_project_id(project_id)
+async def rag_answer(
+    request: Request,
+    project_id: str,
+    rag_request: RagAnswerRequest,
+    db_session: AsyncSession = Depends(get_db_session),
+    vector_store: VectorStoreInterface = Depends(get_vector_store),
+):
+    project_repository = ProjectRepository(db_session)
+    project = await project_repository.get_project_by_project_id(project_id)
 
     if not project:
         return JSONResponse(
@@ -207,7 +224,7 @@ async def rag_answer(request: Request, project_id: str, rag_request: RagAnswerRe
         )
 
     nlp_controller = NLPController(
-        vectordb_client=request.app.vectordb_client,
+        vector_store=vector_store,
         generation_client=request.app.generation_client,
         embedding_client=request.app.embedding_client,
         template_parser=getattr(request.app, "template_parser", None),
@@ -215,7 +232,7 @@ async def rag_answer(request: Request, project_id: str, rag_request: RagAnswerRe
 
     default_language = getattr(getattr(request.app, "settings", None), "DEFAULT_LANGUAGE", "en")
 
-    answer, docs, collection_name = nlp_controller.answer_rag_question(
+    answer, docs, collection_name = await nlp_controller.answer_rag_question(
         project=project,
         question=rag_request.question,
         top_k=rag_request.top_k or 5,
