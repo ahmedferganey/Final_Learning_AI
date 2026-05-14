@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from routes import base, data, nlp
+from routes import base, data, nlp, jobs
 from helpers.config import get_settings
 import logging
 from stores.llm.LLMProviderFactory import LLMProviderFactory
@@ -59,3 +59,4 @@ async def shutdown_span():
 app.include_router(base.base_router)
 app.include_router(data.data_router)
 app.include_router(nlp.nlp_router)
+app.include_router(jobs.jobs_router)

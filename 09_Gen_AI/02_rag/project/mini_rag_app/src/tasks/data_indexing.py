@@ -12,6 +12,7 @@ from celery_app import celery_app
 from controllers import NLPController
 from models import ResponseSignal
 from repositories.minirag import ChunkRepository, ProjectRepository
+from services.index_push import run_index_push_job
 from tasks.worker_context import worker_bundle
 
 logger = logging.getLogger(__name__)
@@ -40,59 +41,16 @@ def push_project_index_task(project_id: str, do_reset: int = 0) -> dict[str, Any
 async def _push_project_index_async(project_id: str, do_reset: int) -> dict[str, Any]:
     async with worker_bundle() as bundle:
         async with bundle.session_factory() as db_session:
-            project_repository = ProjectRepository(db_session)
-            chunk_repository = ChunkRepository(db_session)
-
-            project = await project_repository.get_project_or_create(project_id=project_id)
-            if not project:
-                await db_session.rollback()
-                return {
-                    "signal": ResponseSignal.PROJECT_CREATION_FAILED.value,
-                    "message": f"Project with id {project_id} not found and failed to create one.",
-                }
-
-            nlp_controller = NLPController(
+            outcome = await run_index_push_job(
+                db_session,
+                project_id=project_id,
+                do_reset=do_reset,
                 vector_store=bundle.vector_store,
                 generation_client=bundle.generation_client,
                 embedding_client=bundle.embedding_client,
                 template_parser=bundle.template_parser,
             )
-
-            has_records = True
-            page_no = 1
-            inserted_items_count = 0
-            reset_flag = do_reset
-
-            while has_records:
-                page_chunks = await chunk_repository.get_project_chunks(
-                    project_uuid=project.id,
-                    page_no=page_no,
-                )
-                if len(page_chunks):
-                    page_no += 1
-
-                if not page_chunks or len(page_chunks) == 0:
-                    has_records = False
-                    break
-
-                is_inserted = await nlp_controller.index_into_vector_db(
-                    project=project,
-                    chunks=page_chunks,
-                    do_reset=reset_flag,
-                )
-                reset_flag = 0
-
-                if not is_inserted:
-                    await db_session.rollback()
-                    return {"signal": ResponseSignal.INSERT_INTO_VECTORDB_ERROR.value}
-
-                inserted_items_count += len(page_chunks)
-
-            await db_session.commit()
-            return {
-                "signal": ResponseSignal.INSERT_INTO_VECTORDB_SUCESS.value,
-                "inserted_items_count": inserted_items_count,
-            }
+            return outcome.body
 
 
 @celery_app.task(name="tasks.data_indexing.get_project_index_info")

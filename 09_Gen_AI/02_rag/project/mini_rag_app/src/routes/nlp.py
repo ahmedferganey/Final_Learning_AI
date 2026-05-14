@@ -3,13 +3,15 @@ from fastapi.responses import JSONResponse
 import logging
 
 from routes.schemes.nlp import PushRequest, SearchRequest, RagAnswerRequest
-from controllers import NLPController 
+from controllers import NLPController
 from models import ResponseSignal
-from repositories.minirag import ProjectRepository, ChunkRepository
+from repositories.minirag import ProjectRepository
 from database.dependencies import get_db_session
+from services.index_push import run_index_push_job
 from stores.vectordb.VectorStoreInterface import VectorStoreInterface
 from stores.vectordb.dependencies import get_vector_store
 from sqlalchemy.ext.asyncio import AsyncSession
+from tasks.data_indexing import push_project_index_task
 
 logger = logging.getLogger('uvicorn.error')
 
@@ -26,69 +28,32 @@ async def index_project(
     db_session: AsyncSession = Depends(get_db_session),
     vector_store: VectorStoreInterface = Depends(get_vector_store),
 ):
-    project_repository = ProjectRepository(db_session)
-    chunk_repository = ChunkRepository(db_session)
-
-    project = await project_repository.get_project_or_create(project_id=project_id)
-
-    if not project:
-        await db_session.rollback()
-        return JSONResponse(
-            status_code=status.HTTP_404_NOT_FOUND,
-            content={
-                "signal": ResponseSignal.PROJECT_CREATION_FAILED.value,
-                "message": f"Project with id {project_id} not found and failed to create one."
-            }
-        )
-
-    nlp_controller = NLPController(
+    outcome = await run_index_push_job(
+        db_session,
+        project_id=project_id,
+        do_reset=push_request.do_reset or 0,
         vector_store=vector_store,
         generation_client=request.app.generation_client,
         embedding_client=request.app.embedding_client,
         template_parser=getattr(request.app, "template_parser", None),
     )
+    return JSONResponse(status_code=outcome.status_code, content=outcome.body)
 
-    has_records = True
-    page_no = 1
-    inserted_items_count = 0
-    do_reset = push_request.do_reset
 
-    while has_records:
-        page_chunks = await chunk_repository.get_project_chunks(
-            project_uuid=project.id,
-            page_no=page_no,
-        )
-        if len(page_chunks):
-            page_no += 1
-
-        if not page_chunks or len(page_chunks) == 0:
-            has_records = False
-            break
-
-        is_inserted = await nlp_controller.index_into_vector_db(
-            project=project,
-            chunks=page_chunks,
-            do_reset=do_reset,
-        )
-        do_reset = 0
-
-        if not is_inserted:
-            await db_session.rollback()
-            return JSONResponse(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                content={
-                    "signal": ResponseSignal.INSERT_INTO_VECTORDB_ERROR.value,
-                }
-            )
-        inserted_items_count += len(page_chunks)
-
-    await db_session.commit()
-    
+@nlp_router.post("/index/push/{project_id}/async", status_code=status.HTTP_202_ACCEPTED)
+async def index_project_async(
+    project_id: str,
+    push_request: PushRequest,
+):
+    async_result = push_project_index_task.delay(project_id, push_request.do_reset or 0)
     return JSONResponse(
+        status_code=status.HTTP_202_ACCEPTED,
         content={
-            "signal": ResponseSignal.INSERT_INTO_VECTORDB_SUCESS.value,
-            "inserted_items_count": inserted_items_count
-        }
+            "task_id": async_result.id,
+            "status_path": f"/api/v1/jobs/{async_result.id}",
+            "signal": "async_task_accepted",
+            "project_id": project_id,
+        },
     )
 
 @nlp_router.get("/index/info/{project_id}")
