@@ -50,7 +50,26 @@ celery_app.conf.update(
     broker_connection_max_retries=10,
     worker_cancel_long_running_tasks_on_connection_loss=True,
 
+    task_routes={
+        "tasks.file_processing.process_project_files": {"queue": "file_processing"},
+        "tasks.data_indexing.index_data_content": {"queue": "data_indexing"},
+        "tasks.process_workflow.process_and_push_workflow": {"queue": "file_processing"},
+        "tasks.maintenance.clean_celery_executions_table": {"queue": "default"},
+        "tasks.data_indexing.push_project_index": {"queue": "data_indexing"},
+        "tasks.data_indexing.get_project_index_info": {"queue": "data_indexing"},
+        "tasks.data_indexing.search_vector_index": {"queue": "data_indexing"},
+        "tasks.data_indexing.rag_answer": {"queue": "data_indexing"},
+    },
 
+    beat_schedule={
+        'cleanup-old-task-records': {
+            'task': "tasks.maintenance.clean_celery_executions_table",
+            'schedule': 10,
+            'args': ()
+        }
+    },
+
+    timezone='UTC',
 )
 
 celery_app.conf.task_default_queue = "default"
