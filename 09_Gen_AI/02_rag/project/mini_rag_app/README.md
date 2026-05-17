@@ -216,3 +216,65 @@ Errors return appropriate status codes with `signal` and partial fields (see rou
 - **Alembic / DB URL:** ensure `DATABASE_URL` or all required `POSTGRES_*` variables are set for both the app and Alembic (`migrations/env.py` loads `src/.env` then project root `.env`).
 - **PGVector errors at startup:** run migrations so `vector_documents` (and extensions) exist when using `PGVECTOR`.
 - **Docker:** credential mismatches between `docker/env/.env.app` and `docker/env/.env.postgres` cause connection failures; see `docker/README.md`.
+
+---
+---
+
+## Deployment (AWS Lightsail)
+
+The application is deployed on an **AWS Lightsail Ubuntu instance** using a Docker Compose-based infrastructure for production-ready execution.
+
+### Server Details
+
+* **Cloud Provider:** AWS Lightsail
+* **Region:** eu-central-1 (Frankfurt)
+* **Instance Type:** General Purpose
+* **Specs:** 2 GB RAM, 2 vCPUs, 60 GB SSD
+* **OS:** Ubuntu
+* **Networking:** Dual-stack (IPv4 + IPv6)
+* **Public IP:** Static IPv4 assigned
+
+### Deployment Stack
+
+* **Containerization:** Docker & Docker Compose
+* **Services Orchestrated:**
+
+  * FastAPI application
+  * PostgreSQL (with PGVector)
+  * Qdrant (vector database)
+  * Nginx (reverse proxy)
+  * Prometheus & Grafana (monitoring)
+
+### Deployment Process
+
+* Application is built and started via:
+
+```bash
+docker compose up --build -d
+```
+
+* Containers are managed using a **systemd service (`minirag.service`)** to ensure automatic restart and uptime.
+* Database migrations are automatically applied on startup via **Alembic**.
+
+### Observability & Monitoring
+
+* **Prometheus-compatible metrics endpoint** exposed by the FastAPI app
+* Metrics scraped and visualized via **Grafana dashboards**
+* Enables monitoring of:
+
+  * Request latency
+  * Processing throughput
+  * System health
+
+### Access
+
+* The application is publicly accessible via the instance’s static IP:
+
+  [http://35.156.24.49/docs](http://35.156.24.49/docs)
+
+* Interactive API documentation (Swagger UI) allows direct testing of all endpoints.
+
+* Nginx handles routing and reverse proxying to backend services.
+
+> ⚠️ This is a demo environment. Data may be reset periodically.
+
