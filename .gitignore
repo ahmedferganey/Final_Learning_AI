@@ -20,6 +20,7 @@
 !Plans/
 !Final_Learning_AI-Projects/
 !InterviewPreparation/
+!CVs/
 
 # Allow all content inside allowed directories
 !01_ComputerArchitecture_Linux_Networking/**
@@ -37,6 +38,8 @@
 !Plans/**
 !Final_Learning_AI-Projects/**
 !InterviewPreparation/**
+!CVs/**
+
 # Keep .gitkeep files
 !**/.gitkeep
 
