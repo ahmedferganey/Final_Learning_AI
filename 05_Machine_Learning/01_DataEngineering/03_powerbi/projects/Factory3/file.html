@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Factory Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body { font-family: Arial; margin:0; background:#f4f6f9;}
+.container { padding:20px; }
+.kpi-container { display:grid; grid-template-columns:repeat(5,1fr); gap:15px;}
+.card { background:#fff; padding:15px; border-radius:10px; text-align:center;}
+.row { display:grid; gap:15px; margin-top:20px;}
+.two-col { grid-template-columns:1fr 1fr;}
+.full { grid-template-columns:1fr;}
+.chart-box { background:#fff; padding:10px; border-radius:10px;}
+canvas { width:100%!important; height:250px!important;}
+.filters { display:flex; gap:10px;}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<h2>Factory Dashboard</h2>
+
+<!-- KPI -->
+<div class="kpi-container">
+<div class="card"><h3>OEE</h3><p id="oee">87%</p></div>
+<div class="card"><h3>Efficiency</h3><p>92%</p></div>
+<div class="card"><h3>FPY</h3><p>95%</p></div>
+<div class="card"><h3>Defect Rate</h3><p style="color:red">4%</p></div>
+<div class="card"><h3>Scrap</h3><p>3%</p></div>
+</div>
+
+<!-- PAGE 1 -->
+<div class="row two-col">
+<div class="chart-box"><canvas id="barOEE"></canvas></div>
+<div class="chart-box"><canvas id="donutDefect"></canvas></div>
+</div>
+
+<div class="row full">
+<div class="chart-box"><canvas id="lineTrend"></canvas></div>
+</div>
+
+<hr>
+
+<!-- PAGE 2 -->
+<h2>Order Timeline</h2>
+
+<div class="filters">
+<select><option>Order</option></select>
+<select><option>Customer</option></select>
+<input type="date">
+</div>
+
+<div class="row full">
+<div class="chart-box"><canvas id="comboChart"></canvas></div>
+</div>
+
+<div class="row full">
+<div class="chart-box"><canvas id="scatterChart"></canvas></div>
+</div>
+
+<div class="row full">
+<div class="chart-box"><canvas id="areaChart"></canvas></div>
+</div>
+
+<hr>
+
+<!-- PAGE 3 -->
+<h2>Quality Deep Dive</h2>
+
+<div class="row full">
+<div class="chart-box"><canvas id="paretoChart"></canvas></div>
+</div>
+
+<div class="row two-col">
+<div class="chart-box"><canvas id="stackedMachine"></canvas></div>
+<div class="chart-box"><canvas id="topDefects"></canvas></div>
+</div>
+
+<div class="row full">
+<div class="chart-box"><canvas id="trendDefect"></canvas></div>
+</div>
+
+</div>
+
+<script>
+
+// ------------------ DATA (Mock — replace later) ------------------
+
+const machines = ["M1","M2","M3","M4"];
+const oeeData = [0.85,0.78,0.9,0.82];
+
+const defectShare = [20,50,30];
+
+const dates = ["1","2","3","4","5"];
+const production = [100,120,140,130,150];
+const defectRate = [4,3,5,4,3];
+
+// ------------------ PAGE 1 ------------------
+
+// OEE BAR
+new Chart(document.getElementById("barOEE"),{
+type:"bar",
+data:{labels:machines,datasets:[{label:"OEE",data:oeeData}]}
+});
+
+// DONUT
+new Chart(document.getElementById("donutDefect"),{
+type:"doughnut",
+data:{
+labels:["Critical","Major","Minor"],
+datasets:[{data:defectShare}]
+}
+});
+
+// LINE TREND
+new Chart(document.getElementById("lineTrend"),{
+type:"line",
+data:{labels:dates,datasets:[{label:"Production",data:production}]}
+});
+
+// ------------------ PAGE 2 ------------------
+
+// COMBO (Column + Line)
+new Chart(document.getElementById("comboChart"),{
+data:{
+labels:dates,
+datasets:[
+{type:"bar",label:"Production",data:production},
+{type:"line",label:"Defect Rate %",data:defectRate}
+]
+}
+});
+
+// SCATTER
+new Chart(document.getElementById("scatterChart"),{
+type:"scatter",
+data:{
+datasets:[{
+label:"Machines",
+data:[
+{x:90,y:4},{x:85,y:5},{x:92,y:3}
+]
+}]
+}
+});
+
+// AREA (stacked)
+new Chart(document.getElementById("areaChart"),{
+type:"line",
+data:{
+labels:dates,
+datasets:[
+{label:"Defect A",data:[5,10,8,6,9],fill:true},
+{label:"Defect B",data:[3,6,5,7,4],fill:true}
+]
+}
+});
+
+// ------------------ PAGE 3 ------------------
+
+// PARETO
+new Chart(document.getElementById("paretoChart"),{
+data:{
+labels:["D1","D2","D3","D4"],
+datasets:[
+{type:"bar",label:"Defects",data:[50,30,10,5]},
+{type:"line",label:"Cumulative %",data:[50,80,90,100]}
+]
+}
+});
+
+// STACKED MACHINE
+new Chart(document.getElementById("stackedMachine"),{
+type:"bar",
+data:{
+labels:machines,
+datasets:[
+{label:"Critical",data:[5,3,6,2]},
+{label:"Major",data:[10,8,7,6]}
+]
+}
+});
+
+// TOP DEFECTS MONTHLY
+new Chart(document.getElementById("topDefects"),{
+type:"bar",
+data:{
+labels:["Jan","Feb","Mar"],
+datasets:[
+{label:"Defect A",data:[10,15,8]},
+{label:"Defect B",data:[8,12,6]}
+]
+}
+});
+
+// TREND
+new Chart(document.getElementById("trendDefect"),{
+type:"line",
+data:{labels:["Jan","Feb","Mar"],datasets:[{label:"Defect Rate",data:[4,5,3]}]}
+});
+
+</script>
+
+</body>
+</html>

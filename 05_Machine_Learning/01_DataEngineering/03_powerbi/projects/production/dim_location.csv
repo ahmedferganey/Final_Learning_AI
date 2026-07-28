@@ -1,0 +1,6 @@
+LocationID,FactoryName,City,Country,Latitude,Longitude
+L01,Factory Cairo,Cairo,Egypt,30.0444,31.2357
+L02,Factory Alexandria,Alexandria,Egypt,31.2001,29.9187
+L03,Factory Giza,Giza,Egypt,30.0131,31.2089
+L04,Factory Dubai,Dubai,UAE,25.2048,55.2708
+L05,Factory Riyadh,Riyadh,Saudi Arabia,24.7136,46.6753
