@@ -322,7 +322,7 @@ AdventureWorks-DWH/
 │   └── AdventureWorks_DWH_ETL.dtsx          ← Main SSIS package
 │   └── (optional) Project deployment files
 └── PowerBI/
-    └── AdventureWorks_Sales_Dashboard.pbix  ← (optional)
+    └── AdventureWorks_Sales_Dashboard.pbix  ← (Dashboard)
 ```
 
 ---

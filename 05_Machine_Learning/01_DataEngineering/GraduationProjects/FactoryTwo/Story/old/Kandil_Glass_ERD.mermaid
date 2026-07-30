@@ -1,0 +1,219 @@
+%% Kandil Glass — Production Data Platform
+%% Draft ERD v1 — based on Business Logic Document v1.0
+%% Entities marked (proposed) are NOT yet in the business logic doc — open for confirmation
+
+erDiagram
+
+    %% ===================== CONFORMED DIMENSIONS =====================
+
+    DIM_FACTORY {
+        int FactoryKey PK
+        string FactoryCode
+        string FactoryName
+    }
+
+    DIM_DATE {
+        int DateKey PK
+        date FullDate
+        int Year
+        int Month
+        int Day
+        string WeekdayName
+        int WeekOfYear
+    }
+
+    DIM_LINE {
+        int LineKey PK
+        int FactoryKey FK
+        int LineNumber
+        string MachineName
+        int SectionsCount
+        decimal DesignCyclesPerMin
+        string FurnaceID
+        date EffectiveFrom
+        date EffectiveTo
+        string IsCurrent
+    }
+
+    DIM_SHIFT {
+        int ShiftKey PK
+        string ShiftCode "AM / PM"
+    }
+
+    DIM_CREW {
+        int CrewKey PK
+        string CrewCode "A / B / C"
+    }
+
+    DIM_PRODUCTIONCASE {
+        int CaseKey PK
+        string CaseName "Normal / Trial / Reworking (proposed)"
+    }
+
+    DIM_CUSTOMER {
+        int CustomerKey PK
+        string CustomerCode
+        string CustomerName
+        string CountryType "Local / Export"
+    }
+
+    DIM_PRODUCT {
+        int ProductKey PK
+        int CustomerKey FK
+        string ProductCode
+        string ProductName
+        string Category "Jar / Bottle"
+    }
+
+    DIM_ORDER {
+        int OrderKey PK
+        int ProductKey FK
+        string OrderNumber
+        decimal TotalMoltenUnits
+    }
+
+    DIM_JOBCHANGETYPE {
+        int JobChangeTypeKey PK
+        string TypeName "Small / Medium / Big / Process"
+        decimal TargetT1_Hrs
+        decimal TargetT2_Hrs
+    }
+
+    DIM_LOSSCATEGORY {
+        int LossCategoryKey PK
+        int ParentLossCategoryKey FK "self-referencing hierarchy"
+        string CategoryName
+        string CategoryLevel "Zone / Category / Sub-category"
+    }
+
+    DIM_DEFECT {
+        int DefectKey PK
+        string DefectName
+        string Severity "Critical / Major / Minor"
+    }
+
+    DIM_REJECTIONZONE {
+        int RejectionZoneKey PK
+        string ZoneName "Hot End / Lehr / Cold End / Section / etc."
+    }
+
+    DIM_REWORKSTATUS {
+        int ReworkStatusKey PK
+        string StatusName "Hold / Resorted / Move to Cullet (proposed)"
+    }
+
+    %% ===================== FACT TABLES =====================
+
+    FACT_JOBCHANGE {
+        int JobChangeKey PK
+        int DateKey FK
+        int FactoryKey FK
+        int LineKey FK
+        int ShiftKey FK
+        int CrewKey FK
+        int OrderKey FK
+        int JobChangeTypeKey FK
+        decimal MechanicalWorkT1_Hrs
+        decimal FormingTimeT2_Hrs
+        decimal TrialLosses_Hrs
+        decimal CE_Losses_Hrs
+        decimal HE_Downtime_Hrs
+        decimal PalletizerLosses_Hrs
+        decimal ExtraT1_Hrs
+        decimal ExtraT2_Hrs
+        decimal TotalJobChangeLosses_Hrs "calculated"
+    }
+
+    FACT_LOSSESOUTPUT {
+        int LossOutputKey PK
+        int DateKey FK
+        int FactoryKey FK
+        int LineKey FK
+        int ShiftKey FK
+        int LossCategoryKey FK
+        int DefectKey FK "nullable - proposed link, gap #1"
+        int RejectionZoneKey FK "nullable - proposed link, gap #1"
+        decimal Value
+    }
+
+    FACT_PRODUCTION {
+        int ProductionKey PK
+        int DateKey FK
+        int FactoryKey FK
+        int LineKey FK
+        int ShiftKey FK
+        int CrewKey FK
+        int OrderKey FK
+        int CaseKey FK "proposed - gap #3"
+        decimal DesignedCutsPerHour
+        decimal ActualPack
+        decimal TotalReject
+        decimal TotalResort
+        decimal TotalHold
+    }
+
+    FACT_REWORK {
+        int ReworkKey PK
+        int DateKey FK
+        int FactoryKey FK
+        int LineKey FK
+        int ShiftKey FK
+        int OrderKey FK
+        int ReworkStatusKey FK
+        int PalletsCount
+        decimal ArticlesPerPallet
+        decimal ReworkedUnits "calculated - must be <= Order.TotalMoltenUnits"
+    }
+
+    FACT_LINECONFIG_DAILY {
+        int LineConfigKey PK
+        int DateKey FK
+        int LineKey FK
+        int SectionNumber
+        int CavitiesActive
+        int CaseKey FK "Normal / Trial - proposed, gap #4"
+    }
+
+    %% ===================== RELATIONSHIPS =====================
+
+    DIM_FACTORY ||--o{ DIM_LINE : "has"
+    DIM_FACTORY ||--o{ FACT_JOBCHANGE : "scopes"
+    DIM_FACTORY ||--o{ FACT_LOSSESOUTPUT : "scopes"
+    DIM_FACTORY ||--o{ FACT_PRODUCTION : "scopes"
+    DIM_FACTORY ||--o{ FACT_REWORK : "scopes"
+
+    DIM_CUSTOMER ||--o{ DIM_PRODUCT : "buys"
+    DIM_PRODUCT ||--o{ DIM_ORDER : "produced as"
+
+    DIM_LOSSCATEGORY ||--o{ DIM_LOSSCATEGORY : "parent of"
+
+    DIM_DATE ||--o{ FACT_JOBCHANGE : "occurs on"
+    DIM_LINE ||--o{ FACT_JOBCHANGE : "runs"
+    DIM_SHIFT ||--o{ FACT_JOBCHANGE : "during"
+    DIM_CREW ||--o{ FACT_JOBCHANGE : "performed by"
+    DIM_ORDER ||--o{ FACT_JOBCHANGE : "changes to"
+    DIM_JOBCHANGETYPE ||--o{ FACT_JOBCHANGE : "classified as"
+
+    DIM_DATE ||--o{ FACT_LOSSESOUTPUT : "occurs on"
+    DIM_LINE ||--o{ FACT_LOSSESOUTPUT : "runs"
+    DIM_SHIFT ||--o{ FACT_LOSSESOUTPUT : "during"
+    DIM_LOSSCATEGORY ||--o{ FACT_LOSSESOUTPUT : "categorized as"
+    DIM_DEFECT ||--o{ FACT_LOSSESOUTPUT : "identifies (proposed)"
+    DIM_REJECTIONZONE ||--o{ FACT_LOSSESOUTPUT : "located at (proposed)"
+
+    DIM_DATE ||--o{ FACT_PRODUCTION : "occurs on"
+    DIM_LINE ||--o{ FACT_PRODUCTION : "runs"
+    DIM_SHIFT ||--o{ FACT_PRODUCTION : "during"
+    DIM_CREW ||--o{ FACT_PRODUCTION : "performed by"
+    DIM_ORDER ||--o{ FACT_PRODUCTION : "produces"
+    DIM_PRODUCTIONCASE ||--o{ FACT_PRODUCTION : "classified as (proposed)"
+
+    DIM_DATE ||--o{ FACT_REWORK : "occurs on"
+    DIM_LINE ||--o{ FACT_REWORK : "runs"
+    DIM_SHIFT ||--o{ FACT_REWORK : "during"
+    DIM_ORDER ||--o{ FACT_REWORK : "reworks"
+    DIM_REWORKSTATUS ||--o{ FACT_REWORK : "resulted in"
+
+    DIM_DATE ||--o{ FACT_LINECONFIG_DAILY : "recorded on"
+    DIM_LINE ||--o{ FACT_LINECONFIG_DAILY : "configures"
+    DIM_PRODUCTIONCASE ||--o{ FACT_LINECONFIG_DAILY : "context (proposed)"
