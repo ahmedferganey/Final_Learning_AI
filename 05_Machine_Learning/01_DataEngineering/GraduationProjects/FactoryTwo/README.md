@@ -1,213 +1,244 @@
 # Kandil Glass — Production Data Platform
-## Excel → Staging DB → SSIS → Data Warehouse → Power BI
+## Excel → Staging DB → SSIS → Data Warehouse → SSAS → Power BI
 
-**Status:** Design Complete (Aligned Staging + DWH) — Ready for Implementation  
+**Version:** 3.1  
+**Status:** Staging + DWH DDL built and grounded in `System.xlsx`. Excel entry system exists (`System.xlsx`, 10 sheets). SSIS packages not yet built. SSAS semantic layer planned.  
 **Owner:** Kandil Glass — Production & BI Team  
-**Production lines in scope:** 21, 22, 23, 24, 25  
-**Last updated:** July 2026
+**Production lines in scope:** 21, 22, 23, 24, 25 (Factory `KG01`)
 
 ---
 
-## 1. Why this project exists
+## 0. Version History
 
-Today, production data (job changes, losses, output, defects, rework, line configuration) is captured manually in Excel by shift/line teams. This works for daily shop-floor use, but creates serious problems for company-wide reporting:
+| Version | Change |
+|---|---|
+| 1.0 | Initial architecture draft based on two original raw Excel exports |
+| 2.0 | Business Logic Document formalized; ERD v2 with 6 modeling gaps resolved |
+| 3.0 | Redesigned against actual working Excel system (`System.xlsx`). Corrected loss categories, defect grain, line-config granularity. Separated confirmed architecture from future scope. |
+| **3.1 (current)** | Integration check completed (System.xlsx ↔ Staging ↔ DWH). SSAS added to target architecture as the enterprise semantic / OLAP layer between DWH and Power BI. Open gaps documented. |
 
-- Every file has a slightly different structure → nothing can be combined automatically.
+---
+
+## 1. Why This Project Exists
+
+Production data (job changes, losses, output, defects, rework) is captured manually in Excel by shift/line teams. This works for daily shop-floor use, but creates problems for company-wide reporting:
+
+- Every file has a slightly different structure → nothing combines automatically.
 - History is scattered across daily/weekly files instead of one trusted source.
 - Power BI reports break every time someone changes a column name or layout.
-- There is no single definition of “a line”, “a shift”, “a loss category”, “a job-change type”, or “a defect”.
+- There is no single definition of "a line," "a shift," "a loss category," or "a defect."
 
 **Goal:** Keep Excel as the *data entry tool* people already know, but stop treating Excel files as the *system of record*.
 
-```plaintext
-Operators enter data → Standardized Excel Templates (multiple workbooks)
-↓
-Staging Database (raw, auditable)
-↓ (SSIS ETL: clean, validate, unpivot, surrogate keys)
-Data Warehouse (Star Schema)
-↓
-Power BI (single source of truth)
 ```
-
+Operators enter data → Excel System (System.xlsx / future standardized templates)
+                              ↓ (daily load)
+                        Staging Database          ← CONFIRMED, DDL built
+                              ↓ (SSIS ETL)
+                        Data Warehouse (star)     ← CONFIRMED, DDL built
+                              ↓
+                        SSAS Tabular / Multidimensional  ← PLANNED (semantic layer)
+                              ↓
+                        Power BI (dashboards + self-service)
+```
 
 ---
 
 ## 2. Architecture Overview
 
-| Layer | Purpose | Technology |
-|-------|---------|------------|
-| **1. Data Entry** | Shift / Quality / Process teams enter data | 7 standardized Excel workbooks (locked structure + dropdowns) |
-| **2. Staging DB** | Daily raw landing zone (one table ≈ one Excel form) | SQL Server Staging schema |
-| **3. ETL** | Clean, unpivot, lookup keys, apply business rules | SSIS packages |
-| **4. Data Warehouse** | Governed star schema + full history | SQL Server DWH |
-| **5. Reporting** | Dashboards, KPIs, self-service | Power BI |
+| Layer | Purpose | Status |
+|---|---|---|
+| **1. Data Entry** | Shift / Quality / Process teams enter daily data | ✅ Exists — `System.xlsx` (10 sheets) |
+| **2. Staging DB** | Raw daily landing zone (one table ≈ one Excel sheet) | ✅ DDL built |
+| **3. ETL** | Clean, unpivot, resolve surrogate keys, apply business rules | ⏳ Not yet built |
+| **4. Data Warehouse (DWH)** | Governed star schema, full history | ✅ DDL built |
+| **5. SSAS (Semantic Layer)** | Centralized measures, hierarchies, KPIs, security, performance | 💡 Planned |
+| **6. Reporting** | Dashboards, self-service analytics | ⏳ Not yet built |
 
-**Design principle:** Excel stays simple and disposable. All smart logic (unpivoting, key resolution, calculated measures) lives in SSIS / DWH / Power BI.
-
----
-
-## 3. Excel Data Entry Layer (Multiple Workbooks)
-
-We use **multiple specialized workbooks** (recommended for real factory use):
-
-| # | Workbook | Who uses it | Staging Table |
-|---|----------|-------------|---------------|
-| 1 | `01_MasterData.xlsx` | Planning / Sales / IT | STG_CUSTOMER, STG_PRODUCT, STG_ORDER + all REF_ tables |
-| 2 | `02_JobChangeLog.xlsx` | Production Supervisors | STG_JOBCHANGE |
-| 3 | `03_DailyProduction.xlsx` | Production Supervisors | STG_PRODUCTION |
-| 4 | `04_LossesAndOutput.xlsx` | Process Engineers | STG_LOSSESOUTPUT (wide → unpivoted in SSIS) |
-| 5 | `05_DefectLog.xlsx` | Quality team | STG_DEFECTLOG (**hourly** per machine) |
-| 6 | `06_ReworkLog.xlsx` | Quality / Production | STG_REWORK |
-| 7 | `07_LineConfig.xlsx` | Process / Technical | STG_LINECONFIG |
-
-### Key rules for all templates
-- One row = one event / transaction
-- No merged cells, no totals inside detail data
-- Fixed headers matching the Staging tables
-- Dropdowns (Data Validation) for all coded fields
-- Real Excel dates
-- Raw data only (no KPI formulas)
-- Header row frozen + AutoFilter enabled
-- Color coding: Yellow = dropdown, Green = date, Light blue = number
+**Design principle:** Excel stays simple. Staging is a faithful copy. All business logic, calculations, and KPI definitions live in SSIS → DWH → SSAS, never in Excel formulas.
 
 ---
 
-## 4. Staging Database Design
+## 3. Source / Data Entry Layer (`System.xlsx`)
 
-**Philosophy:**
-- Natural keys only
-- One table ≈ one Excel form
-- Full load metadata on every table (`LoadID`, `SourceFileName`, `LoadTimestamp`, `RowStatus`, `ErrorMessage`)
-- Minimal FK enforcement (validation happens in SSIS)
+| Sheet | Feeds Staging | Grain |
+|---|---|---|
+| Customers | `STG_CUSTOMER` | One customer |
+| Products | `STG_PRODUCT` | One product |
+| JobChangeTypes | `STG_JOBCHANGETYPE` | One job-change type + targets |
+| OrderLog | `STG_ORDER` | One order |
+| JobChangeLog | `STG_JOBCHANGE` | One changeover event |
+| DailyProdLog | `STG_PRODUCTION` | Line + Date + Shift + Order |
+| LossesLog | `STG_LOSSESOUTPUT` | Line + Date + Shift + Order (11 flat % categories + TotalReject) |
+| SamplingDefectLog | `STG_SAMPLINGDEFECTLOG` | Line + Date + Order + **Hour** + Defect (+ TotalSamples) |
+| ReworkLog | `STG_REWORK` | Line + Date + Shift + Order + Status |
+| DataValidation | powers `REF_*` tables & Excel dropdowns | — |
 
-### Main Staging Tables
-- `STG_JOBCHANGE`
-- `STG_PRODUCTION`
-- `STG_LOSSESOUTPUT` (wide format)
-- `STG_DEFECTLOG` ← **includes `HourNumber` (0–23)** for hourly defect recording per machine
-- `STG_REWORK`
-- `STG_LINECONFIG`
-- `STG_CUSTOMER` / `STG_PRODUCT` / `STG_ORDER`
-
-### Reference Tables (for dropdowns & light validation)
-- `REF_LINE`, `REF_JOBCHANGETYPE`, `REF_LOSSCATEGORY`
-- `REF_DEFECT`, `REF_REJECTIONZONE`, `REF_REWORKSTATUS`, `REF_PRODUCTIONCASE`
-
----
-
-## 5. Data Warehouse (Star Schema)
-
-### Conformed Dimensions
-- `DIM_DATE`
-- `DIM_HOUR` ← **new** (0–23) to support hourly defect analysis
-- `DIM_FACTORY`
-- `DIM_LINE` (SCD Type 2)
-- `DIM_SHIFT`
-- `DIM_CREW`
-- `DIM_PRODUCTIONCASE`
-- `DIM_CUSTOMER`
-- `DIM_PRODUCT`
-- `DIM_ORDER`
-- `DIM_JOBCHANGETYPE`
-- `DIM_LOSSCATEGORY` (self-referencing hierarchy)
-- `DIM_DEFECT`
-- `DIM_REJECTIONZONE`
-- `DIM_REWORKSTATUS`
-
-### Fact Tables
-| Fact Table | Grain | Source |
-|------------|-------|--------|
-| `FACT_JOBCHANGE` | One job change event | STG_JOBCHANGE |
-| `FACT_PRODUCTION` | Line + Date + Shift + Order | STG_PRODUCTION |
-| `FACT_LOSSESOUTPUT` | Line + Date + Shift (+ Hour for defects) + LossCategory / Defect | STG_LOSSESOUTPUT + STG_DEFECTLOG |
-| `FACT_REWORK` | Line + Date + Shift + Order + Status | STG_REWORK |
-| `FACT_LINECONFIG_DAILY` | Line + Date + Section | STG_LINECONFIG |
-
-**Important design decision (Defects):**  
-`FACT_LOSSESOUTPUT` contains a nullable `HourKey`.  
-- Shift-level loss metrics → `HourKey = NULL`  
-- Hourly defect records → `HourKey` is populated (0–23)
+### Key Rules for Data Entry
+- One row = one event. No merged cells, no totals inside detail data.
+- Fixed headers matching staging tables.
+- Dropdowns for every coded field.
+- Real Excel dates.
+- Raw data only — no KPI formulas inside the entry workbook.
 
 ---
 
-## 6. SSIS ETL Responsibilities
+## 4. Staging Database — Confirmed Design
 
-- Load Excel → Staging (with audit columns)
-- Validate codes against REF_ / DIM_ tables
-- Unpivot `STG_LOSSESOUTPUT` (wide → tall)
-- Map hourly defects from `STG_DEFECTLOG` into `FACT_LOSSESOUTPUT` (with `HourKey`)
-- Resolve all natural keys → surrogate keys
-- Handle SCD Type 2 on `DIM_LINE`
-- Upsert master data (`DIM_CUSTOMER`, `DIM_PRODUCT`, `DIM_ORDER`)
-- Log rejects and row counts for every package
+**Philosophy:** Natural keys only, one table ≈ one Excel sheet, full load metadata (`LoadID`, `SourceFileName`, `LoadTimestamp`, `RowStatus`, `ErrorMessage`) on every table.
 
----
+**Master data:** `STG_CUSTOMER`, `STG_PRODUCT`, `STG_JOBCHANGETYPE`, `STG_ORDER`  
+**Transactional:** `STG_JOBCHANGE`, `STG_PRODUCTION`, `STG_LOSSESOUTPUT`, `STG_SAMPLINGDEFECTLOG`, `STG_REWORK`  
+**Reference lists:** `REF_FACTORY`, `REF_LINE`, `REF_JOBCHANGETYPE`, `REF_LOSSCATEGORY`, `REF_DEFECT`, `REF_REWORKSTATUS`, `REF_PRODUCTIONCASE`, `REF_DOWNTIMEREASON`
 
-## 7. Daily Operational Flow
-
-1. Teams fill the relevant Excel workbook during / after the shift.
-2. Files are saved to the agreed shared folder (or SharePoint).
-3. Automated process loads files into Staging DB.
-4. SSIS packages run (nightly or per-shift) → transform Staging → DWH.
-5. Power BI dataset refreshes every morning.
-6. Rejected rows are reviewed by the data owner.
+**Intentionally removed (no source support):**
+- `STG_LINECONFIG` → folded into `STG_PRODUCTION` as `NoSections` / `NoCavities`
+- `REF_REJECTIONZONE` → no Zone field exists in SamplingDefectLog
 
 ---
 
-## 8. Master Data Governance
+## 5. Data Warehouse — Confirmed Design
 
-- One owner per dimension list.
-- New codes must be added to Master Data / REF_ tables **first**, then they appear in Excel dropdowns.
-- Maintain a living Data Dictionary.
-- Never allow free-text entry for coded fields.
+**Conformed dimensions:**  
+`DIM_FACTORY`, `DIM_DATE`, `DIM_HOUR`, `DIM_LINE` (SCD2), `DIM_SHIFT`, `DIM_CREW`, `DIM_PRODUCTIONCASE`, `DIM_CUSTOMER`, `DIM_PRODUCT`, `DIM_ORDER`, `DIM_JOBCHANGETYPE`, `DIM_LOSSCATEGORY` (11 flat categories), `DIM_DEFECT`, `DIM_REWORKSTATUS`, `DIM_DOWNTIMEREASON`
 
----
+**Fact tables:**
 
-## 9. Project Phases
-
-| Phase | Deliverable | Status |
-|-------|-------------|--------|
-| 0 — Foundation | Data dictionary, open decisions, dimension lists | Done |
-| 1 — Excel Templates | 7 standardized workbooks | Done (templates ready) |
-| 2 — Staging DB | Create all STG_ + REF_ tables | Ready to build |
-| 3 — DWH Design | Full star schema + DIM_HOUR | Ready to build |
-| 4 — SSIS ETL | Packages for all domains | Next |
-| 5 — Power BI Model | Semantic model + core dashboards | Next |
-| 6 — Rollout & Governance | Training + ownership | Later |
-| 7 — Scale | Add more domains (quality, maintenance, etc.) | Future |
+| Fact | Grain | Notes |
+|---|---|---|
+| `FACT_JOBCHANGE` | One changeover event | From/To Order + 3 reason FKs (HE / CE / Palletizer) |
+| `FACT_PRODUCTION` | Line + Date + Shift + Order | Includes `NoSections`, `NoCavities`, `WorkingHours`, `DesignOutput` |
+| `FACT_LOSSESOUTPUT` | Line + Date + Shift + Order + LossCategory | `LossPercent` + `ComputedValue` (formula still open) |
+| `FACT_DEFECTSAMPLING` | Line + Date + Order + **Hour** + Defect | Separate fact — has `TotalSamples` denominator |
+| `FACT_REWORK` | Line + Date + Shift + Order + Status | `ReworkedUnits` persisted computed column |
 
 ---
 
-## 10. Key Design Decisions Already Taken
+## 6. Integration Check Summary (System.xlsx ↔ Staging ↔ DWH)
 
-| Topic | Decision |
-|-------|----------|
-| Excel approach | Multiple specialized workbooks (not one big file) |
-| Defect recording | **Hourly per machine/line** |
-| Defect storage in DWH | Inside `FACT_LOSSESOUTPUT` using nullable `HourKey` + `DIM_HOUR` |
-| Losses format | Keep wide in Excel → Unpivot in SSIS |
-| Production metrics | Dedicated `STG_PRODUCTION` / `FACT_PRODUCTION` |
-| Order / Product / Customer | Full master data path in Staging + DWH |
-| Line history | SCD Type 2 on `DIM_LINE` |
-| Calculated fields | Stored as persisted computed columns only when useful (e.g. TotalJobChangeLosses_Hrs, ReworkedUnits). All KPIs otherwise calculated in Power BI |
+| Area | Status | Notes |
+|---|---|---|
+| Master data path (Customer → Product → Order) | ✅ Aligned | Clean |
+| Job Change + Downtime Reasons | ✅ Aligned | 3 reason FKs correctly modeled |
+| Production | ⚠️ Gap | `FactoryCode` missing in DailyProdLog source — Staging allows NULL, SSIS must default |
+| Losses (11 categories) | ⚠️ Naming + formula | Excel names ≠ Staging `_Pct` names; % meaning still open |
+| Defect Sampling (hourly) | ✅ Aligned | Correctly separated into its own fact with `DIM_HOUR` |
+| Rework | ✅ Aligned | Clean |
+| Line Config | ✅ Correctly folded | No per-section source data exists |
+| Zone on defects | ✅ Correctly removed | No Zone field in source |
 
----
-
-## 11. Next Immediate Steps
-
-1. Review and approve the 7 Excel templates.
-2. Create Staging database + tables (including `HourNumber` in `STG_DEFECTLOG`).
-3. Create DWH database + full star schema (including `DIM_HOUR`).
-4. Build SSIS packages in this order:
-   - Master Data load
-   - Job Change
-   - Daily Production
-   - Losses (unpivot)
-   - Defects (hourly)
-   - Rework
-   - Line Config
-5. Build first Power BI dataset and dashboard.
+**Priority fixes before SSIS build:**
+1. Confirm the business meaning of each LossesLog percentage (blocks `ComputedValue` and all Losses KPIs).
+2. Add `FactoryCode` to DailyProdLog (or document the SSIS default rule permanently).
+3. Publish an explicit column-mapping table for the Losses unpivot (Excel name → Staging name → `DIM_LOSSCATEGORY`).
 
 ---
 
-*This README is the single source of truth for the architecture. Any change to grain, keys, or Excel structure must be reflected here first.*
+## 7. SSIS ETL Responsibilities (Not Yet Built)
+
+- Load each Excel sheet → matching staging table with full audit columns.
+- Validate codes against `REF_` / `DIM_` tables; log and quarantine bad rows.
+- Unpivot `STG_LOSSESOUTPUT` (11 percentage columns → tall `FACT_LOSSESOUTPUT` rows).
+- Resolve natural keys → surrogate keys for every fact.
+- SCD Type 2 on `DIM_LINE` when attributes change.
+- Upsert master data (`DIM_CUSTOMER`, `DIM_PRODUCT`, `DIM_ORDER`, `DIM_JOBCHANGETYPE`).
+- Populate `DIM_HOUR` (0–23) once.
+
+**Suggested package order:**  
+Master Data → JobChange → Production → Losses (unpivot) → DefectSampling → Rework
+
+---
+
+## 8. SSAS Semantic Layer (Planned)
+
+SSAS sits **between the Data Warehouse and Power BI**. It is the enterprise semantic / OLAP layer.
+
+### Why SSAS is in scope
+- Centralized, version-controlled DAX (or MDX) measures — single definition of Efficiency %, Defect Rate, Loss %, FPY, etc.
+- Hierarchies (Date, Loss Category, Product, Line) available to every report.
+- Row-level security by role (Plant Manager, Line Supervisor, Quality, etc.) enforced once.
+- Better query performance and scale as history grows across 5 lines and multiple years.
+- Power BI (and Excel, Reporting Services, etc.) connect to one trusted model instead of each developer reinventing measures.
+
+### Recommended approach
+| Choice | Recommendation | Reason |
+|---|---|---|
+| Model type | **Tabular** (DAX) | Faster to develop, native for Power BI, sufficient for current grain |
+| Deployment | SQL Server Analysis Services (on-prem) or Azure Analysis Services / Fabric | Match existing SQL Server footprint |
+| Source | DirectQuery or Import from DWH star schema | Import preferred initially for performance |
+| Security | Roles mapped to AD groups | Plant / Line / Quality visibility |
+
+### Core measures to implement in SSAS (once DWH is live)
+- Actual Pack, Design Output, Working Hours
+- Efficiency % / Performance %
+- Total Reject, Loss % by category
+- Defect Rate % = Quantity / TotalSamples (from `FACT_DEFECTSAMPLING`)
+- Job Change duration vs Target (T1 / T2)
+- Reworked Units, Rework rate
+- FPY (First Pass Yield) — derivable from existing Production + Rework data
+
+### What SSAS does **not** replace
+- Staging and DWH remain the system of record.
+- SSIS remains responsible for cleaning and key resolution.
+- Power BI remains the primary visualization and self-service tool.
+
+---
+
+## 9. Daily Operational Flow (Target)
+
+1. Shift / Quality / Process staff fill `System.xlsx` (or future role-based templates).
+2. File saved to agreed shared location (mechanism TBD).
+3. Scheduled job loads new data into Staging.
+4. SSIS transforms Staging → DWH.
+5. SSAS model processes (full or incremental).
+6. Power BI datasets refresh from SSAS (or directly from DWH during early phases).
+7. Rejected rows reviewed by data owner.
+
+---
+
+## 10. Open Decisions Still Needed
+
+1. **Loss percentage formula** — Is each of the 11 percentages a share of `TotalReject_Value`, of `DesignOutput`, of working time, or something else? Blocks all Losses KPIs.
+2. **`FactoryCode` on DailyProdLog** — Add to source sheet or permanently default in SSIS?
+3. **File delivery mechanism** — Shared folder, SharePoint, Teams, or email-in?
+4. **Final Defect Name & Downtime Reason lists** — currently draft values pending QA / Production sign-off.
+5. **SSAS timing** — Build SSAS immediately after first DWH load, or run Power BI directly on DWH for 1–2 months first?
+6. **One workbook vs multiple role-based workbooks** — operational preference still open.
+
+---
+
+## 11. Master Data Governance
+
+- One owner per dimension list (Line, Shift, Job Change Type, Loss Category, Defect, Rework Status, Downtime Reason).
+- New codes are added to `REF_` / `DIM_` tables **first**, then appear in Excel dropdowns — never the reverse.
+- Living Data Dictionary: source column → staging column → DWH column → SSAS measure / Power BI field.
+
+---
+
+## 12. Proposed Future Scope (Not Yet Designed)
+
+| Idea | Prerequisite |
+|---|---|
+| Downtime tracking (start/end timestamps) | New Excel log + new fact table |
+| Machine-level detail (finer than Line) | Business decision + source data |
+| Full OEE (Availability / Performance / Quality) | Requires downtime tracking first |
+| FPY | Achievable now from existing facts — near-term win |
+| Row-Level Security | Implement in SSAS (or Power BI) once model exists |
+
+**Recommendation:** Deliver FPY and basic RLS as soon as the core pipeline + SSAS model are live. Defer full OEE / machine-level until dedicated data capture exists.
+
+---
+
+## 13. Next Steps
+
+1. Close the open decisions in Section 10 (Loss % formula is highest priority).
+2. Fix the small source gaps (`FactoryCode`, naming consistency).
+3. Build SSIS packages in dependency order.
+4. Populate DWH and validate with sample data from `System.xlsx`.
+5. Design and deploy SSAS Tabular model (measures, hierarchies, roles).
+6. Connect Power BI to SSAS and deliver first production dashboards.
+7. Revisit future-scope items (OEE, machine-level) once the core platform is stable.
+
+---
+
+*This README is the single source of truth for the architecture. Any change to grain, keys, Excel structure, or semantic-layer scope must be reflected here first.*
